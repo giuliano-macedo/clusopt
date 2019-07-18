@@ -1,0 +1,115 @@
+root@batata:/home/llpinokio/Documents/midsc/src# python3 slave.py 10.0.0.1
+[SOCK RECV 10.0.0.2] starting
+[SOCK RECV 10.0.0.2] k_coeficient 2
+[SOCK RECV 10.0.0.2] starting
+[SOCK RECV 10.0.0.2] k_coeficient_inc 1
+[SOCK RECV 10.0.0.2] starting
+[SOCK RECV 10.0.0.2] datapoints array([[ 3.80435340e-05,  1.41514111e+00],
+       [-2.51274395e+
+/usr/local/lib/python3.7/dist-packages/sklearn/metrics/cluster/unsupervised.py:232: RuntimeWarning: invalid value encountered in subtract
+  sil_samples = inter_clust_dists - intra_clust_dists
+[SOCK SEND 10.0.0.2] silhouette (0, 2, 0.0)
+/usr/local/lib/python3.7/dist-packages/sklearn/metrics/cluster/unsupervised.py:232: RuntimeWarning: invalid value encountered in subtract
+  sil_samples = inter_clust_dists - intra_clust_dists
+[SOCK SEND 10.0.0.2] sent
+[SOCK SEND 10.0.0.2] silhouette (0, 3, 0.0)
+[SOCK SEND 10.0.0.2] sent
+/usr/local/lib/python3.7/dist-packages/sklearn/metrics/cluster/unsupervised.py:232: RuntimeWarning: invalid value encountered in subtract
+  sil_samples = inter_clust_dists - intra_clust_dists
+[SOCK SEND 10.0.0.2] silhouette (0, 2, 0.0)
+[SOCK SEND 10.0.0.2] sent
+/usr/local/lib/python3.7/dist-packages/sklearn/metrics/cluster/unsupervised.py:232: RuntimeWarning: invalid value encountered in subtract
+  sil_samples = inter_clust_dists - intra_clust_dists
+[SOCK SEND 10.0.0.2] silhouette (0, 4, 0.0)
+[SOCK SEND 10.0.0.2] sent
+[SOCK SEND 10.0.0.2] silhouette (0, 6, 0.0)
+[SOCK SEND 10.0.0.2] sent
+/usr/local/lib/python3.7/dist-packages/sklearn/metrics/cluster/unsupervised.py:232: RuntimeWarning: invalid value encountered in subtract
+  sil_samples = inter_clust_dists - intra_clust_dists
+[SOCK SEND 10.0.0.2] silhouette (0, 5, 0.0)
+[SOCK SEND 10.0.0.2] sent
+/usr/local/lib/python3.7/dist-packages/sklearn/metrics/cluster/unsupervised.py:232: RuntimeWarning: invalid value encountered in subtract
+  sil_samples = inter_clust_dists - intra_clust_dists
+[SOCK SEND 10.0.0.2] silhouette (0, 8, 0.0)
+[SOCK SEND 10.0.0.2] sent
+/usr/local/lib/python3.7/dist-packages/sklearn/metrics/cluster/unsupervised.py:232: RuntimeWarning: invalid value encountered in subtract
+  sil_samples = inter_clust_dists - intra_clust_dists
+[SOCK SEND 10.0.0.2] silhouette (0, 7, 0.0)
+[SOCK SEND 10.0.0.2] sent
+/usr/local/lib/python3.7/dist-packages/numpy/core/_methods.py:36: RuntimeWarning: overflow encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial)
+/usr/local/lib/python3.7/dist-packages/numpy/core/_methods.py:36: RuntimeWarning: overflow encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial)
+/usr/local/lib/python3.7/dist-packages/numpy/core/_methods.py:36: RuntimeWarning: overflow encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial)
+/usr/local/lib/python3.7/dist-packages/numpy/core/_methods.py:36: RuntimeWarning: overflow encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial)
+/usr/local/lib/python3.7/dist-packages/numpy/core/_methods.py:36: RuntimeWarning: overflow encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial)
+/usr/local/lib/python3.7/dist-packages/numpy/core/_methods.py:36: RuntimeWarning: overflow encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial)
+/usr/local/lib/python3.7/dist-packages/numpy/core/_methods.py:36: RuntimeWarning: overflow encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial)
+/usr/local/lib/python3.7/dist-packages/numpy/core/_methods.py:36: RuntimeWarning: overflow encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial)
+/usr/local/lib/python3.7/dist-packages/sklearn/metrics/cluster/unsupervised.py:232: RuntimeWarning: invalid value encountered in subtract
+  sil_samples = inter_clust_dists - intra_clust_dists
+/usr/local/lib/python3.7/dist-packages/numpy/core/_methods.py:36: RuntimeWarning: overflow encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial)
+[SOCK SEND 10.0.0.2] silhouette (0, 9, 0.0)
+[SOCK SEND 10.0.0.2] sent
+/usr/local/lib/python3.7/dist-packages/numpy/core/_methods.py:36: RuntimeWarning: overflow encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial)
+/usr/local/lib/python3.7/dist-packages/numpy/core/_methods.py:36: RuntimeWarning: overflow encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial)
+/usr/local/lib/python3.7/dist-packages/numpy/core/_methods.py:36: RuntimeWarning: overflow encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial)
+/usr/local/lib/python3.7/dist-packages/numpy/core/_methods.py:36: RuntimeWarning: overflow encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial)
+/usr/local/lib/python3.7/dist-packages/numpy/core/_methods.py:36: RuntimeWarning: overflow encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial)
+/usr/local/lib/python3.7/dist-packages/numpy/core/_methods.py:36: RuntimeWarning: overflow encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial)
+/usr/local/lib/python3.7/dist-packages/numpy/core/_methods.py:36: RuntimeWarning: overflow encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial)
+/usr/local/lib/python3.7/dist-packages/numpy/core/_methods.py:36: RuntimeWarning: overflow encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial)
+/usr/local/lib/python3.7/dist-packages/sklearn/metrics/cluster/unsupervised.py:232: RuntimeWarning: invalid value encountered in subtract
+  sil_samples = inter_clust_dists - intra_clust_dists
+[SOCK SEND 10.0.0.2] silhouette (0, 10, 0.0)
+[SOCK SEND 10.0.0.2] sent
+[SOCK SEND 10.0.0.2] silhouette (0, 12, 0.0)
+[SOCK SEND 10.0.0.2] sent
+[SOCK SEND 10.0.0.2] silhouette (0, 11, 0.0)
+[SOCK SEND 10.0.0.2] sent
+[SOCK RECV 10.0.0.2] starting
+ValueError: 193 is not a valid Id
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/llpinokio/Documents/midsc/src/network/Payload.py", line 29, in readFrom
+    sockid=Payload.Id(sockid)
+  File "/usr/lib/python3.7/enum.py", line 310, in __call__
+    return cls.__new__(cls, value)
+  File "/usr/lib/python3.7/enum.py", line 564, in __new__
+    raise exc
+  File "/usr/lib/python3.7/enum.py", line 548, in __new__
+    result = cls._missing_(value)
+  File "/usr/lib/python3.7/enum.py", line 577, in _missing_
+    raise ValueError("%r is not a valid %s" % (value, cls.__name__))
+ValueError: 193 is not a valid Id
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "slave.py", line 49, in <module>
+    Slave(**config).run()
+  File "slave.py", line 32, in run
+    pay=server.recv()
+  File "/home/llpinokio/Documents/midsc/src/network/Socket.py", line 15, in recv
+    ans.readFrom(self.socket)
+  File "/home/llpinokio/Documents/midsc/src/network/Payload.py", line 31, in readFrom
+    raise ValueError("Invalid socket id")
+ValueError: Invalid socket id
+root@batata:/home/llpinokio/Documents/midsc/src# 
