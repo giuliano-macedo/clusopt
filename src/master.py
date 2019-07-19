@@ -3,30 +3,34 @@ import json
 from argparse import ArgumentParser
 from threading import Thread,Lock
 from collections import namedtuple
+from namedlist import namedlist
+from itertools import chain
 from os.path import isfile
 import numpy as np
 import pandas
 from math import sqrt,ceil
 
 class Bucket:
+	Entry=namedlist("BucketEntry",["s","k","counter","msock"])
 	def __init__(self,batch_size):
 		self.lock=Lock()
 		self.batch_size=batch_size
-		self.data={} #t -> max(s),k,counter
-	def add(self,t,k,s):
+		self.data={} #t -> Bucket.Entry
+	def add(self,t,k,s,msock):
 		with self.lock:
-			mskc=self.data.get(t)
-			if mskc==None:
-				c=0
-				self.data[t]=(s,k,c+1)
+			entry=self.data.get(t)
+			if entry==None:
+				entry=Bucket.Entry(s,k,1,msock)
+				self.data[t]=entry
 			else:	
-				ms,ak,c=mskc
-				if s>ms:
-					ak=k
-					ms=s
-				self.data[t]=(ms,ak,c+1)
+				entry.counter+=1
+				if s>entry.s:
+					#update entry
+					entry.s=s
+					entry.k=k
+					entry.msock=msock
 			n=(t+1)*self.batch_size
-			return (c+1)==(ceil(sqrt(n))-1)
+			return entry.counter==(ceil(sqrt(n))-1)
 
 	def get(self,t):
 		with self.lock:
@@ -35,7 +39,10 @@ class Bucket:
 class Master:
 	def __init__(self,**config):
 		self.config=namedtuple("config",list(config.keys()))(*list(config.values()))
+		#ip_str -> msock
 		self.slaves={}
+		#t -> msock
+		self.winners={}
 		self.bucket=Bucket(self.config.batch_size)
 	def accept_handler(self,msock):
 		msock.send(Payload(Payload.Id.k_coeficient,len(self.slaves)+2))
@@ -43,17 +50,17 @@ class Master:
 		print(f"slave {msock.ip} connected")
 	def silhoete_recv_handler(self,msock):
 		while True:
-			pay=msock.recv()
+			pay=msock.recv(Payload.Id.end,Payload.Id.silhouette)
 			if pay.id==Payload.Id.end:
 				break
-			if pay.id!=Payload.Id.silhouette:
-				raise RuntimeError(f"Incorrect recieved packet ({pay.id.name})")
 			# t is the batch_counter
 			t,k,sil=pay.obj
 			print(msock.ip,t,k,round(sil,3))
-			isfull=self.bucket.add(t,k,sil)
+			isfull=self.bucket.add(t,k,sil,msock)
 			if isfull:
-				print("winner ",self.bucket.get(t))
+				bucket_winner=self.bucket.get(t)
+				print("winner",bucket_winner)
+				self.winners[t]=(bucket_winner.msock,bucket_winner.k)
 
 	def replicator_send_handler(self,msock,batch):
 		msock.send(Payload(Payload.Id.datapoints,batch))
@@ -94,19 +101,26 @@ class Master:
 				)
 				repl_threads.append(t)
 				t.start()
+		tmax=i
 		#---------------------------------------------------------------------------------
 		#send end payload
 		for slave in self.slaves.values():
 			slave.send(Payload(Payload.Id.end))
 		#---------------------------------------------------------------------------------
-		#determine winner and request labels
-		#TODO
+		#join all threads
+		for t in chain(sil_threads,repl_threads):
+			t.join()
 		#---------------------------------------------------------------------------------
-		#join everything
-		for t in sil_threads:
-			t.join()
-		for t in repl_threads:
-			t.join()
+		#determine winner and request labels
+		winner,winnerk=self.winners[tmax]
+		slave.send(Payload(Payload.Id.labels_req,winnerk))
+		print("winner label:")
+		print(winner.recv(Payload.Id.labels).obj)
+		#---------------------------------------------------------------------------------
+		#send end payload to others
+		for slave in self.slaves.values():
+			if slave is not winner:
+				slave.send(Payload(Payload.Id.end))
 		#---------------------------------------------------------------------------------
 		#close everything
 		for slave in self.slaves.values():
