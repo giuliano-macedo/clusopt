@@ -11,7 +11,7 @@ git clone https://github.com/llpinokio/midsc.git
 to get all required source files
 ### Prerequisites
 
-* python 3.7 (3.5 won't work, the project have format strings)
+* python 3.7 (3.5 won't work, some source files have format strings)
 * pip
 
 ### Installing
@@ -28,7 +28,7 @@ Explain how to run the automated tests for this system
  -->
 ## Authors
 
-* **Giuliano Oliveira** - *coder* - [llpinokio](https://github.com/llpinokio)
+* **Giuliano Oliveira** - [llpinokio](https://github.com/llpinokio)
 
 <!-- ## License
 
