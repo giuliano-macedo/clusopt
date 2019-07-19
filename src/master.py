@@ -11,22 +11,27 @@ import pandas
 from math import sqrt,ceil
 
 class Bucket:
-	Entry=namedlist("BucketEntry",["s","k","counter","msock"])
+	Entry=namedlist("BucketEntry",["sil","k","counter","msock"])
 	def __init__(self,batch_size):
 		self.lock=Lock()
 		self.batch_size=batch_size
 		self.data={} #t -> Bucket.Entry
-	def add(self,t,k,s,msock):
+	def add(self,t,k,sil,msock):
 		with self.lock:
 			entry=self.data.get(t)
 			if entry==None:
-				entry=Bucket.Entry(s,k,1,msock)
+				entry=Bucket.Entry(
+					sil=sil,
+					k=k,
+					counter=1,
+					msock=msock
+				)
 				self.data[t]=entry
 			else:	
 				entry.counter+=1
-				if s>entry.s:
+				if sil>entry.sil:
 					#update entry
-					entry.s=s
+					entry.sil=sil
 					entry.k=k
 					entry.msock=msock
 			n=(t+1)*self.batch_size
@@ -67,7 +72,7 @@ class Master:
 	def run(self):
 		config=self.config #ugly but whatever
 		server=ServerSocket(3523)
-		print("waiting for slaves press [CTRL+C] to exit")
+		print("waiting for slaves press [CTRL+C] to stop waiting")
 		try:
 			while True:
 				self.accept_handler(server.accept()) #no nedd to be multithread
@@ -113,7 +118,7 @@ class Master:
 		#---------------------------------------------------------------------------------
 		#determine winner and request labels
 		winner,winnerk=self.winners[tmax]
-		slave.send(Payload(Payload.Id.labels_req,winnerk))
+		winner.send(Payload(Payload.Id.labels_req,winnerk))
 		print("winner label:")
 		print(winner.recv(Payload.Id.labels).obj)
 		#---------------------------------------------------------------------------------
