@@ -10,7 +10,7 @@ git clone https://github.com/llpinokio/midsc.git
 to get all required source files
 ### Prerequisites
 
-* python 3.7 (3.5 won't work, some source files have format strings)
+* python 3.7 (3.5 won't work, some source files have f strings)
 * pip
 
 ### Installing
@@ -22,7 +22,10 @@ pip3 install -r requirements.txt
 ```
 
 <!-- ## Running the tests
-
+make sure you have python 3.7 on docker
+```
+docker container create python:3.7
+```
 Explain how to run the automated tests for this system
  -->
 ## Authors
