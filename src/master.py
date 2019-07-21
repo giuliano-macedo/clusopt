@@ -44,14 +44,13 @@ class Bucket:
 class Master:
 	def __init__(self,**config):
 		self.config=namedtuple("config",list(config.keys()))(*list(config.values()))
-		#ip_str -> msock
-		self.slaves={}
+		self.slaves=set()
 		#t -> msock
 		self.winners={}
 		self.bucket=Bucket(self.config.batch_size)
 	def accept_handler(self,msock):
 		msock.send(Payload(Payload.Id.k_coeficient,len(self.slaves)+2))
-		self.slaves[msock.ip]=msock
+		self.slaves.add(msock)
 		print(f"slave {msock.ip} connected")
 	def silhoete_recv_handler(self,msock):
 		while True:
@@ -81,12 +80,12 @@ class Master:
 		print(end="\r")
 		#---------------------------------------------------------------------------------
 		#send increment
-		for slave in self.slaves.values():
+		for slave in self.slaves:
 			slave.send(Payload(Payload.Id.k_coeficient_inc,len(self.slaves)))
 		#---------------------------------------------------------------------------------
 		#start silhoete receiver threads
 		sil_threads=[]
-		for i,slave in enumerate(self.slaves.values()):
+		for i,slave in enumerate(self.slaves):
 			t=Thread(
 				name=f"silhoete-{i}",
 				target=Master.silhoete_recv_handler,
@@ -98,7 +97,7 @@ class Master:
 		#start replicator sender threads
 		repl_threads=[]
 		for i,batch in enumerate(pandas.read_csv(config.input,chunksize=config.batch_size,dtype=np.float32)):
-			for j,slave in enumerate(self.slaves.values()):
+			for j,slave in enumerate(self.slaves):
 				t=Thread(
 					name=f"Replicator-{i,j}",
 					target=Master.replicator_send_handler,
@@ -109,7 +108,7 @@ class Master:
 		tmax=i
 		#---------------------------------------------------------------------------------
 		#send end payload
-		for slave in self.slaves.values():
+		for slave in self.slaves:
 			slave.send(Payload(Payload.Id.end))
 		#---------------------------------------------------------------------------------
 		#join all threads
@@ -123,12 +122,12 @@ class Master:
 		print(winner.recv(Payload.Id.labels).obj)
 		#---------------------------------------------------------------------------------
 		#send end payload to others
-		for slave in self.slaves.values():
+		for slave in self.slaves:
 			if slave is not winner:
 				slave.send(Payload(Payload.Id.end))
 		#---------------------------------------------------------------------------------
 		#close everything
-		for slave in self.slaves.values():
+		for slave in self.slaves:
 			slave.close()
 
 if __name__=="__main__":

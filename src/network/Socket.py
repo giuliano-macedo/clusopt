@@ -33,3 +33,5 @@ class Socket:
 		return f"Socket({self.ip})"
 	def __repr__(self):
 		return str(self)
+	def __hash__(self):
+		return hash(self.ip)
