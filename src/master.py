@@ -79,6 +79,7 @@ class Master:
 		except KeyboardInterrupt:
 			pass
 		print(end="\r")
+		assert len(self.slaves)!=0,"no slaves connected"
 		#---------------------------------------------------------------------------------
 		#send increment
 		for slave in self.slaves:
