@@ -6,6 +6,7 @@ from argparse import ArgumentParser
 from threading import Thread,Lock
 from core import Clusterer
 import socket
+import logging
 class Slave:
 	def __init__(self,**kwargs):
 		self.config=namedtuple("config",list(config.keys()))(*list(config.values()))
@@ -47,7 +48,10 @@ class Slave:
 if __name__=="__main__":
 	parser=ArgumentParser()
 	parser.add_argument("master_addr",help="address of the master")
+	parser.add_argument('-v','--verbose', action='store_true',help="enbale verbose")
 	args=parser.parse_args()
+	if args.verbose:
+		logging.basicConfig(format='[%(levelname)s]%(message)s',level=logging.DEBUG)
 	with open("config.json") as f:
 		config=json.load(f)
 	config=dict(**vars(args),**config)

@@ -9,6 +9,7 @@ from os.path import isfile
 import numpy as np
 import pandas
 from math import sqrt,ceil
+import logging
 
 class Bucket:
 	Entry=namedlist("BucketEntry",["sil","k","counter","msock"])
@@ -133,7 +134,10 @@ class Master:
 if __name__=="__main__":
 	parser=ArgumentParser()
 	parser.add_argument("input",help="path or url of the comma-separated dataset")
+	parser.add_argument('-v','--verbose', action='store_true',help="enbale verbose")
 	args=parser.parse_args()
+	if args.verbose:
+		logging.basicConfig(format='[%(levelname)s]%(message)s',level=logging.DEBUG)
 	if not isfile(args.input):
 		raise FileNotFoundError(args.input)
 	with open("config.json") as f:
