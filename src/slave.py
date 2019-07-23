@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from network import Payload,ClientSocket
 import numpy as np
 import json
@@ -8,7 +9,7 @@ from core import Clusterer
 import socket
 import logging
 class Slave:
-	def __init__(self,**kwargs):
+	def __init__(self,**config):
 		self.config=namedtuple("config",list(config.keys()))(*list(config.values()))
 	def run(self,server):
 		config=self.config
