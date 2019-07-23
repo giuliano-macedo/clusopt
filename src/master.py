@@ -1,4 +1,5 @@
-from network import ServerSocket,Payload
+#!/usr/bin/env python3
+from network import ServerSocket,Payload,Ship
 import json
 from argparse import ArgumentParser
 from threading import Thread,Lock
@@ -49,6 +50,7 @@ class Master:
 		#t -> msock
 		self.winners={}
 		self.bucket=Bucket(self.config.batch_size)
+		self.ship=Ship(self.config.number_nodes)
 	def accept_handler(self,msock):
 		msock.send(Payload(Payload.Id.k_coeficient,len(self.slaves)+2))
 		self.slaves.add(msock)
@@ -71,6 +73,12 @@ class Master:
 		msock.send(Payload(Payload.Id.datapoints,batch))
 	def run(self):
 		config=self.config #ugly but whatever
+		#---------------------------------------------------------------------------------
+		#connect docker nodes
+		for msock in self.ship.get_node_sockets():
+			self.accept_handler(msock)
+		#---------------------------------------------------------------------------------
+		#connect local nodes
 		server=ServerSocket(3523)
 		print("waiting for slaves press [CTRL+C] to stop waiting")
 		try:
@@ -129,12 +137,16 @@ class Master:
 				slave.send(Payload(Payload.Id.end))
 		#---------------------------------------------------------------------------------
 		#close everything
+		print("closing everything")
 		for slave in self.slaves:
 			slave.close()
+		self.ship.save_logs()
+		self.ship.close()
 
 if __name__=="__main__":
 	parser=ArgumentParser()
 	parser.add_argument("input",help="path or url of the comma-separated dataset")
+	parser.add_argument('-n','--number_nodes', type=int,help="number of docker nodes")
 	parser.add_argument('-v','--verbose', action='store_true',help="enbale verbose")
 	args=parser.parse_args()
 	if args.verbose:
@@ -145,3 +157,4 @@ if __name__=="__main__":
 		config=json.load(f)
 	config=dict(**vars(args),**config)
 	Master(**config).run()
+	
