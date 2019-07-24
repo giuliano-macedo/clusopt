@@ -11,7 +11,6 @@ import numpy as np
 import pandas
 from math import sqrt,ceil
 import logging
-import time
 from utils import save_to_csv,Timer
 class Bucket:
 	Entry=namedlist("BucketEntry",["sil","k","counter","msock","timer"])

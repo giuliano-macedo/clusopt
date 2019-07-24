@@ -1,3 +1,4 @@
+import time
 def save_to_csv(filename,fmt,data,header=None):
 	crlf="\r\n"
 	fmt+=crlf
