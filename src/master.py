@@ -11,9 +11,10 @@ import numpy as np
 import pandas
 from math import sqrt,ceil
 import logging
-
+import time
+from utils import save_to_csv,Timer
 class Bucket:
-	Entry=namedlist("BucketEntry",["sil","k","counter","msock"])
+	Entry=namedlist("BucketEntry",["sil","k","counter","msock","timer"])
 	def __init__(self,batch_size):
 		self.lock=Lock()
 		self.batch_size=batch_size
@@ -26,9 +27,11 @@ class Bucket:
 					sil=sil,
 					k=k,
 					counter=1,
-					msock=msock
+					msock=msock,
+					timer=Timer()
 				)
 				self.data[t]=entry
+				entry.timer.start()
 			else:	
 				entry.counter+=1
 				if sil>entry.sil:
@@ -37,11 +40,21 @@ class Bucket:
 					entry.k=k
 					entry.msock=msock
 			n=(t+1)*self.batch_size
-			return entry.counter==(ceil(sqrt(n))-1)
-
+			isfull=(entry.counter==(ceil(sqrt(n))-1))
+			if isfull:
+				entry.timer.stop()
+			return isfull
 	def get(self,t):
 		with self.lock:
 			return self.data.get(t)
+	def save_logs(self,filename):
+		print(f"saving {len(self.data)} items")
+		save_to_csv(
+			filename,
+			"%i,%e,%i,%i,%i",
+			((t,entry.sil,entry.k,entry.counter,entry.timer.t) for t,entry in self.data.items()),
+			header="batch_counter,silhouette,k,entry_counter,time"
+		)
 
 class Master:
 	def __init__(self,**config):
@@ -51,6 +64,7 @@ class Master:
 		self.winners={}
 		self.bucket=Bucket(self.config.batch_size)
 		self.ship=Ship(self.config.number_nodes)
+		self.overall_timer=Timer()
 	def accept_handler(self,msock):
 		msock.send(Payload(Payload.Id.k_coeficient,len(self.slaves)+2))
 		self.slaves.add(msock)
@@ -67,7 +81,7 @@ class Master:
 			if isfull:
 				bucket_winner=self.bucket.get(t)
 				print("winner",bucket_winner)
-				self.winners[t]=(bucket_winner.msock,bucket_winner.k)
+				self.winners[t]=bucket_winner
 
 	def replicator_send_handler(self,msock,batch):
 		msock.send(Payload(Payload.Id.datapoints,batch))
@@ -88,6 +102,7 @@ class Master:
 			pass
 		print(end="\r")
 		assert len(self.slaves)!=0,"no slaves connected"
+		self.overall_timer.start()
 		#---------------------------------------------------------------------------------
 		#send increment
 		for slave in self.slaves:
@@ -126,14 +141,20 @@ class Master:
 			t.join()
 		#---------------------------------------------------------------------------------
 		#determine winner and request labels
-		winner,winnerk=self.winners[tmax]
-		winner.send(Payload(Payload.Id.labels_req,winnerk))
+		winner=self.winners[tmax]
+		winner.msock.send(Payload(Payload.Id.labels_req,winner.k))
+		winner_label=winner.msock.recv(Payload.Id.labels).obj
+		#---------------------------------------------------------------------------------
+		#log everything
+		t=self.overall_timer.stop()
+		save_to_csv("overall.csv","%i,%e",[[t,winner.sil]],header="time,silhouette")
+		self.bucket.save_logs("buckets.csv")
 		print("winner label:")
-		print(winner.recv(Payload.Id.labels).obj)
+		print(winner_label)
 		#---------------------------------------------------------------------------------
 		#send end payload to others
 		for slave in self.slaves:
-			if slave is not winner:
+			if slave is not winner.msock:
 				slave.send(Payload(Payload.Id.end))
 		#---------------------------------------------------------------------------------
 		#close everything
