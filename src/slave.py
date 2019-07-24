@@ -5,7 +5,7 @@ import json
 from collections import namedtuple
 from argparse import ArgumentParser
 from threading import Thread,Lock
-from core import Clusterer
+from core import Clusterer,CarriageClusterer
 import socket
 import logging
 class Slave:
@@ -21,7 +21,7 @@ class Slave:
 		pay=server.recv(Payload.Id.k_coeficient_inc)
 		kci=pay.obj
 
-		clusterer=Clusterer(kc,kci,config.batch_size)
+		clusterer=Clusterer(kc,kci,config.batch_size) if not config.carriage else CarriageClusterer(kc,kci,config.batch_size)
 		#---------------------------------------------------------------------------------
 		#for every payload calc sil_score
 		bc=0
