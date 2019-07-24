@@ -2,37 +2,48 @@
 
 Micro service Infrastructure for Data Stream Clustering
 
-## Getting Started
-Just use
-```
-git clone https://github.com/llpinokio/midsc.git
-```
-to get all required source files
-### Prerequisites
+## Prerequisites
 
 * python 3.7 (3.5 won't work, some source files have f strings)
 * pip
+* docker
 
-### Installing
+## Installing
 
 Install all dependecies described in requirements.txt using pip as root user
 
-```
+```bash
 pip3 install -r requirements.txt
 ```
 
-<!-- ## Running the tests
-make sure you have python 3.7 on docker
+and if you use docker nodes make sure to log in with your docker account with
+
+```bash
+docker login
 ```
-docker container create python:3.7
+and have pulled python image and built this repo
+
+```bash
+docker pull python:3.7.3
+docker build -t python:3.7.3 -f dockerfile .
 ```
-Explain how to run the automated tests for this system
- -->
-## Authors
 
-* **Giuliano Oliveira** - [llpinokio](https://github.com/llpinokio)
+## Usage
+cd to the src with directory 
 
-<!-- ## License
+```bash
+cd src
+```
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
- -->
+and
+to run master node, use `-h` flag for more options
+```bash
+./master.py [PATH OR URL TO CSV FILE]
+```
+to run slave node, use `-h` flag for more options
+```bash
+./master [IP ADDRESS TO THE MASTER NODE]
+```
+<!-- ## Authors
+
+* **Giuliano Oliveira** - [llpinokio](https://github.com/llpinokio) -->
