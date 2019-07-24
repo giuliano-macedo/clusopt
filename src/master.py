@@ -166,7 +166,7 @@ class Master:
 if __name__=="__main__":
 	parser=ArgumentParser()
 	parser.add_argument("input",help="path or url of the comma-separated dataset")
-	parser.add_argument('-n','--number_nodes', type=int,help="number of docker nodes")
+	parser.add_argument('-n','--number_nodes', type=int,help="number of docker nodes",default=0)
 	parser.add_argument('-v','--verbose', action='store_true',help="enbale verbose")
 	args=parser.parse_args()
 	if args.verbose:
