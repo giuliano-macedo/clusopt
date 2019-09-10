@@ -1,6 +1,15 @@
 from enum import IntEnum
 import numpy as np
 import struct
+def recvall(sock, n):
+    # Helper function to recv n bytes or return None if EOF is hit
+    data = b''
+    while len(data) < n:
+        packet = sock.recv(n - len(data))
+        if not packet:
+            return None
+        data += packet
+    return data
 class Payload:
 	class Id(IntEnum):
 		ok=					0
@@ -37,13 +46,13 @@ class Payload:
 			#read two uint32
 			m,n=struct.unpack("II",sock.recv(8))
 			#read float32 matrix
-			data=bytearray(sock.recv(m*n*4))
+			data=bytearray(recvall(sock,m*n*4))
 			self.obj=np.frombuffer(data,dtype=np.float32).reshape((m, n))
 		elif self.id==Payload.Id.labels:
 			#read uint32
 			m,=struct.unpack("I",sock.recv(4))
 			#read uint32 vector
-			data=bytearray(sock.recv(m*4))
+			data=bytearray(recvall(sock,m*4))
 			self.obj=np.frombuffer(data,dtype=np.uint32).reshape((m))
 		elif self.id==Payload.Id.silhouette:
 			#read uint32 and uint32 and float32

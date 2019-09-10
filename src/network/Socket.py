@@ -1,6 +1,7 @@
 from threading import Lock
 from .Payload import Payload
 import logging
+import numpy as np
 class Socket:
 	def __init__(self,socket,timeout=0):
 		self.read_lock=Lock()
@@ -18,11 +19,19 @@ class Socket:
 				raise RuntimeError(f"Unexpected payload {ans.id}")
 			if ans.id==Payload.Id.err:
 				raise RuntimeError(f"Host {self.ip} sent a err payload")
-			logging.debug(f"[SOCK RECV {self.ip}] {ans.id.name} {repr(ans.obj)[:64]}")
+			if type(ans.obj)==np.ndarray:
+				pay_type=f"ndarray with shape={ans.obj.shape}"
+			else:
+				pay_type=repr(ans.obj)[:64]
+			logging.debug(f"[SOCK RECV {self.ip}] {ans.id.name} {pay_type}")
 			return ans
 	def send(self,pay):
 		with self.write_lock:
-			logging.debug(f"[SOCK SEND {self.ip}] {pay.id.name} {repr(pay.obj)[:64]}")
+			if type(pay.obj)==np.ndarray:
+				pay_type=f"ndarray with shape={pay.obj.shape}"
+			else:
+				pay_type=repr(pay.obj)[:64]
+			logging.debug(f"[SOCK SEND {self.ip}] {pay.id.name} {pay_type}")
 			pay.sendTo(self.socket)
 			logging.debug(f"[SOCK SEND {self.ip}] sent")
 	def close(self):

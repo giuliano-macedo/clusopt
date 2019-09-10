@@ -1,4 +1,4 @@
 {
-	"batch_size":500,
+	"batch_size":1000,
 	"carriage":false
 }

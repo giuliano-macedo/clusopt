@@ -149,6 +149,7 @@ class Master:
 		save_to_csv("overall.csv","%i,%e",[[t,winner.sil]],header="time,silhouette")
 		self.bucket.save_logs("buckets.csv")
 		print("winner label:")
+		np.savetxt("labels.csv", winner_label, delimiter=",")
 		print(winner_label)
 		#---------------------------------------------------------------------------------
 		#send end payload to others

@@ -1,4 +1,3 @@
-import docker
 from time import sleep
 from . import ClientSocket
 
@@ -7,8 +6,12 @@ class Ship:
 		self.n=n
 		self.timeout=timeout
 		self.tries=tries
-		self.client=docker.from_env()
 		self.containers=[]
+
+		if self.n==0:
+			return
+		import docker
+		self.client=docker.from_env()
 		for i in range(self.n):
 			self.containers.append(self.__create_container())
 	def __create_container(self):
