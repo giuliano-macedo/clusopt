@@ -42,6 +42,7 @@ class Shelve:
 			n_clusters=k,
 			# batch_size=batch_size
 			)
+		self.batch_size=batch_size
 		self.labels=np.empty(0)
 	def add(self,batch):
 		self.clusterer.partial_fit(batch)
@@ -52,4 +53,4 @@ class Shelve:
 		self.labels.resize((n+len(self.clusterer.labels_)))
 		self.labels[n:]=self.clusterer.labels_
 	def get_score(self,datapoints):
-		return silhouette_score(datapoints,self.labels)
+		return silhouette_score(datapoints[-self.batch_size:],self.labels[-self.batch_size:])
