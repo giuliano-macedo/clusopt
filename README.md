@@ -16,17 +16,15 @@ Install all dependecies described in requirements.txt using pip as root user
 pip3 install -r requirements.txt
 ```
 
-and if you use docker nodes make sure to log in with your docker account with
+and if you use remote nodes, create a file `remote_nodes.txt` in the `src` dir and put the ip addresses of your nodes.
 
-```bash
-docker login
-```
-and have pulled python image and built this repo
-
+Your nodes must be running midsc container in docker, to do so use the following commands on each remote node
 ```bash
 docker pull python:3.7.3
-docker build -t python:3.7.3 -f dockerfile .
+docker build -t midsc .
+docker run -p 3523:3523 midsc
 ```
+then use `-n` flag to set how many nodes you want to use in the master node
 
 ## Usage
 cd to the src with directory 
