@@ -43,15 +43,22 @@ class Shelve:
 	def add(self,batch):
 		self.clusterer.partial_fit(batch)
 		if not self.labels.any():
-			self.labels=self.clusterer.labels_
+			self.labels=self.clusterer.labels_.astype(np.uint8)
 			return
 		n=len(self.labels)
-		self.labels.resize((n+len(self.clusterer.labels_)))
+		self.labels.resize((n+len(self.clusterer.labels_.astype(np.uint8))))
 		self.labels[n:]=self.clusterer.labels_
-		print("last labels :",self.clusterer.labels_)
 	def get_score(self,batch):
+		l=len(batch)
 		try:
-			return silhouette_score(batch,self.labels[-self.batch_size:])
-		except Exception as e:
-			print(e)
-			breakpoint()
+			return silhouette_score(batch,self.labels[-l:])
+		except ValueError as e: #all values in labels are identical
+			self.labels[-1]+=1
+			try:
+				ans=silhouette_score(batch,self.labels[-l:])
+			except Exception as e:
+				self.labels[-1]-=1
+				print("ERROR COMPUTING SILHOUETTE, RETURNING -1")
+				return -1
+			self.labels[-1]-=1
+			return ans
