@@ -8,7 +8,9 @@ from threading import Thread,Lock
 from core import Clusterer,CarriageClusterer
 import socket
 import logging
+		
 class Slave:
+
 	def __init__(self,**config):
 		self.config=namedtuple("config",list(config.keys()))(*list(config.values()))
 	def run(self,server):
@@ -34,17 +36,21 @@ class Slave:
 			bc+=1
 		server.send(Payload(Payload.Id.end))
 		#---------------------------------------------------------------------------------
-		#check if is winner
-		pay=server.recv(Payload.Id.labels_req,Payload.Id.end)
-		if pay.id==Payload.Id.labels_req:
-			print("i am the winner")
-			winner_shelve=next((shelve for shelve in clusterer.drawer if shelve.k==pay.obj),None) #SLOW
-			if winner_shelve==None:
-				server.send(Payload(Payload.Id.err))
-				raise RuntimeError(f"Requested k not found ({pay.obj}) ks available {[o.k for o in clusterer.drawer]}")
-			server.send(Payload(Payload.Id.labels,winner_shelve.labels))
-		else:
-			print("i am not the winner")
+		#check if is winner for some k ands t
+		while True:
+			pay=server.recv(Payload.Id.labels_req,Payload.Id.end)
+			if pay.id==Payload.Id.labels_req:
+				t,k=pay.obj
+				print(f"i am the winner for t={t} and k={k}")
+				winner_shelve=next((shelve for shelve in clusterer.drawer if shelve.k==k),None) #TODO O(N) but not that slow
+				if winner_shelve==None:
+					server.send(Payload(Payload.Id.err))
+					raise RuntimeError(f"Requested k not found ({pay.obj}) ks available {[o.k for o in clusterer.drawer]}")
+				tbatch_size=t*config.batch_size
+				tbatch_size_plus=(t+1)*config.batch_size
+				server.send(Payload(Payload.Id.labels,winner_shelve.labels[tbatch_size:tbatch_size_plus]))
+			elif pay.id==Payload.Id.end:
+				break
 
 if __name__=="__main__":
 	parser=ArgumentParser()

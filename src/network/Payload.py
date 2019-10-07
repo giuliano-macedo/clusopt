@@ -51,15 +51,17 @@ class Payload:
 		elif self.id==Payload.Id.labels:
 			#read uint32
 			m,=struct.unpack("I",sock.recv(4))
-			#read uint32 vector
-			data=bytearray(recvall(sock,m*4))
-			self.obj=np.frombuffer(data,dtype=np.uint32).reshape((m))
+			#read uint8 vector
+			data=bytearray(recvall(sock,m))
+			self.obj=np.frombuffer(data,dtype=np.uint8).reshape((m))
 		elif self.id==Payload.Id.silhouette:
 			#read uint32 and uint32 and float32
 			self.obj=struct.unpack("IIf",sock.recv(12))
-		elif self.id in {Payload.Id.k_coeficient,Payload.Id.k_coeficient_inc,Payload.Id.labels_req}:
+		elif self.id in {Payload.Id.k_coeficient,Payload.Id.k_coeficient_inc}:
 			#read uint32
 			self.obj,=struct.unpack("I",sock.recv(4))
+		elif self.id==Payload.Id.labels_req:
+			self.obj=struct.unpack("II",sock.recv(8))
 	def sendTo(self,sock):
 		buff=bytearray()
 		buff+=(struct.pack("B",self.id.value))
@@ -71,6 +73,8 @@ class Payload:
 			buff+=(self.obj.tobytes())
 		elif self.id==Payload.Id.silhouette:
 			buff+=(struct.pack("IIf",*self.obj))
-		elif self.id in {Payload.Id.k_coeficient,Payload.Id.k_coeficient_inc,Payload.Id.labels_req}:
+		elif self.id in {Payload.Id.k_coeficient,Payload.Id.k_coeficient_inc}:
 			buff+=(struct.pack("I",self.obj))
+		elif self.id ==Payload.Id.labels_req:
+			buff+=(struct.pack("II",*self.obj))
 		sock.sendall(buff)
