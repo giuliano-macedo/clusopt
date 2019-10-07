@@ -1,10 +1,10 @@
 # MIDSC
 
-Micro service Infrastructure for Data Stream Clustering
+Micro service Infrastructure for Data Stream Clustering.
 
 ## Prerequisites
 
-* python 3.7 (3.5 won't work, some source files have f strings)
+* python 3.7 (3.5 won't work, some source files have Literal String Interpolation)
 * pip
 * docker
 
