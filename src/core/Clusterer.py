@@ -48,5 +48,10 @@ class Shelve:
 		n=len(self.labels)
 		self.labels.resize((n+len(self.clusterer.labels_)))
 		self.labels[n:]=self.clusterer.labels_
-	def get_score(self,datapoints):
-		return silhouette_score(datapoints[-self.batch_size:],self.labels[-self.batch_size:])
+		print("last labels :",self.clusterer.labels_)
+	def get_score(self,batch):
+		try:
+			return silhouette_score(batch,self.labels[-self.batch_size:])
+		except Exception as e:
+			print(e)
+			breakpoint()

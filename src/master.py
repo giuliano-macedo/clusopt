@@ -1,59 +1,17 @@
 #!/usr/bin/env python3
 from network import ServerSocket,Payload,Ship
 import json
+from core import CarriageBucket,Bucket
 from argparse import ArgumentParser
-from threading import Thread,Lock
+from threading import Thread
 from collections import namedtuple
 from namedlist import namedlist
 from itertools import chain
 from os.path import isfile
 import numpy as np
 import pandas
-from math import sqrt,ceil
 import logging
 from utils import save_to_csv,Timer
-class Bucket:
-	Entry=namedlist("BucketEntry",["sil","k","counter","msock","timer"])
-	def __init__(self,batch_size):
-		self.lock=Lock()
-		self.batch_size=batch_size
-		self.data={} #t -> Bucket.Entry
-	def add(self,t,k,sil,msock):
-		with self.lock:
-			entry=self.data.get(t)
-			if entry==None:
-				entry=Bucket.Entry(
-					sil=sil,
-					k=k,
-					counter=1,
-					msock=msock,
-					timer=Timer()
-				)
-				self.data[t]=entry
-				entry.timer.start()
-			else:	
-				entry.counter+=1
-				if sil>entry.sil:
-					#update entry
-					entry.sil=sil
-					entry.k=k
-					entry.msock=msock
-			n=(t+1)*self.batch_size
-			isfull=(entry.counter==(ceil(sqrt(n))-1))
-			if isfull:
-				entry.timer.stop()
-			return isfull
-	def get(self,t):
-		with self.lock:
-			return self.data.get(t)
-	def save_logs(self,filename):
-		print(f"saving {len(self.data)} items")
-		save_to_csv(
-			filename,
-			"%i,%e,%i,%i,%i",
-			((t,entry.sil,entry.k,entry.counter,entry.timer.t) for t,entry in self.data.items()),
-			header="batch_counter,silhouette,k,entry_counter,time"
-		)
 
 class Master:
 	def __init__(self,**config):
@@ -61,7 +19,7 @@ class Master:
 		self.slaves=set()
 		#t -> msock
 		self.winners={}
-		self.bucket=Bucket(self.config.batch_size)
+		self.bucket=CarriageBucket(self.config.batch_size) if self.config.carriage else Bucket(self.config.batch_size)
 		self.ship=Ship(self.config.number_nodes)
 		self.overall_timer=Timer()
 	def accept_handler(self,msock):
