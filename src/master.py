@@ -16,6 +16,8 @@ from utils import save_to_csv,Timer
 class Master:
 	def __init__(self,**config):
 		self.config=namedtuple("config",list(config.keys()))(*list(config.values()))
+		if self.config.carriage:
+			raise RuntimeError("Not implemented")
 		self.slaves=set()
 		#t -> msock
 		self.winners={}
