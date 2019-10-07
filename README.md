@@ -10,14 +10,14 @@ Micro service Infrastructure for Data Stream Clustering
 
 ## Installing
 
-Install all dependecies described in requirements.txt using pip as root user
+Install all dependecies described in `requirements.txt` using pip
 
 ```bash
 pip3 install -r requirements.txt
 ```
 
-and if you use remote nodes, create a file `remote_nodes.txt` in the `src` dir and put the ip addresses of your nodes.
-
+And if you want to use remote nodes, create a file `remote_nodes.txt` in the `src` directory and put all
+the ip addresses of your remote nodes.
 Your nodes must be running midsc container in docker, to do so use the following commands on each remote node
 ```bash
 docker pull python:3.7.3
