@@ -1,11 +1,13 @@
 from time import sleep
 from . import ClientSocket
+import os
 
 class Ship:
 	def __init__(self,n,tries=15):
 		self.n=n
 		self.tries=tries
-		self.ips=open("remote_nodes.txt").read().split("\n")[:self.n]
+		fname="remote_nodes.txt"
+		self.ips=open(fname).read().strip().split("\n")[:self.n] if os.path.isfile(fname) else []
 		
 	def get_node_sockets(self):
 		for ip in self.ips:
