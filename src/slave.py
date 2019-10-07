@@ -8,7 +8,6 @@ from threading import Thread,Lock
 from core import Clusterer,CarriageClusterer
 import socket
 import logging
-import time
 class Slave:
 	def __init__(self,**config):
 		self.config=namedtuple("config",list(config.keys()))(*list(config.values()))
@@ -46,7 +45,6 @@ class Slave:
 			server.send(Payload(Payload.Id.labels,winner_shelve.labels))
 		else:
 			print("i am not the winner")
-		time.sleep(1)
 
 if __name__=="__main__":
 	parser=ArgumentParser()

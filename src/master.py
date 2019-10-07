@@ -87,7 +87,7 @@ class Master:
 	def run(self):
 		config=self.config #ugly but whatever
 		#---------------------------------------------------------------------------------
-		#connect docker nodes
+		#connect remote nodes
 		for msock in self.ship.get_node_sockets():
 			self.accept_handler(msock)
 		#---------------------------------------------------------------------------------
@@ -161,8 +161,6 @@ class Master:
 		print("closing everything")
 		for slave in self.slaves:
 			slave.close()
-		self.ship.save_logs()
-		self.ship.close()
 
 if __name__=="__main__":
 	parser=ArgumentParser()

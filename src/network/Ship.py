@@ -2,41 +2,16 @@ from time import sleep
 from . import ClientSocket
 
 class Ship:
-	def __init__(self,n,timeout=0,tries=15):
+	def __init__(self,n,tries=15):
 		self.n=n
-		self.timeout=timeout
 		self.tries=tries
-		self.containers=[]
-
-		if self.n==0:
-			return
-		import docker
-		self.client=docker.from_env()
-		for i in range(self.n):
-			self.containers.append(self.__create_container())
-	def __create_container(self):
-		name=f"midsc-container{len(self.containers)+1}"
-		print(f"creating container {name}")
-		return self.client.containers.run(
-			"python:3.7.3",
-			["python","container.py"],
-			working_dir="/midsc/src/",
-			detach=True,
-			name=name,
-			# cpu_period (int) – The length of a CPU period in microseconds.
-			# cpu_quota (int) – Microseconds of CPU time that the container can get in a CPU period.
-			# cpu_rt_period (int) – Limit CPU real-time period in microseconds.
-			# cpu_rt_runtime (int) – Limit CPU real-time runtime in microseconds.
-			# cpu_shares (int) – CPU shares (relative weight).
-		)
+		self.ips=open("remote_nodes.txt").read().split("\n")[:self.n]
+		
 	def get_node_sockets(self):
-		for container in self.containers:
-			container.reload() # https://github.com/docker/docker-py/issues/1375
-			ip=container.attrs["NetworkSettings"]["Networks"]["bridge"]["IPAddress"]
-			assert ip!="",f"Error getting container {container.name} ip"
+		for ip in self.ips:
 			ans=None
 			for i in range(self.tries):
-				print(f"trying to connect to {ip} ({i+1})")
+				print(f"trying to connect to {ip}:3523 ({i+1})")
 				try:
 					ans=ClientSocket(ip,3523)
 					break
@@ -44,16 +19,5 @@ class Ship:
 					# print(e)
 					sleep(2)
 					pass
-			assert ans!=None,f"Error connecting to {container.name}"
+			assert ans!=None,f"Error connecting to {ip}"
 			yield ans
-	def save_logs(self):
-		for container in self.containers:
-			with open(f"{container.name}.log","wb") as f:
-				f.write(container.logs())
-	def close(self):
-		for container in self.containers:
-			try:
-				container.kill()
-			except Exception: #it can be already killed
-				pass
-			container.remove()
