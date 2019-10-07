@@ -119,10 +119,9 @@ class Master:
 		np.savetxt("labels.csv", np.asarray(winner_label), delimiter=",",fmt="%u")
 		print(winner_label)
 		#---------------------------------------------------------------------------------
-		#send end payload to others
+		#send end payload to everyone
 		for slave in self.slaves:
-			if slave is not winner.msock:
-				slave.send(Payload(Payload.Id.end))
+			slave.send(Payload(Payload.Id.end))
 		#---------------------------------------------------------------------------------
 		#close everything
 		print("closing everything")
