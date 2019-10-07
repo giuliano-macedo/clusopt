@@ -99,17 +99,24 @@ class Master:
 		for t in chain(sil_threads,repl_threads):
 			t.join()
 		#---------------------------------------------------------------------------------
-		#determine winner and request labels
-		winner=self.winners[tmax]
-		winner.msock.send(Payload(Payload.Id.labels_req,winner.k))
-		winner_label=winner.msock.recv(Payload.Id.labels).obj
+		#determine winners and request labels
+		assert len(self.winners)==tmax+1,(len(self.winners),tmax+1)
+		winner_label=[]
+		for t,winner in enumerate(self.winners.values()):
+			print(t,winner)
+			print(f"requesting labels for {winner.msock} on k={winner.k} and time={t}")
+			winner.msock.send(Payload(Payload.Id.labels_req,(t,winner.k)))
+			labels=winner.msock.recv(Payload.Id.labels).obj
+			print(f"got labels {labels[:30]}...")
+			winner_label+=list(labels) #TODO probably slow
+
 		#---------------------------------------------------------------------------------
 		#log everything
 		t=self.overall_timer.stop()
 		save_to_csv("overall.csv","%i,%e",[[t,winner.sil]],header="time,silhouette")
 		self.bucket.save_logs("buckets.csv")
 		print("winner label:")
-		np.savetxt("labels.csv", winner_label, delimiter=",")
+		np.savetxt("labels.csv", np.asarray(winner_label), delimiter=",",fmt="%u")
 		print(winner_label)
 		#---------------------------------------------------------------------------------
 		#send end payload to others
