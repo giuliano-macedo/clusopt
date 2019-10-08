@@ -40,7 +40,7 @@ class Master:
 			isfull=self.bucket.add(t,k,sil,msock)
 			if isfull:
 				bucket_winner=self.bucket.get(t)
-				print("winner",bucket_winner)
+				print(f"winner on t={t} {bucket_winner}")
 				self.winners[t]=bucket_winner
 
 	def replicator_send_handler(self,msock,batch,compressed):
@@ -82,6 +82,7 @@ class Master:
 		#start replicator sender threads
 		repl_threads=[]
 		for i,batch in enumerate(pandas.read_csv(config.input,chunksize=config.batch_size,dtype=np.float32)):
+			print(f"t={i} sending {len(batch.values)} points")
 			compressed=zlib.compress(batch.values.tobytes(),level=1)
 			for j,slave in enumerate(self.slaves):
 				t=Thread(
@@ -92,17 +93,21 @@ class Master:
 				repl_threads.append(t)
 				t.start()
 		tmax=i
+		#join sends
+		for t in repl_threads:
+			t.join()
 		#---------------------------------------------------------------------------------
 		#send end payload
 		for slave in self.slaves:
 			slave.send(Payload(Payload.Id.end))
 		#---------------------------------------------------------------------------------
-		#join all threads
-		for t in chain(sil_threads,repl_threads):
+		#join recvs
+		for t in sil_threads:
 			t.join()
 		#---------------------------------------------------------------------------------
 		#determine winners and request labels
-		assert len(self.winners)==tmax+1,(len(self.winners),tmax+1)
+		if len(self.winners)!=tmax+1:
+			logging.warning(f"Didn't recieve all t callbacks {len(self.winners),tmax+1}")
 		winner_label=[]
 		for t,winner in enumerate(self.winners.values()):
 			print(f"requesting labels for {winner.msock} on k={winner.k} and time={t}")
@@ -113,11 +118,12 @@ class Master:
 		#---------------------------------------------------------------------------------
 		#log everything
 		t=self.overall_timer.stop()
+		print("saving overall.csv...")
 		save_to_csv("overall.csv","%i,%e",[[t,winner.sil]],header="time,silhouette")
+		print("saving buckets.csv...")
 		self.bucket.save_logs("buckets.csv")
-		print("winner label:")
+		print("saving labels.csv...")
 		np.savetxt("labels.csv", np.asarray(winner_label), delimiter=",",fmt="%u")
-		print(winner_label)
 		#---------------------------------------------------------------------------------
 		#send end payload to everyone
 		for slave in self.slaves:

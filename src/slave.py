@@ -30,9 +30,11 @@ class Slave:
 		while True:
 			pay=server.recv(Payload.Id.datapoints,Payload.Id.end)
 			if pay.id==Payload.Id.end:
+				print(f"ended with {bc}")
 				break
 			for k,sil in clusterer.add_and_get_score(pay.obj):
 				server.send(Payload(Payload.Id.silhouette,(bc,k,sil)))
+			print(f"i am finished with t={bc}")
 			bc+=1
 		server.send(Payload(Payload.Id.end))
 		#---------------------------------------------------------------------------------
