@@ -11,6 +11,7 @@ from os.path import isfile
 import numpy as np
 import pandas
 import logging
+import zlib
 from utils import save_to_csv,Timer
 
 class Master:
@@ -42,8 +43,8 @@ class Master:
 				print("winner",bucket_winner)
 				self.winners[t]=bucket_winner
 
-	def replicator_send_handler(self,msock,batch):
-		msock.send(Payload(Payload.Id.datapoints,batch))
+	def replicator_send_handler(self,msock,batch,compressed):
+		msock.send(Payload(Payload.Id.datapoints,(batch,compressed)))
 	def run(self):
 		config=self.config #ugly but whatever
 		#---------------------------------------------------------------------------------
@@ -81,11 +82,12 @@ class Master:
 		#start replicator sender threads
 		repl_threads=[]
 		for i,batch in enumerate(pandas.read_csv(config.input,chunksize=config.batch_size,dtype=np.float32)):
+			compressed=zlib.compress(batch.values.tobytes(),level=1)
 			for j,slave in enumerate(self.slaves):
 				t=Thread(
 					name=f"Replicator-{i,j}",
 					target=Master.replicator_send_handler,
-					args=(self,slave,batch.values,)
+					args=(self,slave,batch.values,compressed)
 				)
 				repl_threads.append(t)
 				t.start()
@@ -103,13 +105,11 @@ class Master:
 		assert len(self.winners)==tmax+1,(len(self.winners),tmax+1)
 		winner_label=[]
 		for t,winner in enumerate(self.winners.values()):
-			print(t,winner)
 			print(f"requesting labels for {winner.msock} on k={winner.k} and time={t}")
 			winner.msock.send(Payload(Payload.Id.labels_req,(t,winner.k)))
 			labels=winner.msock.recv(Payload.Id.labels).obj
 			print(f"got labels {labels[:30]}...")
 			winner_label+=list(labels) #TODO probably slow
-
 		#---------------------------------------------------------------------------------
 		#log everything
 		t=self.overall_timer.stop()

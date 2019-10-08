@@ -1,4 +1,5 @@
 from enum import IntEnum
+import zlib
 import numpy as np
 import struct
 def recvall(sock, n):
@@ -43,10 +44,10 @@ class Payload:
 			raise ValueError("Invalid socket id")
 		self.id=sockid
 		if self.id==Payload.Id.datapoints:
-			#read two uint32
-			m,n=struct.unpack("II",sock.recv(8))
+			#read three uint32
+			m,n,len_bytes=struct.unpack("III",sock.recv(12))
 			#read float32 matrix
-			data=bytearray(recvall(sock,m*n*4))
+			data=zlib.decompress(bytearray(recvall(sock,len_bytes)))
 			self.obj=np.frombuffer(data,dtype=np.float32).reshape((m, n))
 		elif self.id==Payload.Id.labels:
 			#read uint32
@@ -66,8 +67,9 @@ class Payload:
 		buff=bytearray()
 		buff+=(struct.pack("B",self.id.value))
 		if self.id==Payload.Id.datapoints:
-			buff+=(struct.pack("II",*self.obj.shape))
-			buff+=(self.obj.tobytes())
+			ndarray,compressed=self.obj
+			buff+=(struct.pack("III",*ndarray.shape,len(compressed)))
+			buff+=(compressed)
 		elif self.id==Payload.Id.labels:
 			buff+=(struct.pack("I",*self.obj.shape))
 			buff+=(self.obj.tobytes())

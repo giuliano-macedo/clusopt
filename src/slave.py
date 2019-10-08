@@ -36,7 +36,7 @@ class Slave:
 			bc+=1
 		server.send(Payload(Payload.Id.end))
 		#---------------------------------------------------------------------------------
-		#check if is winner for some k ands t
+		#check if is winner for some k and t
 		while True:
 			pay=server.recv(Payload.Id.labels_req,Payload.Id.end)
 			if pay.id==Payload.Id.labels_req:
