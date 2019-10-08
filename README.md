@@ -4,7 +4,7 @@ Micro service Infrastructure for Data Stream Clustering.
 
 ## Prerequisites
 
-* python 3.7 (3.5 won't work, some source files have Literal String Interpolation)
+* python 3.7 (3.5 won't work, some source files have literal string interpolation)
 * pip
 * docker
 
