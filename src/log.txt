@@ -1,0 +1,2 @@
+waiting for slaves press [CTRL+C] to stop waiting
+
