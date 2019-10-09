@@ -20,7 +20,6 @@ And if you want to use remote nodes, create a file `remote_nodes.txt` in the `sr
 the ip addresses of your remote nodes.
 Your nodes must be running midsc container in docker, to do so use the following commands on each remote node
 ```bash
-docker pull python:3.7.3
 docker build -t midsc .
 docker run -p 3523:3523 midsc
 ```

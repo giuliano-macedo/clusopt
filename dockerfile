@@ -1,4 +1,3 @@
-# docker pull python:3.7.3
 # docker build -t midsc .
 # docker run -p 3523:3523 midsc
 FROM python:3.7.3
