@@ -6,7 +6,7 @@ Micro service Infrastructure for Data Stream Clustering.
 
 * python 3.7 (3.5 won't work, some source files have literal string interpolation)
 * pip
-* docker
+* docker (if you use remote nodes)
 
 ## Installing
 
@@ -42,6 +42,10 @@ to run slave node, use `-h` flag for more options
 ```bash
 ./master [IP ADDRESS TO THE MASTER NODE]
 ```
-<!-- ## Authors
-
-* **Giuliano Oliveira** - [llpinokio](https://github.com/llpinokio) -->
+## Authors
+* **Giuliano Oliveira de Macedo** - *Coder* [llpinokio](https://github.com/llpinokio)
+* **Jonathan Andrade Silva** - *Advisor*
+* **Dionisio Leite Machado Filho** - *Advisor*
+## Acknowledgments
+Thanks to Dionisio for all the the tips to solve all the networking/cloud/virtualization related problems.
+To Jonathan to all clustering/stream clustering/clustering evaluation information used to build this system.
