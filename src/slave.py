@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""
+slave.py
+====================================
+The slave node
+"""
 from network import Payload,ClientSocket
 import numpy as np
 import json
@@ -10,10 +15,19 @@ import socket
 import logging
 		
 class Slave:
-
+	"""
+	Args:
+		batch_size (int) : size of the chunks that the dataset will be splitted
+		carriage (bool) : indicates if should use carriage (overlay) algorithms
+	Attributes:
+		
+	"""
 	def __init__(self,**config):
 		self.config=namedtuple("config",list(config.keys()))(*list(config.values()))
 	def run(self,server):
+		"""
+		main method, run slave's node algorithm
+		"""
 		config=self.config
 		#---------------------------------------------------------------------------------
 		#get kcs

@@ -3,6 +3,13 @@ from . import ClientSocket
 import os
 
 class Ship:
+	"""
+	Helper class to read remote_nodes.txt file and connect to
+	
+	Args:
+		n (str): Number of nodes to use
+		tries (int): maximum number of tries
+	"""
 	def __init__(self,n,tries=15):
 		self.n=n
 		self.tries=tries
@@ -10,6 +17,13 @@ class Ship:
 		self.ips=open(fname).read().strip().split("\n")[:self.n] if os.path.isfile(fname) else []
 		
 	def get_node_sockets(self):
+		"""
+		return sockets of necessary nodes
+		
+		Yields:
+			midsc.network.Socket instance
+		"""
+
 		for ip in self.ips:
 			ans=None
 			for i in range(self.tries):

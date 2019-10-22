@@ -3,6 +3,12 @@ from threading import Lock
 from . import BucketEntry
 from utils import save_to_csv,Timer
 class Bucket:
+	"""
+	Manages each bucket entry to caclulate best silhouette for each batch index
+
+	Args:
+		batch_size (int): size of each chunk of the dataset
+	"""
 	def __init__(self,batch_size):
 		self.lock=Lock()
 		self.batch_size=batch_size
