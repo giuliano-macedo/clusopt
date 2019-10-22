@@ -26,7 +26,7 @@ docker run -p 3523:3523 midsc
 then use `-n` flag to set how many nodes you want to use in the master node
 
 ## Usage
-cd to the src with directory 
+cd to the src directory 
 
 ```bash
 cd src
