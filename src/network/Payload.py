@@ -12,7 +12,43 @@ def recvall(sock, n):
         data += packet
     return data
 class Payload:
+	"""
+	implements midsc's protocol usings it's ids
+
+	Args:
+		id (midsc.network.Payload.Id) : instance id
+		obj (object) : instance data
+	Attributes:
+		id (midsc.network.Payload.Id) : instance id
+		obj (object) : instance data
+	Notes:
+		when creating this object you must use the following definitions
+			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
+			| id               | obj type  | notes                                                                                                         |
+			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
+			| ok               | None      | -                                                                                                             |
+			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
+			| err              | None      | -                                                                                                             |
+			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
+			| end              | None      | -                                                                                                             |
+			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
+			| datapoints       | tuple     | the tuple must be of size 4 and have the following content (np.uint32,np.uint32 n,np.uint32,bytes)            |
+			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
+			| labels_req       | np.uint32 | represents k                                                                                                  |
+			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
+			| labels           | tuple     | tuple must be of size 2 and have the following contents (np.uint32,np.ndarray(shape=(m,n),dtype=np.float32) ) |
+			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
+			| k_coeficient     | np.uint32 | represents kc                                                                                                 |
+			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
+			| k_coeficient_inc | np.uint32 | kci                                                                                                           |
+			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
+			| silhouette       | tuple     | tuple must be of size 3 containing 3 np.uint32                                                                |
+			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
+	"""
 	class Id(IntEnum):
+		"""
+		Payload's id enum
+		"""
 		ok=					0
 		#null
 		err=				1
@@ -37,6 +73,12 @@ class Payload:
 		self.id=payloadid
 		self.obj=obj
 	def readFrom(self,sock):
+		"""
+		read itself from socket
+		
+		Args:
+			sock (midsc.network.Socket): socket to read from
+		"""
 		sockid,=struct.unpack("B",sock.recv(1))
 		try:
 			sockid=Payload.Id(sockid)
@@ -64,6 +106,12 @@ class Payload:
 		elif self.id==Payload.Id.labels_req:
 			self.obj=struct.unpack("II",sock.recv(8))
 	def sendTo(self,sock):
+		"""
+		send itself to socket
+		
+		Args:
+			sock (midsc.network.Socket): socket to send to
+		"""
 		buff=bytearray()
 		buff+=(struct.pack("B",self.id.value))
 		if self.id==Payload.Id.datapoints:

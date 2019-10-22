@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""
+master.py
+====================================
+The master node
+"""
 from network import ServerSocket,Payload,Ship
 import json
 from core import CarriageBucket,Bucket
@@ -15,6 +20,21 @@ import zlib
 from utils import save_to_csv,Timer
 
 class Master:
+	"""
+	Args:
+		number_nodes (int): number of remote nodes to connect
+		input (str): URI of the dataset
+		batch_size (int) : size of the chunks that the dataset will be splitted
+		carriage (bool) : indicates if should use carriage (overlay) algorithms
+	Attributes:
+		slaves (list): list of connected slaves
+		winners (list): contains sockets winner for each bach index
+		bucket (list): contains each time, silhouete, and socket for each batch index
+		ship (midsc.network.Ship): ship object containing the number of nodes necessary
+		overall_timer (midsc.Timer): Timer object for overall runtime
+	"""
+
+
 	def __init__(self,**config):
 		self.config=namedtuple("config",list(config.keys()))(*list(config.values()))
 		if self.config.carriage:
@@ -26,10 +46,24 @@ class Master:
 		self.ship=Ship(self.config.number_nodes)
 		self.overall_timer=Timer()
 	def accept_handler(self,msock):
+		"""
+		Helper method to accept some socket based on the protocol.
+		adds msock to slaves list
+		
+		Args:
+			msock (network.Socket): socket to be added.
+		"""
 		msock.send(Payload(Payload.Id.k_coeficient,len(self.slaves)+2))
 		self.slaves.add(msock)
 		print(f"slave {msock.ip} connected")
 	def silhoete_recv_handler(self,msock):
+		"""
+		Helper method to recv each batch silhouete.
+		updates bucket list and winners list
+		
+		Args:
+			msock (network.Socket): socket to recv data.
+		"""
 		while True:
 			pay=msock.recv(Payload.Id.end,Payload.Id.silhouette)
 			if pay.id==Payload.Id.end:
@@ -44,8 +78,19 @@ class Master:
 				self.winners[t]=bucket_winner
 
 	def replicator_send_handler(self,msock,batch,compressed):
+		"""
+		Send to all slaves the current chunk
+		
+		Args:
+			msock (network.Socket): socket to send data.
+			batch (np.ndarray): dataset chunk
+			compressed (bytes): compressed batch data
+		"""
 		msock.send(Payload(Payload.Id.datapoints,(batch,compressed)))
 	def run(self):
+		"""
+		main method, run master's node algorithm
+		"""
 		config=self.config #ugly but whatever
 		#---------------------------------------------------------------------------------
 		#connect remote nodes
