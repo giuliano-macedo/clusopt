@@ -1,3 +1,7 @@
+"""
+This code is adapdated from the source code of moa, that can be found in the following address
+https://github.com/Waikato/moa/blob/master/moa/src/main/java/moa/clusterers/clustream/ClustreamKernel.java
+"""
 import numpy as np
 RADIUS_FACTOR = 1.8
 
