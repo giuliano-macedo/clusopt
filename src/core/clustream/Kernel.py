@@ -24,18 +24,21 @@ class Kernel:
 		lss (int): Squared sum of the timestamps
 	"""
 	def __init__(self,datapoint,timestamp,t,m):
+		self.t=t
+		self.m=m
+
 		self.n=1
 		self.ls=datapoint
 		self.ss=np.square(datapoint)
 		self.lst=timestamp
-		self.lss=np.square(timestamp)
+		self.sst=np.square(timestamp)
 	
 	def insert(self,datapoint,timestamp):
 		self.n+=1
 		self.ls+=datapoint
 		self.ss+=np.square(datapoint)
 		self.lst+=timestamp
-		self.lss+=np.square(timestamp)
+		self.sst+=np.square(timestamp)
 
 	def add(self,other):
 		assert self.ls.shape==other.ls.shape
@@ -43,7 +46,7 @@ class Kernel:
 		self.ls+=other.ls
 		self.ss+=other.ss
 		self.lst+=other.lst
-		self.lss+=other.lss
+		self.sst+=other.sst
 
 	def get_relevance_stamp(self):
 		if self.n<(2*self.m):
@@ -97,7 +100,8 @@ class Kernel:
 			
 			# Due to numerical errors, small negative values can occur.
             # We correct this by settings them to almost zero.
-			if -EPSILON<=res[i] <=0.0:
+			# if -EPSILON<=res[i] <=0.0:
+			if res[i] <=0.0: #i get negative values
 				res[i]=MIN_VARIANCE
 		return res
 
