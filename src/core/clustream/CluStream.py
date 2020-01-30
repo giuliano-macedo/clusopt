@@ -6,7 +6,6 @@ from Kernel import Kernel
 import numpy as np
 import itertools
 
-FILE=open("log.txt","w")
 class CluStream:
 	"""
 	CluStream data stream clustering algorithm implementation
@@ -21,7 +20,7 @@ class CluStream:
 		m (int): m
 		t (int): t
 	"""
-	def __init__(self,h=1000,m=100,t=2):
+	def __init__(self,h=2,m=10):
 		self.kernels=[]
 		self.time_window=h
 		self.m=m
@@ -59,7 +58,7 @@ class CluStream:
 		if min_distance<radius:
 			# Date fits, put into kernel and be happy
 			closest_kernel.insert(datapoint,timestamp)
-			# print(f"{timestamp} fits",file=FILE)
+			# print(f"{timestamp} fits)
 			return
 		# 3. Date does not fit, we need to free
 		# some space to insert a new kernel
@@ -70,12 +69,12 @@ class CluStream:
 			i for i,kernel in enumerate(self.kernels) if kernel.get_relevance_stamp() < threshold
 		),None)
 		if oldest_kernel_index!=None:
-			# print(f"{timestamp} forgot old kernel",file=FILE)
+			# print(f"{timestamp} forgot old kernel)
 			self.kernels[oldest_kernel_index]=Kernel(datapoint,timestamp,self.t,self.m)
 			return
 
 		# 3.2 Merge closest two kernels
-		# print(f"{timestamp} merge closest kernel",file=FILE)
+		# print(f"{timestamp} merge closest kernel")
 		combination_indexes=itertools.combinations(range(len(centers)),2)
 		closest_a,closest_b,dist=min(
 			((i,j,np.linalg.norm(centers[j]-centers[i])) for i,j in combination_indexes),
