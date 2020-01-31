@@ -20,7 +20,7 @@ class CluStream:
 		m (int): m
 		t (int): t
 	"""
-	def __init__(self,h=2,m=10):
+	def __init__(self,h=2,m=10,t=2):
 		self.kernels=[]
 		self.time_window=h
 		self.m=m
@@ -38,7 +38,7 @@ class CluStream:
 			#0. Initialize
 			self.kernels.append(Kernel(datapoint,timestamp,self.t,self.m))
 			return
-		centers=[kernel.get_center() for kernel in self.kernels] #TODO :faster computing with caching
+		centers=[kernel.center for kernel in self.kernels] #TODO :faster computing with caching
 		#1. Determine closest kernel
 		closest_kernel_index,min_distance=min(
 			((i,np.linalg.norm(center-datapoint)) for i,center in enumerate(centers)),

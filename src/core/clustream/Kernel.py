@@ -32,6 +32,7 @@ class Kernel:
 		self.ss=np.square(datapoint)
 		self.lst=timestamp
 		self.sst=np.square(timestamp)
+		self.center=self.get_center()
 	
 	def insert(self,datapoint,timestamp):
 		self.n+=1
@@ -39,6 +40,7 @@ class Kernel:
 		self.ss+=np.square(datapoint)
 		self.lst+=timestamp
 		self.sst+=np.square(timestamp)
+		self.center=self.get_center()
 
 	def add(self,other):
 		assert self.ls.shape==other.ls.shape
@@ -47,6 +49,7 @@ class Kernel:
 		self.ss+=other.ss
 		self.lst+=other.lst
 		self.sst+=other.sst
+		self.center=self.get_center()
 
 	def get_relevance_stamp(self):
 		if self.n<(2*self.m):
@@ -74,6 +77,8 @@ class Kernel:
 		return np.mean(np.sqrt(variance))
 
 	def get_center(self):
+		if self.n==1:
+			return self.ls
 		return self.ls/self.n
 
 	def get_inclusion_probability(self,datapoint):
@@ -107,9 +112,8 @@ class Kernel:
 
 	def calc_normalized_distance(self,datapoint):
 		# variance=self.get_variance_vector()
-		center=self.get_center()
 
-		return np.sqrt(np.sum(np.square(center-datapoint)
+		return np.sqrt(np.sum(np.square(self.center-datapoint)
 			#/variance
 		))
 
