@@ -1,7 +1,7 @@
 PYTHON_INCLUDES=$(shell python3 -m pybind11 --includes)
 PYTHON_EXTENSION=$(shell python3-config --extension-suffix)
 OUTPUT=../clustream$(PYTHON_EXTENSION)
-FLAGS=-g -O3 -Wall -shared -std=c++11 -fPIC $(PYTHON_INCLUDES)
+FLAGS=-O3 -Wall -shared -std=c++11 -fPIC $(PYTHON_INCLUDES) #-g -D DEBUG
 
 ALL:$(OUTPUT)
 

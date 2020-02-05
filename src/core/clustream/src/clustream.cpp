@@ -47,7 +47,9 @@ void CluStream::offline_cluster(double* datapoint){
 
 		if ( min_distance < radius ) {
 			// Date fits, put into kernel and be happy
-			// printf("%ld fits\n",timestamp);
+			#ifdef DEBUG
+				printf("%ld fits\n",timestamp);
+			#endif
 			points_fitted++;
 			closest_kernel->insert( datapoint, timestamp );
 			return;
@@ -61,7 +63,9 @@ void CluStream::offline_cluster(double* datapoint){
 		for (unsigned int i = 0; i < kernels.size(); i++ ) {
 			if ( kernels[i].get_relevance_stamp() < threshold ) {
 				kernels[i] = Kernel( datapoint,dim, timestamp, t, m );
-				// printf("%ld forgot kernel\n",timestamp);
+				#ifdef DEBUG
+					printf("%ld forgot kernel\n",timestamp);
+				#endif
 				points_forgot++;
 				return;
 			}
@@ -81,7 +85,9 @@ void CluStream::offline_cluster(double* datapoint){
 				}
 			}
 		}
-		// printf("%ld merged kernel\n",timestamp);
+		#ifdef DEBUG
+			printf("%ld merged kernel\n",timestamp);
+		#endif
 		points_merged++;
 		kernels[closest_a].add( kernels[closest_b] );
 		kernels[closest_b] = Kernel( datapoint,dim, timestamp, t,  m );
@@ -97,14 +103,6 @@ void CluStream::batch_offline_cluster(ndarray batch){
 	else if(dim!=buff.shape[1])
 		throw std::runtime_error("batch must have a consistent number of columns");
 	double* ptr=(double*)buff.ptr;
-	// for(unsigned int i=0;i<2;i++){
-	// 	for(unsigned int j=0;j<dim;j++){
-	// 		printf("%lf ",ptr[j]);
-	// 	}
-	// 	printf("\n");
-	// 	ptr+=dim;
-	// }
-	// throw std::runtime_error("debug");
 	for(unsigned int i=0;i<lines;i++){
 		offline_cluster(ptr);
 		timestamp++;
