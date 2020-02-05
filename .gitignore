@@ -3,3 +3,5 @@ __pycache__/
 *.csv
 remote_nodes.txt
 build/
+*.o
+*.so
