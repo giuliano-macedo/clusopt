@@ -7,10 +7,14 @@ Micro service Infrastructure for Data Stream Clustering.
 * python 3.7 (3.5 won't work, some source files have literal string interpolation)
 * pip
 * docker (if you use remote nodes)
+* gcc >=6
+* autotools
+* pybind11
 
 ## Installing
 
-Install all dependecies described in `requirements.txt` using pip
+Install all dependecies described in `requirements.txt` using pip,
+c++ source code will be compiled in the first run.
 
 ```bash
 pip3 install -r requirements.txt
