@@ -37,10 +37,11 @@ void Streamkm::batch_online_cluster(ndarray batch){
 	initPoint(&p,dim);
 	p.weight=1.0;
 	for(unsigned int i=0;i<lines;i++){
+		p.squareSum=0;
 		for(unsigned int j=0;j<dim;j++){
 			double number=ptr[j];
 			p.coordinates[j]=number;
-			p.squareSum=number*number;
+			p.squareSum+=number*number;
 		}
 		p.id=timestamp;
 		insertPoint(&p,&manager);
