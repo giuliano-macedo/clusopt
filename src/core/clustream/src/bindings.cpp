@@ -15,7 +15,7 @@ Attributes:\n\
 	points_fitted (int): number of datapoints that entered the 'fit' case\n\
 	points_forgot (int): number of datapoints that entered the 'frogot kernel' case\n\
 	points_merged (int): number of datapoints that entered the 'merged kernel' case"
-#define BATCH_OFFLINE_CLUSTER_DOC \
+#define BATCH_ONLINE_CLUSTER_DOC \
 "Process a chunk of datapoints all at once\n\
 \n\
 Args:\n\
@@ -36,7 +36,7 @@ PYBIND11_MODULE(clustream, m) {
 		.def_readonly("points_fitted",&CluStream::points_fitted)
 		.def_readonly("points_forgot",&CluStream::points_forgot)
 		.def_readonly("points_merged",&CluStream::points_merged)
-		.def("batch_offline_cluster",&CluStream::batch_offline_cluster,BATCH_OFFLINE_CLUSTER_DOC)
+		.def("batch_online_cluster",&CluStream::batch_online_cluster,BATCH_ONLINE_CLUSTER_DOC)
 		.def("get_kernel_centers",&CluStream::get_kernel_centers,GET_KERNEL_CENTERS_DOC)
 	;
 }

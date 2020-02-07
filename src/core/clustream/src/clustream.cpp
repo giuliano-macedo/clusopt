@@ -10,7 +10,7 @@ CluStream::CluStream(int h,int m,int t){
 	points_merged=0;
 	dim=0;
 }
-void CluStream::offline_cluster(double* datapoint){
+void CluStream::online_cluster(double* datapoint){
 	// 0. Initialize
 	if((int)kernels.size()!=m){
 		kernels.push_back(Kernel(datapoint,dim,timestamp,t,m));
@@ -93,7 +93,7 @@ void CluStream::offline_cluster(double* datapoint){
 		kernels[closest_b] = Kernel( datapoint,dim, timestamp, t,  m );
 }
 
-void CluStream::batch_offline_cluster(ndarray batch){
+void CluStream::batch_online_cluster(ndarray batch){
 	auto buff=batch.request();
 	if(buff.ndim!=2)
 		throw std::runtime_error("batch must be a matrix");
@@ -104,7 +104,7 @@ void CluStream::batch_offline_cluster(ndarray batch){
 		throw std::runtime_error("batch must have a consistent number of columns");
 	double* ptr=(double*)buff.ptr;
 	for(unsigned int i=0;i<lines;i++){
-		offline_cluster(ptr);
+		online_cluster(ptr);
 		timestamp++;
 		ptr+=dim;
 	}
