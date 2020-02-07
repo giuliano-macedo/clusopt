@@ -8,7 +8,7 @@ Streamkm::Streamkm(unsigned int coresetsize,unsigned int length){
 	dim=0;
 }
 Streamkm::~Streamkm(){
-	//still may leak
+	//it is leaking
 	if(manager.buckets==NULL)
 		return;
 	for(int i=0;i<manager.numberOfBuckets;i++){
@@ -17,7 +17,6 @@ Streamkm::~Streamkm(){
 		freePoint(bucket.spillover);
 		free(bucket.points);
 		free(bucket.spillover);
-		free(manager.buckets+i);
 	}
 	free(manager.buckets);
 }
