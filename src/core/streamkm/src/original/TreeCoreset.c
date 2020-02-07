@@ -279,7 +279,9 @@ struct point * chooseCentre(struct treeNode * node){
 			sum += treeNodeCostOfPoint(node,node->points[i]) / node->cost;
 			if(sum >= random){
 				if(node->points[i]->weight == 0.0){
+					#ifdef DEBUG
 					printf("ERROR: CHOOSEN DUMMY NODE THOUGH OTHER AVAILABLE \n");
+					#endif
 					return NULL;
 				}
 				double curCost = treeNodeSplitCost(node,node->centre,node->points[i]);
@@ -402,7 +404,9 @@ void split(struct treeNode * parent,struct point * newCentre,int newCentreIndex)
 			oldPoints[indexOld] = parent->points[i];
 			indexOld++;
 		} else {
+			#ifdef DEBUG
 			printf("ERROR !!! NO CENTER NEAREST !! \n");
+			#endif
 		}
 	}
 
@@ -492,7 +496,9 @@ void freeTree(struct treeNode * root){
 Constructs a coreset of size k from the union of setA and setB
 **/
 void unionTreeCoreset(int k,int n_1,int n_2,int d, struct point * setA,struct point * setB,struct point * centres) {
+	#ifdef DEBUG
 	printf("Computing coreset...\n");
+	#endif
 	//total number of points
 	int n = n_1+n_2;
 

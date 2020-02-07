@@ -81,14 +81,22 @@ struct point * chooseRandomCentres(int k,int n,int d,struct point points[]){
 		
 	}
 	
+	#ifdef DEBUG
 	printf("random centres: \n");
+	#endif
 	for(i=0;i<k;i++){
+		#ifdef DEBUG
 		printf("%d: (",i);
+		#endif
 		int l = 0;
 		for(l=0;l<centres[i].dimension;l++){
+			#ifdef DEBUG
 			printf("%f,",centres[i].coordinates[l] / centres[i].weight);
+			#endif
 		}
+		#ifdef DEBUG
 		printf(")\n");
+		#endif
 	}
 
 	return centres;
@@ -98,7 +106,9 @@ struct point * chooseRandomCentres(int k,int n,int d,struct point points[]){
 kMeans++ algorithm for n points of dimension d with k centres
 **/
 struct point * lloydPlusPlus(int k,int n,int d,struct point points[],double *resultCost){
+	#ifdef DEBUG
 	printf("starting kMeans++\n");
+	#endif
 	//choose random centres
 	struct point *centres = chooseRandomCentres(k,n,d,&points[0]);
 	double cost = targetFunctionValue(k,n,&centres[0],&points[0]);
@@ -141,20 +151,31 @@ struct point * lloydPlusPlus(int k,int n,int d,struct point points[],double *res
 
 		//calculate costs
 		newCost = targetFunctionValue(k,n,&centres[0],&points[0]);
+		#ifdef DEBUG
 		printf("old cost:%f, new cost:%f \n",cost,newCost);
+		#endif
 	}while(newCost < THRESHOLD * cost);
-
+	#ifdef DEBUG
 	printf("Centres: \n");
+	#endif
 	int i=0;
 	for(i=0;i<k;i++){
+		#ifdef DEBUG
 		printf("(");
+		#endif
 		int l = 0;
 		for(l=0;l<centres[i].dimension;l++){
+			#ifdef DEBUG
 			printf("%f,",centres[i].coordinates[l] / centres[i].weight);
+			#endif
 		}
+		#ifdef DEBUG
 		printf(")\n");
+		#endif
 	}
 	*resultCost = newCost;
+	#ifdef DEBUG
 	printf("kMeans++ finished\n");
+	#endif
 	return centres;
 }

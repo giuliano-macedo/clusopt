@@ -12,7 +12,9 @@ debug function to print a set of points
 void printPoints(int n,struct point * points){
 	int i;
 	for(i=0;i<n;i++){
+		#ifdef DEBUG
 		printf("ID %d,Dimension %d, Weight %f \n",points[i].id,points[i].dimension,points[i].weight);
+		#endif
 	}
 }
 

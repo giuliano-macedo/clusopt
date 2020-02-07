@@ -32,7 +32,9 @@ void initManager(struct Bucketmanager * manager,int n,int d,int maxsize){
 	for(i=0;i<manager->numberOfBuckets;i++){
 		initBucket(&(manager->buckets[i]),d,maxsize);
 	}
-	printf("Created manager with %d buckets of dimension %d \n",manager->numberOfBuckets,d);
+	#ifdef DEBUG
+		printf("Created manager with %d buckets of dimension %d \n",manager->numberOfBuckets,d);
+	#endif
 }
 
 /**
@@ -43,7 +45,9 @@ void insertPoint(struct point *p,struct Bucketmanager *manager){
 	//check if there is enough space in the first bucket
 	int cursize = manager->buckets[0].cursize;	
 	if(cursize >= manager->maxBucketsize) {
-		printf("Bucket 0 full \n");
+		#ifdef DEBUG
+			printf("Bucket 0 full \n");
+		#endif
 		//start spillover process
 		int curbucket  = 0;
 		int nextbucket = 1;
@@ -64,7 +68,9 @@ void insertPoint(struct point *p,struct Bucketmanager *manager){
 			manager->buckets[curbucket].cursize = 0;
 			cursize = 0;
 		} else {
+			#ifdef DEBUG
 			printf("Bucket %d full \n",nextbucket);
+			#endif
 			//copy bucket to spillover and continue
 			int i;
 			for(i=0;i<manager->maxBucketsize;i++){
@@ -81,7 +87,9 @@ void insertPoint(struct point *p,struct Bucketmanager *manager){
 			as long as the next bucket is full output the coreset to the spillover of the next bucket
 			*/
 			while(manager->buckets[nextbucket].cursize == manager->maxBucketsize){
+				#ifdef DEBUG
 				printf("Bucket %d full \n",nextbucket);
+				#endif
 				unionTreeCoreset(manager->maxBucketsize,manager->maxBucketsize,
 					manager->maxBucketsize,p->dimension, 
 					manager->buckets[curbucket].points,manager->buckets[curbucket].spillover,
