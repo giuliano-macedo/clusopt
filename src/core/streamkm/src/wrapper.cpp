@@ -8,13 +8,14 @@ Streamkm::Streamkm(unsigned int coresetsize,unsigned int length){
 	dim=0;
 }
 Streamkm::~Streamkm(){
-	//it is leaking
 	if(manager.buckets==NULL)
 		return;
 	for(int i=0;i<manager.numberOfBuckets;i++){
 		struct Bucket bucket=manager.buckets[i];
-		freePoint(bucket.points);
-		freePoint(bucket.spillover);
+		for(int j=0;j<manager.maxBucketsize;j++){
+			freePoint(&(bucket.points[j]));
+			freePoint(&(bucket.spillover[j]));
+		}
 		free(bucket.points);
 		free(bucket.spillover);
 	}
