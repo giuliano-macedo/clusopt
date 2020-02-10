@@ -8,8 +8,7 @@ Micro service Infrastructure for Data Stream Clustering.
 * pip
 * docker (if you use remote nodes)
 * gcc >=6
-* autotools
-* pybind11
+* make
 
 ## Installing
 
