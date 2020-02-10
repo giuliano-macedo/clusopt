@@ -41,56 +41,56 @@ void CluStream::online_cluster(double* datapoint){
 				double dist = distance(kernels[i].center, center );
 				radius = std::min( dist, radius );
 			}
-		} else {
-			radius = closest_kernel->get_radius();
 		}
+	else
+		radius = closest_kernel->get_radius();
 
-		if ( min_distance < radius ) {
-			// Date fits, put into kernel and be happy
+	if ( min_distance < radius ) {
+		// Date fits, put into kernel and be happy
+		#ifdef DEBUG
+			printf("%ld fits\n",timestamp);
+		#endif
+		points_fitted++;
+		closest_kernel->insert( datapoint, timestamp );
+		return;
+	}
+
+	// 3. Date does not fit, we need to free
+	// some space to insert a new kernel
+	long threshold = timestamp - time_window; // Kernels before this can be forgotten
+
+	// 3.1 Try to forget old kernels
+	for (unsigned int i = 0; i < kernels.size(); i++ ) {
+		if ( kernels[i].get_relevance_stamp() < threshold ) {
+			kernels[i] = Kernel( datapoint,dim, timestamp, t, m );
 			#ifdef DEBUG
-				printf("%ld fits\n",timestamp);
+				printf("%ld forgot kernel\n",timestamp);
 			#endif
-			points_fitted++;
-			closest_kernel->insert( datapoint, timestamp );
+			points_forgot++;
 			return;
 		}
-
-		// 3. Date does not fit, we need to free
-		// some space to insert a new kernel
-		long threshold = timestamp - time_window; // Kernels before this can be forgotten
-
-		// 3.1 Try to forget old kernels
-		for (unsigned int i = 0; i < kernels.size(); i++ ) {
-			if ( kernels[i].get_relevance_stamp() < threshold ) {
-				kernels[i] = Kernel( datapoint,dim, timestamp, t, m );
-				#ifdef DEBUG
-					printf("%ld forgot kernel\n",timestamp);
-				#endif
-				points_forgot++;
-				return;
+	}
+	// 3.2 Merge closest two kernels
+	int closest_a = 0;
+	int closest_b = 0;
+	min_distance = double_max;
+	for ( unsigned int i = 0; i < kernels.size(); i++ ) { //O(n(n+1)/2)
+		Point center_a = kernels[i].center;
+		for ( unsigned int j = i + 1; j < kernels.size(); j++ ) {
+			double dist = distance( center_a, kernels[j].center );
+			if ( dist < min_distance ) {
+				min_distance = dist;
+				closest_a = i;
+				closest_b = j;
 			}
 		}
-		// 3.2 Merge closest two kernels
-		int closest_a = 0;
-		int closest_b = 0;
-		min_distance = double_max;
-		for ( unsigned int i = 0; i < kernels.size(); i++ ) { //O(n(n+1)/2)
-			Point center_a = kernels[i].center;
-			for ( unsigned int j = i + 1; j < kernels.size(); j++ ) {
-				double dist = distance( center_a, kernels[j].center );
-				if ( dist < min_distance ) {
-					min_distance = dist;
-					closest_a = i;
-					closest_b = j;
-				}
-			}
-		}
-		#ifdef DEBUG
-			printf("%ld merged kernel\n",timestamp);
-		#endif
-		points_merged++;
-		kernels[closest_a].add( kernels[closest_b] );
-		kernels[closest_b] = Kernel( datapoint,dim, timestamp, t,  m );
+	}
+	#ifdef DEBUG
+		printf("%ld merged kernel\n",timestamp);
+	#endif
+	points_merged++;
+	kernels[closest_a].add( kernels[closest_b] );
+	kernels[closest_b] = Kernel( datapoint,dim, timestamp, t,  m );
 }
 
 void CluStream::batch_online_cluster(ndarray batch){
