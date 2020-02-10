@@ -2,7 +2,7 @@
 # docker run -p 3523:3523 midsc
 FROM python:3.7.3
 WORKDIR /
-MAINTAINER lsd200
+MAINTAINER llpinokio
 RUN mkdir -p midsc
 COPY ./ /midsc/
 RUN pip install --upgrade pip && pip install -r midsc/requirements.txt
