@@ -40,7 +40,7 @@ for i in range(1,args.how_many_times+1):
 	print(f"try {i}/{args.how_many_times}")
 	while True:
 		try:
-			out=runmaster(args.dataset)
+			runmaster(args.dataset)
 			break
 		except CalledProcessError as e:
 			print(f"execution failed with ({e.returncode})")
