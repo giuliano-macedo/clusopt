@@ -10,7 +10,7 @@ import json
 from collections import namedtuple
 from argparse import ArgumentParser
 from threading import Thread,Lock
-from core import Clusterer,CarriageClusterer
+from core import Clusterer
 import socket
 import logging
 		
@@ -18,7 +18,6 @@ class Slave:
 	"""
 	Args:
 		batch_size (int) : size of the chunks that the dataset will be splitted
-		carriage (bool) : indicates if should use carriage (overlay) algorithms
 	Attributes:
 		
 	"""
@@ -37,7 +36,7 @@ class Slave:
 		pay=server.recv(Payload.Id.k_coeficient_inc)
 		kci=pay.obj
 
-		clusterer=Clusterer(kc,kci,config.batch_size) if not config.carriage else CarriageClusterer(kc,kci,config.batch_size)
+		clusterer=Clusterer(kc,kci,config.batch_size)
 		#---------------------------------------------------------------------------------
 		#for every payload calc sil_score
 		bc=0

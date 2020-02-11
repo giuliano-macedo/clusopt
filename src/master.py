@@ -6,7 +6,7 @@ The master node
 """
 from network import ServerSocket,Payload,Ship
 import json
-from core import CarriageBucket,Bucket
+from core import Bucket
 from argparse import ArgumentParser
 from threading import Thread
 from collections import namedtuple
@@ -25,7 +25,6 @@ class Master:
 		number_nodes (int): number of remote nodes to connect
 		input (str): URI of the dataset
 		batch_size (int) : size of the chunks that the dataset will be splitted
-		carriage (bool) : indicates if should use carriage (overlay) algorithms
 	Attributes:
 		slaves (list): list of connected slaves
 		winners (list): contains sockets winner for each bach index
@@ -37,12 +36,10 @@ class Master:
 
 	def __init__(self,**config):
 		self.config=namedtuple("config",list(config.keys()))(*list(config.values()))
-		if self.config.carriage:
-			raise RuntimeError("Not implemented")
 		self.slaves=set()
 		#t -> msock
 		self.winners={}
-		self.bucket=CarriageBucket(self.config.batch_size) if self.config.carriage else Bucket(self.config.batch_size)
+		self.bucket=Bucket(self.config.batch_size)
 		self.ship=Ship(self.config.number_nodes)
 		self.overall_timer=Timer()
 	def accept_handler(self,msock):
