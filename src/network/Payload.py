@@ -2,6 +2,7 @@ from enum import IntEnum
 import zlib
 import numpy as np
 import struct
+import json
 def recvall(sock, n):
     # Helper function to recv n bytes or return None if EOF is hit
     data = b''
@@ -11,65 +12,161 @@ def recvall(sock, n):
             return None
         data += packet
     return data
+def read_compressed_float32_matrix(sock):
+	#read three uint32
+	m,n,len_bytes=struct.unpack("III",sock.recv(12))
+	#read compressed data
+	data=zlib.decompress(bytearray(recvall(sock,len_bytes)))
+	#construct array from dimensions
+	return np.frombuffer(data,dtype=np.float32).reshape((m, n))
+
+def write_compressed_float32_matrix(buff,obj):
+	ndarray,compressed=obj
+	buff+=(struct.pack("III",*ndarray.shape,len(compressed)))
+	buff+=(compressed)
+
+def read_compressed_float64_matrix(sock):
+	#read three uint32
+	m,n,len_bytes=struct.unpack("III",sock.recv(12))
+	#read compressed data
+	data=zlib.decompress(bytearray(recvall(sock,len_bytes)))
+	#construct array from dimensions
+	return np.frombuffer(data,dtype=np.float64).reshape((m, n))
+
+def write_compressed_float64_matrix(buff,obj):
+	ndarray,compressed=obj
+	buff+=(struct.pack("III",*ndarray.shape,len(compressed)))
+	buff+=(compressed)
+
+def read_float32_matrix(sock):
+	#read two uint32
+	m,n=struct.unpack("II",sock.recv(8))
+	# read and construct array from dimensions
+	return np.frombuffer(recvall(sock,m*n*4),dtype=np.float32).reshape((m, n))
+
+def write_float32_matrix(buff,obj):
+	ndarray=obj
+	buff+=(struct.pack("II",*ndarray.shape))
+	buff+=(ndarray.tobytes())
+
+def read_float64_matrix(sock):
+	#read two uint32
+	m,n=struct.unpack("II",sock.recv(8))
+	# read and construct array from dimensions
+	return np.frombuffer(recvall(sock,m*n*8),dtype=np.float64).reshape((m, n))
+
+def write_float64_matrix(buff,obj):
+	ndarray=obj
+	buff+=(struct.pack("II",*ndarray.shape))
+	buff+=(ndarray.tobytes())
+
+def read_uint8_vector(sock):
+	#read uint32
+	m,=struct.unpack("I",sock.recv(4))
+	#read uint8 vector
+	data=bytearray(recvall(sock,m))
+	return np.frombuffer(data,dtype=np.uint8).reshape((m))
+
+def write_uint8_vector(buff,obj):
+	ndarray=obj
+	buff+=(struct.pack("I",*ndarray.shape))
+	buff+=(ndarray.tobytes())
+
+def read_labels_req(sock):
+	return struct.unpack("II",sock.recv(8))
+
+def write_labels_req(buff,obj):
+	buff+=(struct.pack("II",*obj))
+
+def read_silhouette(sock):
+	return struct.unpack("IIf",sock.recv(12))
+
+def write_silhouette(buff,obj):
+	buff+=(struct.pack("IIf",*obj))
+
+def read_json(sock):
+	#read uint32
+	n,=struct.unpack("I",sock.recv(4))
+	#read string and parse json
+	return json.loads(sock.recv(n))
+
+def write_json(buff,obj):
+	buff+= (struct.pack("I",len(obj))+bytes(json.dumps(obj)))
+
+class PAYID(IntEnum):
+	"""
+	Payload's id enum
+	"""
+	ok=							0
+	err=						1
+	end=						2
+	compressed_float32_matrix=	3
+	compressed_float64_matrix=	4
+	float32_matrix=				5
+	float64_matrix=				6
+	uint8_vector=				8
+	labels_req=					9
+	silhouette=					10
+	json=						11
 class Payload:
 	"""
 	implements midsc's protocol usings it's ids
 
 	Args:
-		id (midsc.network.Payload.Id) : instance id
+		id (midsc.network.PAYID) : instance id
 		obj (object) : instance data
 	Attributes:
-		id (midsc.network.Payload.Id) : instance id
+		id (midsc.network.PAYID) : instance id
 		obj (object) : instance data
 	Notes:
 		when creating this object you must use the following definitions
-			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
-			| id               | obj type  | notes                                                                                                         |
-			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
-			| ok               | None      | -                                                                                                             |
-			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
-			| err              | None      | -                                                                                                             |
-			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
-			| end              | None      | -                                                                                                             |
-			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
-			| datapoints       | tuple     | the tuple must be of size 4 and have the following content (np.uint32,np.uint32 n,np.uint32,bytes)            |
-			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
-			| labels_req       | np.uint32 | represents k                                                                                                  |
-			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
-			| labels           | tuple     | tuple must be of size 2 and have the following contents (np.uint32,np.ndarray(shape=(m,n),dtype=np.float32) ) |
-			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
-			| k_coeficient     | np.uint32 | represents kc                                                                                                 |
-			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
-			| k_coeficient_inc | np.uint32 | kci                                                                                                           |
-			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
-			| silhouette       | tuple     | tuple must be of size 3 containing 3 np.uint32                                                                |
-			+------------------+-----------+---------------------------------------------------------------------------------------------------------------+
+			+---------------------------+----------+-------------------------------------------------------------+
+			| id                        | obj type | serialized obj                                              |
+			+---------------------------+----------+-------------------------------------------------------------+
+			| ok                        | None     |                                                             |
+			+---------------------------+----------+-------------------------------------------------------------+
+			| err                       | None     |                                                             |
+			+---------------------------+----------+-------------------------------------------------------------+
+			| end                       | None     |                                                             |
+			+---------------------------+----------+-------------------------------------------------------------+
+			| compressed_float32_matrix | tuple    | (np.uint32 m,np.uint32 n,np.uint32 length , bytes(length) ) |
+			+---------------------------+----------+-------------------------------------------------------------+
+			| compressed_float64_matrix | tuple    | same as above                                               |
+			+---------------------------+----------+-------------------------------------------------------------+
+			| float32_matrix            | tuple    | (np.uint32 m,np.uint32 n,bytes(m*n*4) )                     |
+			+---------------------------+----------+-------------------------------------------------------------+
+			| float64_matrix            | tuple    | (np.uint32 m,np.uint32 n,bytes(m*n*8) )                     |
+			+---------------------------+----------+-------------------------------------------------------------+
+			| uint8_vector              | tuple    | (np.uint32 n, bytes(n*4))                                   |
+			+---------------------------+----------+-------------------------------------------------------------+
+			| labels_req                | tuple    | (np.uint32 batch_counter,np.uint32 k)                       |
+			+---------------------------+----------+-------------------------------------------------------------+
+			| silhouette                | tuple    | (np.uint32 batch_counter, np.uint32 k, np.float sil)        |
+			+---------------------------+----------+-------------------------------------------------------------+
+			| json                      | str      | (np.uint32 n, str(n))                                       |
+			+---------------------------+----------+-------------------------------------------------------------+
 	"""
-	class Id(IntEnum):
-		"""
-		Payload's id enum
-		"""
-		ok=					0
-		#null
-		err=				1
-		#null
-		end=				2
-		#null
-		datapoints=			3
-		#uint32 m,uint32 n,float32 matrix(m,n)
-		labels_req=			4
-		#uint32 k
-		labels=				5
-		#uint32 m,uint32 vector(m)
-		k_coeficient=		6
-		#uint32 kc
-		k_coeficient_inc=	7
-		#uint32 kci
-		silhouette=			8
-		#uint32 batch_counter uint32 k float32 sil
-
-
-	def __init__(self,payloadid=Id.ok,obj=None):
+	__hooks_read={
+		PAYID.compressed_float32_matrix:read_compressed_float32_matrix,
+		PAYID.compressed_float64_matrix:read_compressed_float64_matrix,
+		PAYID.float32_matrix:read_float32_matrix,
+		PAYID.float64_matrix:read_float64_matrix,
+		PAYID.uint8_vector:read_uint8_vector,
+		PAYID.labels_req:read_labels_req,
+		PAYID.silhouette:read_silhouette,
+		PAYID.json:read_json
+	}
+	__hooks_write={
+		PAYID.compressed_float32_matrix:write_compressed_float32_matrix,
+		PAYID.compressed_float64_matrix:write_compressed_float64_matrix,
+		PAYID.float32_matrix:write_float32_matrix,
+		PAYID.float64_matrix:write_float64_matrix,
+		PAYID.uint8_vector:write_uint8_vector,
+		PAYID.labels_req:write_labels_req,
+		PAYID.silhouette:write_silhouette,
+		PAYID.json:write_json
+	}
+	def __init__(self,payloadid=PAYID.ok,obj=None):
 		self.id=payloadid
 		self.obj=obj
 	def readFrom(self,sock):
@@ -81,30 +178,13 @@ class Payload:
 		"""
 		sockid,=struct.unpack("B",sock.recv(1))
 		try:
-			sockid=Payload.Id(sockid)
+			sockid=PAYID(sockid)
 		except ValueError:
 			raise ValueError("Invalid socket id")
 		self.id=sockid
-		if self.id==Payload.Id.datapoints:
-			#read three uint32
-			m,n,len_bytes=struct.unpack("III",sock.recv(12))
-			#read float32 matrix
-			data=zlib.decompress(bytearray(recvall(sock,len_bytes)))
-			self.obj=np.frombuffer(data,dtype=np.float32).reshape((m, n))
-		elif self.id==Payload.Id.labels:
-			#read uint32
-			m,=struct.unpack("I",sock.recv(4))
-			#read uint8 vector
-			data=bytearray(recvall(sock,m))
-			self.obj=np.frombuffer(data,dtype=np.uint8).reshape((m))
-		elif self.id==Payload.Id.silhouette:
-			#read uint32 and uint32 and float32
-			self.obj=struct.unpack("IIf",sock.recv(12))
-		elif self.id in {Payload.Id.k_coeficient,Payload.Id.k_coeficient_inc}:
-			#read uint32
-			self.obj,=struct.unpack("I",sock.recv(4))
-		elif self.id==Payload.Id.labels_req:
-			self.obj=struct.unpack("II",sock.recv(8))
+		f=self.__hooks_read.get(self.id,None)
+		if f!=None:
+			self.obj=f(sock)
 	def sendTo(self,sock):
 		"""
 		send itself to socket
@@ -114,17 +194,7 @@ class Payload:
 		"""
 		buff=bytearray()
 		buff+=(struct.pack("B",self.id.value))
-		if self.id==Payload.Id.datapoints:
-			ndarray,compressed=self.obj
-			buff+=(struct.pack("III",*ndarray.shape,len(compressed)))
-			buff+=(compressed)
-		elif self.id==Payload.Id.labels:
-			buff+=(struct.pack("I",*self.obj.shape))
-			buff+=(self.obj.tobytes())
-		elif self.id==Payload.Id.silhouette:
-			buff+=(struct.pack("IIf",*self.obj))
-		elif self.id in {Payload.Id.k_coeficient,Payload.Id.k_coeficient_inc}:
-			buff+=(struct.pack("I",self.obj))
-		elif self.id ==Payload.Id.labels_req:
-			buff+=(struct.pack("II",*self.obj))
+		f=self.__hooks_write.get(self.id,None)
+		if f!=None:
+			f(buff)
 		sock.sendall(buff)
