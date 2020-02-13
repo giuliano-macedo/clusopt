@@ -5,18 +5,14 @@ master.py
 The master node
 """
 from network import ServerSocket,Payload,Ship
-import json
 from core import Bucket
-from argparse import ArgumentParser
 from threading import Thread
 from collections import namedtuple
-from namedlist import namedlist
-from itertools import chain
-from os.path import isfile
 import numpy as np
 import pandas
 import logging
 import zlib
+from args import parse_args
 from utils import save_to_csv,Timer
 
 class Master:
@@ -27,10 +23,10 @@ class Master:
 		batch_size (int) : size of the chunks that the dataset will be splitted
 	Attributes:
 		slaves (list): list of connected slaves
-		winners (list): contains sockets winner for each bach index
-		bucket (list): contains each time, silhouete, and socket for each batch index
 		ship (midsc.network.Ship): ship object containing the number of nodes necessary
 		overall_timer (midsc.Timer): Timer object for overall runtime
+		winners (list): contains sockets winner for each bach index
+		bucket (list): contains each time, silhouete, and socket for each batch index
 	"""
 
 
@@ -177,17 +173,9 @@ class Master:
 			slave.close()
 
 if __name__=="__main__":
-	parser=ArgumentParser()
-	parser.add_argument("input",help="path or url of the comma-separated dataset")
-	parser.add_argument('-n','--number_nodes', type=int,help="number of docker nodes",default=0)
-	parser.add_argument('-v','--verbose', action='store_true',help="enbale verbose")
-	args=parser.parse_args()
+	args=parse_args()
 	if args.verbose:
 		logging.basicConfig(format='[%(levelname)s]%(message)s',level=logging.DEBUG)
-	if not isfile(args.input):
-		raise FileNotFoundError(args.input)
-	with open("config.json") as f:
-		config=json.load(f)
-	config=dict(**vars(args),**config)
-	Master(**config).run()
+	
+	# Master(**config).run()
 	
