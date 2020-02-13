@@ -176,8 +176,31 @@ class Master:
 
 if __name__=="__main__":
 	args=parse_args()
-	if args.verbose:
-		logging.basicConfig(format='[%(levelname)s]%(message)s',level=logging.DEBUG)
-	
-	# Master(**config).run()
+	master_args={
+		"_input":args.input,
+		"number_nodes":args.number_nodes,
+		"lower_threshold":args.lower_threshold
+	}
+	if args.algorithm=="minibatch":
+		from master_algorithms import MasterMiniBatch
+		master_args={**master_args,**{
+			"batch_size":args.batch_size
+		}}
+		master=MasterMiniBatch(**master_args)
+	elif args.algorithm=="clustream":
+		from master_algorithms import MasterCluStream
+		master_args={**master_args,**{
+			"window_range":args.window_range,
+			"microkernels":args.microclusters,
+			"kernel_radius":args.kernel_radius
+		}}
+		master=MasterCluStream(**master_args)
+	elif args.algorithm=="streamkm":
+		from master_algorithms import MasterStreamkm
+		master_args={**master_args,**{
+			"coreset_size":args.coreset_size,
+			"length":args.length
+		}}
+		master=MasterStreamkm(**master_args)
+	master.run()
 	

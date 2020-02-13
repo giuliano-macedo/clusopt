@@ -1,4 +1,8 @@
 from argparse import ArgumentTypeError,ArgumentParser
+import logging
+from math import ceil,sqrt
+from utils import count_flines
+
 def parse_alg(s):
 	ans={
 		"minibatch":		"minibatch",
@@ -47,7 +51,7 @@ def parse_args():
 	#------------------------------------------------------------------------------------
 	parser.add_argument(
 		"-b",
-		"--batch_size",
+		"--batch-size",
 		type=int,
 		help="(minibatch) size of chunks to send to slaves (default 2000)",
 		default=2000
@@ -56,21 +60,21 @@ def parse_args():
 	#------------------------------------------------------------------------------------
 	parser.add_argument(
 		"-h",
-		"--window_range",
+		"--window-range",
 		type=int,
 		help="(clustream) Range of the window (default 100)",
 		default=100
 	)
 	parser.add_argument(
 		"-m",
-		"--microkernels",
+		"--microclusters",
 		type=int,
 		default=1000,
-		help="(clustream) Maximum number of micro kernels to use (default 1000)"
+		help="(clustream) Maximum number of micro clusters to use (default 1000)"
 	)
 	parser.add_argument(
-		"-b",
-		"--batch_size",
+		"-t",
+		"--kernel-radius",
 		type=int,
 		default=2,
 		help="(clustream) Multiplier for the kernel radius (default 2)"
@@ -79,7 +83,7 @@ def parse_args():
 	#------------------------------------------------------------------------------------
 	parser.add_argument(
 		"-c",
-		"--coreset_size",
+		"--coreset-size",
 		type=int,
 		help="(streamkm) Number of coresets to use (default 1000)",
 		default=1000
@@ -91,4 +95,16 @@ def parse_args():
 		help="(streamkm) Number of datapoints to process (default:length of the dataset)",
 		default=None
 	)
-	return parser.get_args()
+	args=parser.get_args()
+	if args.verbose:
+		logging.basicConfig(format='[%(levelname)s]%(message)s',level=logging.DEBUG)
+	if args.algorithm=="minibatch" and args.lower_threshold==None:
+		args.lower_threshold=int(ceil(sqrt(args.batch_size)))
+	elif args.algorithm=="clustream" and args.lower_threshold==None:
+		args.lower_threshold=int(ceil(sqrt(args.microclusters)))
+	elif args.algorithm=="streamkm":
+		if args.lower_threshold==None:
+			args.lower_threshold=int(ceil(sqrt(args.microkernels)))
+		if args.length==None:
+			args.length=count_flines(args.input)
+	return args
