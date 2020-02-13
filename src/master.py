@@ -14,6 +14,7 @@ import logging
 import zlib
 from args import parse_args
 from utils import save_to_csv,Timer
+from kappas import get_kappas
 
 class Master:
 	"""
@@ -171,6 +172,7 @@ class Master:
 		print("closing everything")
 		for slave in self.slaves:
 			slave.close()
+		self.kappas=get_kappas(len(self.slaves),self.lower_threshold)
 
 if __name__=="__main__":
 	args=parse_args()
