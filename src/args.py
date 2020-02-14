@@ -7,7 +7,8 @@ def parse_args():
 	parser=argparse.ArgumentParser()
 	subparsers=parser.add_subparsers(
 		title="algorithm",
-		help="which core algorithm will be used"
+		help="which core algorithm will be used",
+		dest="algorithm"
 	)
 	parser.add_argument(
 		"input",
@@ -46,7 +47,6 @@ def parse_args():
 		"minibatch",
 		help="MiniBatchKmeans online clustering algorithm"
 	)
-	minibatch.set_defaults(algorithm="minibatch")
 	minibatch.add_argument(
 		"-b",
 		"--batch-size",
@@ -60,7 +60,6 @@ def parse_args():
 		"clustream",
 		help="CluStream online clustering algorithm"
 	)
-	clustream.set_defaults(algorithm="clustream")
 	clustream.add_argument(
 		"-H",
 		"--window-range",
@@ -88,7 +87,6 @@ def parse_args():
 		"streamkm",
 		help="StreamKm++ online clustering algorithm"
 	)
-	streamkm.set_defaults(algorithm="streamkm")
 	streamkm.add_argument(
 		"-c",
 		"--coreset-size",
