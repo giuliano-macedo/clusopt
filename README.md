@@ -36,9 +36,9 @@ cd src
 ```
 
 and
-to run master node, use `-h` flag for more options
+to run master node, use `-h` and `[ALGORITHM] -h` for more help
 ```bash
-./master.py [PATH OR URL TO CSV FILE]
+./master.py [ALGORITHM] [PATH OR URL TO CSV FILE]
 ```
 to run slave node, use `-h` flag for more options
 ```bash
