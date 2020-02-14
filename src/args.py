@@ -2,6 +2,7 @@ import argparse
 import logging
 from math import ceil,sqrt
 from utils import count_flines
+import os
 
 def parse_args():
 	parser=argparse.ArgumentParser()
@@ -102,7 +103,8 @@ def parse_args():
 		default=None
 	)
 	args=parser.parse_args()
-	print(args)
+	if not os.path.isfile(args.input):
+		raise FileNotFoundError(args.input)
 	if args.verbose:
 		logging.basicConfig(format='[%(levelname)s]%(message)s',level=logging.DEBUG)
 	if args.algorithm=="minibatch" and args.lower_threshold==None:
