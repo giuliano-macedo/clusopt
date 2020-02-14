@@ -8,11 +8,12 @@ import numpy as np
 from args import parse_args
 from kappas import get_kappas
 from utils import Timer
-from network import Ship,ServerSocket
+from network import Ship,ServerSocket,PAYID
 
 class Master:
 	"""
 	Args:
+		algorithm (str): the algorithm to use
 		input (str): URI of the dataset
 		number_nodes (int): number of remote nodes to connect
 		lower_threshold (int): lower threshold for kappa set generation
@@ -27,7 +28,8 @@ class Master:
 	"""
 
 
-	def __init__(self,_input,number_nodes,lower_threshold):
+	def __init__(self,algorithm,_input,number_nodes,lower_threshold):
+		self.algorithm=algorithm
 		self.input=_input
 		self.number_nodes=number_nodes
 		self.lower_threshold=lower_threshold
@@ -37,11 +39,13 @@ class Master:
 		#t -> msock
 		self.ship=Ship(self.number_nodes)
 		self.overall_timer=Timer()
-		
-
-	def run(self):
+	
+	def run(self,**json_opts):
 		"""
-		main method, run master's node algorithm
+		Run master's node initialization and send extra json_opts to slaves
+
+		Args:
+			**json_opts : extra json options to send to slaves 
 		"""
 		#connect remote nodes
 		for msock in self.ship.get_node_sockets():
@@ -58,10 +62,16 @@ class Master:
 		print(end="\r")
 		assert len(self.slaves)!=0,"no slaves connected"
 		self.kappas=get_kappas(len(self.slaves),self.lower_threshold)
+		for slave,kappa in zip(self.slaves,self.kappas):
+			slave.send(PAYID.json,{
+				"algorithm":self.algorithm,
+				"kappa":kappa
+			},**json_opts)
 
 if __name__=="__main__":
 	args=parse_args()
 	master_args={
+		"algorithm":args.algorithm,
 		"_input":args.input,
 		"number_nodes":args.number_nodes,
 		"lower_threshold":args.lower_threshold

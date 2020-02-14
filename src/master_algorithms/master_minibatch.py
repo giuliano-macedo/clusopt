@@ -1,6 +1,8 @@
 from master import Master
 from core import Bucket
-from network import PAYID
+from network import PAYID,Payload
+import numpy as np
+import logging
 from threading import Thread
 import pandas
 import zlib
@@ -60,19 +62,16 @@ class MasterMiniBatch(Master):
 			batch (np.ndarray): dataset chunk
 			compressed (bytes): compressed batch data
 		"""
-		msock.send(Payload(PAYID.datapoints,(batch,compressed)))
+		msock.send(Payload(PAYID.compressed_float32_matrix,(batch,compressed)))
 	def run(self):
-		super().run()
+		super().run(batch_size=self.batch_size)
 		self.overall_timer.start()
-		#send increment
-		for slave in self.slaves:
-			slave.send(Payload(PAYID.k_coeficient_inc,len(self.slaves)))
 		#---------------------------------------------------------------------------------
 		#start silhoete receiver threads
 		sil_threads=[]
 		for i,slave in enumerate(self.slaves):
 			t=Thread(
-				name=f"silhoete-{i}",
+				name=f"Silhoete-{i}",
 				target=Master.silhoete_recv_handler,
 				args=(self,slave,)
 			)
@@ -81,7 +80,7 @@ class MasterMiniBatch(Master):
 		#---------------------------------------------------------------------------------
 		#start replicator sender threads
 		repl_threads=[]
-		for i,batch in enumerate(pandas.read_csv(config.input,chunksize=config.batch_size,dtype=np.float32)):
+		for i,batch in enumerate(pandas.read_csv(self.input,chunksize=self.batch_size,header=None,dtype=np.float32)):
 			print(f"t={i} sending {len(batch.values)} points")
 			compressed=zlib.compress(batch.values.tobytes(),level=1)
 			for j,slave in enumerate(self.slaves):
@@ -112,7 +111,7 @@ class MasterMiniBatch(Master):
 		for t,winner in enumerate(self.winners.values()):
 			print(f"requesting labels for {winner.msock} on k={winner.k} and time={t}")
 			winner.msock.send(Payload(PAYID.labels_req,(t,winner.k)))
-			labels=winner.msock.recv(PAYID.labels).obj
+			labels=winner.msock.recv(PAYID.uint8_vector).obj
 			print(f"got labels {labels[:30]}...")
 			winner_label+=list(labels) #TODO probably slow
 		#---------------------------------------------------------------------------------
