@@ -4,14 +4,10 @@ slave.py
 ====================================
 The slave node
 """
-from network import Payload,ClientSocket
-import numpy as np
-import json
+from network import Payload,ClientSocket,PAYID
 from collections import namedtuple
 from argparse import ArgumentParser
-from threading import Thread,Lock
 from core import Clusterer
-import socket
 import logging
 		
 class Slave:
@@ -21,8 +17,8 @@ class Slave:
 	Attributes:
 		
 	"""
-	def __init__(self,**config):
-		self.config=namedtuple("config",list(config.keys()))(*list(config.values()))
+	def __init__(self):
+		pass
 	def run(self,server):
 		"""
 		main method, run slave's node algorithm
@@ -30,10 +26,10 @@ class Slave:
 		config=self.config
 		#---------------------------------------------------------------------------------
 		#get kcs
-		pay=server.recv(Payload.Id.k_coeficient)
+		pay=server.recv(PAYID.k_coeficient)
 		kc=pay.obj
 
-		pay=server.recv(Payload.Id.k_coeficient_inc)
+		pay=server.recv(PAYID.k_coeficient_inc)
 		kci=pay.obj
 
 		clusterer=Clusterer(kc,kci,config.batch_size)
@@ -41,30 +37,30 @@ class Slave:
 		#for every payload calc sil_score
 		bc=0
 		while True:
-			pay=server.recv(Payload.Id.datapoints,Payload.Id.end)
-			if pay.id==Payload.Id.end:
+			pay=server.recv(PAYID.datapoints,PAYID.end)
+			if pay.id==PAYID.end:
 				print(f"ended with {bc}")
 				break
 			for k,sil in clusterer.add_and_get_score(pay.obj):
-				server.send(Payload(Payload.Id.silhouette,(bc,k,sil)))
+				server.send(Payload(PAYID.silhouette,(bc,k,sil)))
 			print(f"i am finished with t={bc}")
 			bc+=1
-		server.send(Payload(Payload.Id.end))
+		server.send(Payload(PAYID.end))
 		#---------------------------------------------------------------------------------
 		#check if is winner for some k and t
 		while True:
-			pay=server.recv(Payload.Id.labels_req,Payload.Id.end)
-			if pay.id==Payload.Id.labels_req:
+			pay=server.recv(PAYID.labels_req,PAYID.end)
+			if pay.id==PAYID.labels_req:
 				t,k=pay.obj
 				print(f"i am the winner for t={t} and k={k}")
 				winner_shelve=next((shelve for shelve in clusterer.drawer if shelve.k==k),None) #TODO O(N) but not that slow
 				if winner_shelve==None:
-					server.send(Payload(Payload.Id.err))
+					server.send(Payload(PAYID.err))
 					raise RuntimeError(f"Requested k not found ({pay.obj}) ks available {[o.k for o in clusterer.drawer]}")
 				tbatch_size=t*config.batch_size
 				tbatch_size_plus=(t+1)*config.batch_size
-				server.send(Payload(Payload.Id.labels,winner_shelve.labels[tbatch_size:tbatch_size_plus]))
-			elif pay.id==Payload.Id.end:
+				server.send(Payload(PAYID.labels,winner_shelve.labels[tbatch_size:tbatch_size_plus]))
+			elif pay.id==PAYID.end:
 				break
 
 if __name__=="__main__":
@@ -74,9 +70,9 @@ if __name__=="__main__":
 	args=parser.parse_args()
 	if args.verbose:
 		logging.basicConfig(format='[%(levelname)s]%(message)s',level=logging.DEBUG)
-	with open("config.json") as f:
-		config=json.load(f)
-	config=dict(**vars(args),**config)
 	server=ClientSocket(args.master_addr,3523)
 	print(f"Connected to {server.ip}")
-	Slave(**config).run(server)
+	config=server.recv(PAYID.json).obj
+	print(config)
+	server.send(Payload(PAYID.err))
+	

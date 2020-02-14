@@ -91,7 +91,8 @@ def read_json(sock):
 	return json.loads(sock.recv(n))
 
 def write_json(buff,obj):
-	buff+= (struct.pack("I",len(obj))+bytes(json.dumps(obj)))
+	s=bytes(json.dumps(obj),"ascii")
+	buff+= (struct.pack("I",len(s))+s)
 
 class PAYID(IntEnum):
 	"""
@@ -196,5 +197,5 @@ class Payload:
 		buff+=(struct.pack("B",self.id.value))
 		f=self.__hooks_write.get(self.id,None)
 		if f!=None:
-			f(buff)
+			f(buff,self.obj)
 		sock.sendall(buff)

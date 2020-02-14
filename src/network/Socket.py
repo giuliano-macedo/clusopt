@@ -1,5 +1,5 @@
 from threading import Lock
-from .Payload import Payload
+from .Payload import Payload,PAYID
 import logging
 import numpy as np
 class Socket:
@@ -40,9 +40,9 @@ class Socket:
 			ans.readFrom(self.socket)
 			if (len(pays_ids)!=0) and (ans.id not in pays_ids):
 				raise RuntimeError(f"Unexpected payload {ans.id}")
-			if ans.id==Payload.Id.err:
+			if ans.id==PAYID.err:
 				raise RuntimeError(f"Host {self.ip} sent a err payload")
-			if ans.id==Payload.Id.datapoints:
+			if ans.id==PAYID.compressed_float64_matrix:
 				pay_type=f"ndarray with shape={ans.obj.shape} {ans.obj[0],ans.obj[-1]}"
 				# breakpoint()
 			else:
@@ -58,7 +58,7 @@ class Socket:
 
 		"""
 		with self.write_lock:
-			if pay.id==Payload.Id.datapoints:
+			if pay.id==PAYID.compressed_float64_matrix:
 				ndarray,compressed=pay.obj
 				pay_type=f"datapoints with shape={ndarray.shape} {ndarray[0],ndarray[-1]}"
 			else:

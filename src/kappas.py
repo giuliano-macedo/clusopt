@@ -8,7 +8,7 @@ def get_kappas(no_slaves,l):
 		no_slaves (int): number of slaves
 		l (int): lower threshold of the number of columns of the kappa matrix
 	Returns:
-		ndarray
+		list
 	"""
 	#l must be even and divisble by l
 	#adds with the complementary mod of no_slaves, so that l is divisible by no_slaves
@@ -18,7 +18,7 @@ def get_kappas(no_slaves,l):
 		l+=no_slaves
 	#range of k's must be from 2 to l
 	unordered_kappas=list(range(2,l+2))
-	return np.array(rearange(unordered_kappas)).reshape((no_slaves,(l//no_slaves)))
+	return np.array(rearange(unordered_kappas)).reshape((no_slaves,(l//no_slaves))).tolist()
 def rearange(L): # reorders list of k's to do the gauss's trick
 	
 	n=len(L)
@@ -37,4 +37,4 @@ def old_get_kappas(no_slaves,l):
 	deprecated
 	"""
 	kappa=lambda i:[k for k in range(2+i,l+1,no_slaves)]
-	return np.array([kappa(i) for i in range(no_slaves)])
+	return np.array([kappa(i) for i in range(no_slaves)]).tolist()

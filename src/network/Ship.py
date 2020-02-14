@@ -10,11 +10,10 @@ class Ship:
 		n (str): Number of nodes to use
 		tries (int): maximum number of tries
 	"""
-	def __init__(self,n,tries=15):
+	def __init__(self,n,remote_nodes,tries=15):
 		self.n=n
 		self.tries=tries
-		fname="remote_nodes.txt"
-		self.ips=open(fname).read().strip().split("\n")[:self.n] if os.path.isfile(fname) else []
+		self.ips=open(remote_nodes).read().strip().split("\n")[:self.n] if os.path.isfile(remote_nodes) else []
 		
 	def get_node_sockets(self):
 		"""

@@ -8,7 +8,7 @@ import numpy as np
 from args import parse_args
 from kappas import get_kappas
 from utils import Timer
-from network import Ship,ServerSocket,PAYID
+from network import Ship,ServerSocket,PAYID,Payload
 
 class Master:
 	"""
@@ -17,6 +17,7 @@ class Master:
 		input (str): URI of the dataset
 		number_nodes (int): number of remote nodes to connect
 		lower_threshold (int): lower threshold for kappa set generation
+		remote_nodes (str): path to the file that contains the ip for all remote slaves
 	Attributes:
 		input (str):
 		number_nodes (int):
@@ -28,7 +29,7 @@ class Master:
 	"""
 
 
-	def __init__(self,algorithm,_input,number_nodes,lower_threshold):
+	def __init__(self,algorithm,_input,number_nodes,lower_threshold,remote_nodes):
 		self.algorithm=algorithm
 		self.input=_input
 		self.number_nodes=number_nodes
@@ -37,7 +38,7 @@ class Master:
 
 		self.slaves=set()
 		#t -> msock
-		self.ship=Ship(self.number_nodes)
+		self.ship=Ship(self.number_nodes,remote_nodes)
 		self.overall_timer=Timer()
 	
 	def run(self,**json_opts):
@@ -53,7 +54,7 @@ class Master:
 		#---------------------------------------------------------------------------------
 		#connect local nodes
 		server=ServerSocket(3523)
-		print("waiting for slaves press [CTRL+C] to stop waiting")
+		print("waiting for slaves, press [CTRL+C] to stop waiting")
 		try:
 			while True:
 				self.accept_handler(server.accept()) #no nedd to be multithread
@@ -63,10 +64,10 @@ class Master:
 		assert len(self.slaves)!=0,"no slaves connected"
 		self.kappas=get_kappas(len(self.slaves),self.lower_threshold)
 		for slave,kappa in zip(self.slaves,self.kappas):
-			slave.send(PAYID.json,{
+			slave.send(Payload(PAYID.json,{**{
 				"algorithm":self.algorithm,
 				"kappa":kappa
-			},**json_opts)
+			},**json_opts}))
 
 if __name__=="__main__":
 	args=parse_args()
@@ -74,28 +75,27 @@ if __name__=="__main__":
 		"algorithm":args.algorithm,
 		"_input":args.input,
 		"number_nodes":args.number_nodes,
-		"lower_threshold":args.lower_threshold
+		"lower_threshold":args.lower_threshold,
+		"remote_nodes":args.remote_nodes
 	}
 	if args.algorithm=="minibatch":
-		from master_algorithms import MasterMiniBatch
+		from master_algorithms import MasterMiniBatch as MasterAlgorithm
 		master_args={**master_args,**{
 			"batch_size":args.batch_size
 		}}
-		master=MasterMiniBatch(**master_args)
 	elif args.algorithm=="clustream":
-		from master_algorithms import MasterCluStream
+		from master_algorithms import MasterCluStream as MasterAlgorithm
 		master_args={**master_args,**{
 			"window_range":args.window_range,
 			"microkernels":args.microclusters,
 			"kernel_radius":args.kernel_radius
 		}}
-		master=MasterCluStream(**master_args)
 	elif args.algorithm=="streamkm":
-		from master_algorithms import MasterStreamkm
+		from master_algorithms import MasterStreamkm as MasterAlgorithm
 		master_args={**master_args,**{
 			"coreset_size":args.coreset_size,
 			"length":args.length
 		}}
-		master=MasterStreamkm(**master_args)
+	master=MasterAlgorithm(**master_args)
 	master.run()
 	

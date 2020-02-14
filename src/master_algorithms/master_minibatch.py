@@ -15,8 +15,8 @@ class MasterMiniBatch(Master):
 		winners (list): contains sockets winner for each bach index
 		bucket (list): contains each time, silhouete, and socket for each batch index
 	"""
-	def __init__(self,*args,batch_size):
-		super().__init__(*args)
+	def __init__(self,*args,batch_size,**kwargs):
+		super().__init__(*args,**kwargs)
 		self.batch_size=batch_size
 		self.bucket=Bucket(self.batch_size)
 		self.winners={}
@@ -72,7 +72,7 @@ class MasterMiniBatch(Master):
 		for i,slave in enumerate(self.slaves):
 			t=Thread(
 				name=f"Silhoete-{i}",
-				target=Master.silhoete_recv_handler,
+				target=MasterMiniBatch.silhoete_recv_handler,
 				args=(self,slave,)
 			)
 			sil_threads.append(t)
@@ -86,7 +86,7 @@ class MasterMiniBatch(Master):
 			for j,slave in enumerate(self.slaves):
 				t=Thread(
 					name=f"Replicator-{i,j}",
-					target=Master.replicator_send_handler,
+					target=MasterMiniBatch.replicator_send_handler,
 					args=(self,slave,batch.values,compressed)
 				)
 				repl_threads.append(t)
