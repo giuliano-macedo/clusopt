@@ -17,10 +17,18 @@ def parse_args():
 	)
 	parser.add_argument(
 		'-n',
-		'--number_nodes',
+		'--number-nodes',
 		type=int,
 		help="number of docker nodes (default 0)",
 		default=0
+	)
+	parser.add_argument(
+		"-k",
+		'--kappas-method',
+		type=str,
+		help="kappas set method (default gauss)",
+		default="gauss",
+		choices=["gauss","v1","v2"]
 	)
 	parser.add_argument(
 		'-v',

@@ -6,7 +6,6 @@ The master node
 """
 import numpy as np
 from args import parse_args
-from kappas import get_kappas
 from utils import Timer
 from network import Ship,ServerSocket,PAYID,Payload
 
@@ -96,6 +95,16 @@ if __name__=="__main__":
 			"coreset_size":args.coreset_size,
 			"length":args.length
 		}}
+	else:
+		raise RuntimeError("unexpected error")
+	if args.kappas_method=="gauss":
+		from kappas import get_kappas_gauss as get_kappas
+	elif args.kappas_method=="v1":
+		from kappas import get_kappas_v1 as get_kappas
+	elif args.kappas_method=="v2":
+		from kappas import get_kappas_v2 as get_kappas
+	else:
+		raise RuntimeError("unexpected error")
 	master=MasterAlgorithm(**master_args)
 	master.run()
 	

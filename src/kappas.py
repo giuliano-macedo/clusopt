@@ -1,6 +1,6 @@
 import numpy as np
 
-def get_kappas(no_slaves,l):
+def get_kappas_gauss(no_slaves,l):
 	"""
 	Returns kappas set with gauss's trick for each slave
 
@@ -32,9 +32,28 @@ def rearange(L): # reorders list of k's to do the gauss's trick
 		if second_half:
 			ans.append(second_half.pop(0))
 	return ans
-def old_get_kappas(no_slaves,l):
+def get_kappas_v1(no_slaves,l):
 	"""
-	deprecated
+	Returns kappas set with the transpose matrix method with empty elements
+
+	Args:
+		no_slaves (int): number of slaves
+		l (int): lower threshold of the number of columns of the kappa matrix
+	Returns:
+		list
 	"""
 	kappa=lambda i:[k for k in range(2+i,l+1,no_slaves)]
-	return np.array([kappa(i) for i in range(no_slaves)]).tolist()
+	return [kappa(i) for i in range(no_slaves)]
+def get_kappas_v2(no_slaves,l):
+	"""
+	Returns kappas set with the matrix method without empty elements
+
+	Args:
+		no_slaves (int): number of slaves
+		l (int): lower threshold of the number of columns of the kappa matrix
+	Returns:
+		list
+	"""
+	n=l+(l%no_slaves)
+	kappas=np.array(range(2,n+2)).reshape((n//no_slaves,no_slaves)).T
+	return kappas.tolist()
