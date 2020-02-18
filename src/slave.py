@@ -25,16 +25,15 @@ class Slave:
 		"""
 		pass
 
-
-if __name__=="__main__":
+def get_args():
 	parser=ArgumentParser()
 	parser.add_argument("master_addr",help="address of the master")
 	parser.add_argument('-v','--verbose', action='store_true',help="enbale verbose")
 	args=parser.parse_args()
 	if args.verbose:
 		logging.basicConfig(format='[%(levelname)s]%(message)s',level=logging.DEBUG)
-	
-	server=ClientSocket(args.master_addr,3523)
+	return args
+def main(server):
 	print(f"Connected to {server.ip}")
 	config=server.recv(PAYID.json).obj
 	print(config)
@@ -63,4 +62,11 @@ if __name__=="__main__":
 		raise RuntimeError("Unexpected error")
 	slave=SlaveAlgorithm(**slave_args)
 	slave.run()
+
+if __name__=="__main__":
+	
+	args=get_args()
+	server=ClientSocket(args.master_addr,3523)
+	main(server)
+	
 	
