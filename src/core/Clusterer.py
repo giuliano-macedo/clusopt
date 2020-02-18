@@ -1,28 +1,20 @@
 import numpy as np
-from sklearn.cluster import MiniBatchKMeans as ClustererAlgo
+from sklearn.cluster import MiniBatchKMeans
 # from sklearn.cluster import Birch as ClustererAlgo
 from sklearn.metrics import silhouette_score
 from multiprocessing.dummy import Pool
-from math import sqrt,ceil
 #drawer clusterer
 class Clusterer:
 	def __add_shelve(self,k):
 		c=Shelve(k,self.batch_size)
 		self.drawer.append(c)
 
-	def __init__(self,kc,kci,batch_size=None):
-		self.kc=kc
-		self.kci=kci
+	def __init__(self,kappa,batch_size=None):
 		self.batch_size=batch_size
 		self.pool=Pool()
 		self.drawer=[]
-		self.__add_shelve(self.kc)
-
-		maxn=ceil(sqrt(batch_size))
-		for k in range(self.drawer[-1].k+self.kci,maxn+1,self.kci):
-			# print(f"[KMEANS] CREATING k={k}")
+		for k in kappa:
 			self.__add_shelve(k)
-		# print(f"for k in range({self.drawer[-1].k+self.kci},{maxn+1},{self.kci}):")
 
 	def __handler(arg):
 		self,clusterer,batch=arg
@@ -34,10 +26,10 @@ class Clusterer:
 class Shelve:
 	def __init__(self,k,batch_size=None):
 		self.k=k
-		self.clusterer=ClustererAlgo(
+		self.clusterer=MiniBatchKMeans(
 			n_clusters=k,
-			# batch_size=batch_size
-			)
+			batch_size=batch_size
+		)
 		self.batch_size=batch_size
 		self.labels=np.empty(0)
 	def add(self,batch):
@@ -52,11 +44,11 @@ class Shelve:
 		l=len(batch)
 		try:
 			return silhouette_score(batch,self.labels[-l:])
-		except ValueError as e: #all values in labels are identical
+		except ValueError: #all values in labels are identical
 			self.labels[-1]+=1
 			try:
 				ans=silhouette_score(batch,self.labels[-l:])
-			except Exception as e:
+			except Exception:
 				self.labels[-1]-=1
 				print("ERROR COMPUTING SILHOUETTE, RETURNING -1")
 				return -1
