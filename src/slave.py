@@ -6,6 +6,7 @@ The slave node
 """
 from network import ClientSocket,PAYID
 from argparse import ArgumentParser
+from collections import namedtuple
 import logging
 		
 class Slave:
@@ -37,13 +38,14 @@ def main(server):
 	print(f"Connected to {server.ip}")
 	config=server.recv(PAYID.json).obj
 	print(config)
+	config=namedtuple('Config', sorted(config))(**config) #dict -> namedtuple
 	
 	slave_args={
-		"server":config.server,
+		"server":server,
 		"kappa":config.kappa
 	}
 
-	if config.algorithm=="minibatchkmeans":
+	if config.algorithm=="minibatch":
 		from slave_algorithms import SlaveMiniBatch as SlaveAlgorithm
 		slave_args={**slave_args,**{
 			"batch_size":config.batch_size

@@ -12,7 +12,7 @@ class SlaveMiniBatch(Slave):
 		#for every payload calc sil_score
 		bc=0
 		while True:
-			pay=self.server.recv(PAYID.datapoints,PAYID.end)
+			pay=self.server.recv(PAYID.compressed_float32_matrix,PAYID.end)
 			if pay.id==PAYID.end:
 				print(f"ended with {bc}")
 				break
@@ -34,6 +34,6 @@ class SlaveMiniBatch(Slave):
 					raise RuntimeError(f"Requested k not found ({pay.obj}) ks available {[o.k for o in clusterer.drawer]}")
 				tbatch_size=t*self.batch_size
 				tbatch_size_plus=(t+1)*self.batch_size
-				self.server.send(Payload(PAYID.labels,winner_shelve.labels[tbatch_size:tbatch_size_plus]))
+				self.server.send(Payload(PAYID.uint8_vector,winner_shelve.labels[tbatch_size:tbatch_size_plus]))
 			elif pay.id==PAYID.end:
 				break
