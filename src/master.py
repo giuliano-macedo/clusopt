@@ -15,12 +15,14 @@ class Master:
 		algorithm (str): the algorithm to use
 		input (str): URI of the dataset
 		number_nodes (int): number of remote nodes to connect
-		lower_threshold (int): lower threshold for kappa set generation
+		lower_threshold (int): lower threshold for kappas set generation
+		kappas_method (function): kappas set builder function
 		remote_nodes (str): path to the file that contains the ip for all remote slaves
 	Attributes:
 		input (str):
 		number_nodes (int):
 		lower_threshold (int):
+		kappas_method (function):
 		kappas (ndarray):kappa set for each slave
 		slaves (list): list of connected slaves
 		ship (midsc.network.Ship): ship object containing the number of nodes necessary
@@ -28,11 +30,12 @@ class Master:
 	"""
 
 
-	def __init__(self,algorithm,_input,number_nodes,lower_threshold,remote_nodes):
+	def __init__(self,algorithm,_input,number_nodes,lower_threshold,kappas_method,remote_nodes):
 		self.algorithm=algorithm
 		self.input=_input
 		self.number_nodes=number_nodes
 		self.lower_threshold=lower_threshold
+		self.kappas_method=kappas_method
 		self.kappas=np.empty(0)
 
 		self.slaves=set()
@@ -61,7 +64,7 @@ class Master:
 			pass
 		print(end="\r")
 		assert len(self.slaves)!=0,"no slaves connected"
-		self.kappas=get_kappas(len(self.slaves),self.lower_threshold)
+		self.kappas=self.kappas_method(len(self.slaves),self.lower_threshold)
 		for slave,kappa in zip(self.slaves,self.kappas):
 			slave.send(Payload(PAYID.json,{**{
 				"algorithm":self.algorithm,
@@ -105,6 +108,7 @@ if __name__=="__main__":
 		from kappas import get_kappas_v2 as get_kappas
 	else:
 		raise RuntimeError("unexpected error")
+	master_args["kappas_method"]=get_kappas
 	master=MasterAlgorithm(**master_args)
 	master.run()
 	
