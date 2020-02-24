@@ -28,7 +28,7 @@ def parse_args():
 		type=str,
 		help="kappas set method (default gauss)",
 		default="gauss",
-		choices=["gauss","v1","v2"]
+		choices=["gauss","v1","v2","random"]
 	)
 	parser.add_argument(
 		'-v',

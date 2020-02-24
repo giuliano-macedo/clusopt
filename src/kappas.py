@@ -2,7 +2,8 @@ import numpy as np
 
 def get_kappas_gauss(no_slaves,l):
 	"""
-	Returns kappas set with gauss's trick for each slave
+	Returns kappas set with gauss's trick for each slave,
+	so that each kappa set have the same sum and mean
 
 	Args:
 		no_slaves (int): number of slaves
@@ -46,7 +47,8 @@ def get_kappas_v1(no_slaves,l):
 	return [kappa(i) for i in range(no_slaves)]
 def get_kappas_v2(no_slaves,l):
 	"""
-	Returns kappas set with the matrix method without empty elements
+	Returns kappas set with the matrix method without empty elements,
+	so that each kappa set have the same deviation
 
 	Args:
 		no_slaves (int): number of slaves
@@ -57,3 +59,9 @@ def get_kappas_v2(no_slaves,l):
 	n=l+(l%no_slaves)
 	kappas=np.array(range(2,n+2)).reshape((n//no_slaves,no_slaves)).T
 	return kappas.tolist()
+def get_kappas_random(no_slaves,l):
+	np.random.seed(1)
+	n=l+(l%no_slaves)
+	kappas=np.array(range(2,n+2))
+	np.random.shuffle(kappas)
+	return kappas.reshape((no_slaves,n//no_slaves)).tolist()

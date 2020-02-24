@@ -106,6 +106,8 @@ if __name__=="__main__":
 		from kappas import get_kappas_v1 as get_kappas
 	elif args.kappas_method=="v2":
 		from kappas import get_kappas_v2 as get_kappas
+	elif args.kappas_method=="random":
+		from kappas import get_kappas_random as get_kappas
 	else:
 		raise RuntimeError("unexpected error")
 	master_args["kappas_method"]=get_kappas
