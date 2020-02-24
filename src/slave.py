@@ -7,6 +7,7 @@ The slave node
 from network import ClientSocket,PAYID
 from argparse import ArgumentParser
 from collections import namedtuple
+from random import shuffle
 import logging
 		
 class Slave:
@@ -37,9 +38,9 @@ def get_args():
 def main(server):
 	print(f"Connected to {server.ip}")
 	config=server.recv(PAYID.json).obj
-	print(config)
+	print("got config from server",config)
 	config=namedtuple('Config', sorted(config))(**config) #dict -> namedtuple
-	
+	shuffle(config.kappa)
 	slave_args={
 		"server":server,
 		"kappa":config.kappa
@@ -68,7 +69,11 @@ def main(server):
 if __name__=="__main__":
 	
 	args=get_args()
-	server=ClientSocket(args.master_addr,3523)
+	try:
+		server=ClientSocket(args.master_addr,3523)
+	except ConnectionRefusedError:
+		print("Error connecting to",args.master_addr)
+		exit(-1)
 	main(server)
 	
 	
