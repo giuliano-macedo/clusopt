@@ -5,12 +5,17 @@ from subprocess import Popen,CalledProcessError,PIPE,TimeoutExpired
 from signal import SIGINT
 from zipfile import ZipFile
 import time
-import json
+import shlex
 
-def runmaster(dataset):
-	cmd=["./master.py",dataset]
+class AutoKillPopen(Popen):
+	def __del__(self):
+		self.kill()
+		super().__del__()
+
+def runmaster(master_args):
+	cmd=["./master.py",*shlex.split(master_args)]
 	with open("log.txt","wb") as f:
-		p=Popen(cmd,stdout=f.fileno(),stderr=PIPE)
+		p=AutoKillPopen(cmd,stdout=f.fileno(),stderr=PIPE)
 		print("running"," ".join(cmd))
 		try:
 			returncode=p.wait(6)
@@ -25,27 +30,22 @@ def runmaster(dataset):
 		
 
 parser=argparse.ArgumentParser()
-parser.add_argument("dataset",type=str)
-parser.add_argument("batch_size",type=int)
+parser.add_argument("master_args",type=str)
 parser.add_argument("how_many_times",type=int)
 parser.add_argument("output",type=str)
 args=parser.parse_args()
-
-config=json.load(open("config.json"))
-config["batch_size"]=args.batch_size
-with open("config.json","w") as f:json.dump(config,f)
 
 for i in range(1,args.how_many_times+1):
 	print("-"*48)
 	print(f"try {i}/{args.how_many_times}")
 	while True:
 		try:
-			runmaster(args.dataset)
+			runmaster(args.master_args)
 			break
 		except CalledProcessError as e:
 			print(f"execution failed with ({e.returncode})")
 			print("err:")
-			print(e.stderr.read().decode())
+			print()
 		time.sleep(0.5)
 	print("command executed successfully")
 	with ZipFile(args.output,"a") as zipf:
