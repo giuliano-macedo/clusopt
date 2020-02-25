@@ -7,7 +7,6 @@ The slave node
 from network import ClientSocket,PAYID
 from argparse import ArgumentParser
 from collections import namedtuple
-from random import shuffle
 import logging
 		
 class Slave:
@@ -40,7 +39,6 @@ def main(server):
 	config=server.recv(PAYID.json).obj
 	print("got config from server",config)
 	config=namedtuple('Config', sorted(config))(**config) #dict -> namedtuple
-	shuffle(config.kappa)
 	slave_args={
 		"server":server,
 		"kappa":config.kappa
@@ -65,6 +63,7 @@ def main(server):
 		raise RuntimeError("Unexpected error")
 	slave=SlaveAlgorithm(**slave_args)
 	slave.run()
+	print("done")
 
 if __name__=="__main__":
 	
