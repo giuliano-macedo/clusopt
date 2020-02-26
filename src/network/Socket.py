@@ -38,10 +38,10 @@ class Socket:
 			ans=Payload()
 			logging.debug(f"[SOCK RECV {self.ip}] starting")
 			ans.readFrom(self.socket)
-			if (len(pays_ids)!=0) and (ans.id not in pays_ids):
-				raise RuntimeError(f"Unexpected payload {ans.id}")
 			if ans.id==PAYID.err:
 				raise RuntimeError(f"Host {self.ip} sent a err payload")
+			if (len(pays_ids)!=0) and (ans.id not in pays_ids):
+				raise RuntimeError(f"Unexpected payload {ans.id}")
 			if ans.id==PAYID.compressed_float64_matrix:
 				pay_type=f"ndarray with shape={ans.obj.shape} {ans.obj[0],ans.obj[-1]}"
 				# breakpoint()
