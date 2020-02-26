@@ -18,7 +18,7 @@ class MasterMiniBatch(Master):
 	def __init__(self,*args,batch_size,**kwargs):
 		super().__init__(*args,**kwargs)
 		self.batch_size=batch_size
-		self.bucket=Bucket(self.batch_size)
+		self.bucket=None
 		self.winners={}
 	
 	def accept_handler(self,msock):
@@ -66,6 +66,7 @@ class MasterMiniBatch(Master):
 	def run(self):
 		super().run(batch_size=self.batch_size)
 		self.overall_timer.start()
+		self.bucket=Bucket(len(self.slaves))
 		#---------------------------------------------------------------------------------
 		#start silhoete receiver threads
 		sil_threads=[]

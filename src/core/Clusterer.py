@@ -1,53 +1,81 @@
-import numpy as np
-from sklearn.cluster import MiniBatchKMeans
 # from sklearn.cluster import Birch as ClustererAlgo
 from sklearn.metrics import silhouette_score
 from multiprocessing.dummy import Pool
+import numpy as np
 #drawer clusterer
 class Clusterer:
-	def __add_shelve(self,k):
-		c=Shelve(k,self.batch_size)
-		self.drawer.append(c)
+	"""
+	Creates various Clusterer Objects and manages it's silhouette for each batch
 
-	def __init__(self,kappa,batch_size=None):
-		self.batch_size=batch_size
+	Args:
+		algorithm (Clusterer class): clusterer algorithm to use
+		kappa (ndarray): kappa set
+	Attributes:
+		best_clusterers (dict): dict that maps the best batch_index,k -> label
+	"""
+
+	def __init__(self,algorithm,kappa):
+		self.algorithm=algorithm
 		self.pool=Pool()
-		self.drawer=[]
-		for k in kappa:
-			self.__add_shelve(k)
+		self.drawer=[Shelve(self.algorithm,k) for k in kappa]
+		self.best_clusterers=dict()
+		self.batch_index=0
 
 	def __handler(arg):
-		self,clusterer,batch=arg
+		clusterer,batch=arg
 		clusterer.add(batch)
-		return clusterer.k,clusterer.get_score(batch)
-	def add_and_get_score(self,batch):
-		return self.pool.imap_unordered(Clusterer.__handler,((self,c,batch,) for c in self.drawer))
+		score=clusterer.get_score(batch)
+		print(f"{clusterer.k:2}, {score:.2f}")
+		return clusterer,score
+	
+	def add_and_get_best_score(self,batch):
+		"""
+		Add batch to all clusterer and returns the k,silhouette of the best k
+		
+		Args:
+			batch (ndarray):
+		Returns:
+			(k,silhouette)
+		"""
+		best,score=min(
+			self.pool.imap_unordered(
+				Clusterer.__handler,((clusterer,batch) for clusterer in self.drawer)
+			),
+			key=lambda t:t[1] #sil
+		)
+		self.best_clusterers[(self.batch_index,best.k)]=best.labels.copy()
+		self.batch_index+=1
+		return best.k,score
+
+	def get_best_label(self,batch_index,k):
+		"""
+		Returns best label for given batch_index and k or None if not found
+		
+		Args:
+			batch_index (int):
+			k (int):
+
+		Returns:
+			(ndarray or None)
+		"""
+		return self.best_clusterers.get((batch_index,k),None)
+
+
 
 class Shelve:
-	def __init__(self,k,batch_size=None):
+	def __init__(self,algorithm,k):
 		self.k=k
-		self.clusterer=MiniBatchKMeans(
-			n_clusters=k,
-			batch_size=batch_size
-		)
-		self.batch_size=batch_size
-		self.labels=np.empty(0)
+		self.clusterer=algorithm(n_clusters=k)
 	def add(self,batch):
 		self.clusterer.partial_fit(batch)
-		if not self.labels.any():
-			self.labels=self.clusterer.labels_.astype(np.uint8)
-			return
-		n=len(self.labels)
-		self.labels.resize((n+len(self.clusterer.labels_.astype(np.uint8))))
-		self.labels[n:]=self.clusterer.labels_
+		self.labels=self.clusterer.labels_.astype(np.uint8)
 	def get_score(self,batch):
-		l=len(batch)
 		try:
-			return silhouette_score(batch,self.labels[-l:])
+			return silhouette_score(batch,self.labels)
 		except ValueError: #all values in labels are identical
 			self.labels[-1]+=1
 			try:
-				ans=silhouette_score(batch,self.labels[-l:])
+				ans=silhouette_score(batch,self.labels)
 			except Exception:
 				self.labels[-1]-=1
 				print("ERROR COMPUTING SILHOUETTE, RETURNING -1")

@@ -1,4 +1,3 @@
-from math import ceil,sqrt
 from threading import Lock
 from . import BucketEntry
 from utils import save_to_csv,Timer
@@ -9,11 +8,10 @@ class Bucket:
 	Args:
 		batch_size (int): size of each chunk of the dataset
 	"""
-	def __init__(self,batch_size):
+	def __init__(self,max_size):
 		self.lock=Lock()
-		self.batch_size=batch_size
 		self.data={} #t -> Bucket.Entry
-		self.max_size=ceil(sqrt(self.batch_size))-1
+		self.max_size=max_size
 
 	def add(self,t,k,sil,msock):
 		with self.lock:
@@ -38,6 +36,8 @@ class Bucket:
 			isfull=entry.counter==self.max_size
 			if isfull:
 				entry.timer.stop()
+			if entry.counter>self.max_size:
+				raise RuntimeError("Unexpected error: bucket already full")
 			return isfull
 	def get(self,t):
 		with self.lock:
