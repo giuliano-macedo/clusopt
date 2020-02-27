@@ -1,4 +1,5 @@
 import numpy as np
+from math import ceil
 
 def get_kappas_gauss(no_slaves,l):
 	"""
@@ -12,14 +13,15 @@ def get_kappas_gauss(no_slaves,l):
 		list
 	"""
 	#l must be even and divisble by l
-	#adds with the complementary mod of no_slaves, so that l is divisible by no_slaves
-	l+=no_slaves-(l%no_slaves)
+	#adds with the ceil of the division, so that l is divisible by no_slaves
+	total=no_slaves*ceil(l/no_slaves)
 	#gauss's trick only works with even numbers, so
-	if (l//no_slaves)%2==1:
-		l+=no_slaves
-	#range of k's must be from 2 to l
-	unordered_kappas=list(range(2,l+2))
-	return np.array(rearange(unordered_kappas)).reshape((no_slaves,(l//no_slaves))).tolist()
+	if (total//no_slaves)%2==1:
+		total+=no_slaves
+	unordered_kappas=list(range(2,total+2))
+	m=no_slaves
+	n=total//no_slaves
+	return np.array(rearange(unordered_kappas)).reshape((m,n)).tolist()
 def rearange(L): # reorders list of k's to do the gauss's trick
 	
 	n=len(L)
@@ -56,12 +58,16 @@ def get_kappas_v2(no_slaves,l):
 	Returns:
 		list
 	"""
-	n=l+(l%no_slaves)
-	kappas=np.array(range(2,n+2)).reshape((n//no_slaves,no_slaves)).T
+	total=no_slaves*ceil(l/no_slaves)
+	m=total//no_slaves
+	n=no_slaves
+	kappas=np.array(range(2,total+2)).reshape((m,n)).T
 	return kappas.tolist()
 def get_kappas_random(no_slaves,l):
 	np.random.seed(1)
-	n=l+(l%no_slaves)
-	kappas=np.array(range(2,n+2))
+	total=no_slaves*ceil(l/no_slaves)
+	kappas=np.array(range(2,total+2))
 	np.random.shuffle(kappas)
-	return kappas.reshape((no_slaves,n//no_slaves)).tolist()
+	m=no_slaves
+	n=total//no_slaves
+	return kappas.reshape((m,n)).tolist()
