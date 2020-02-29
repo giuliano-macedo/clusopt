@@ -26,7 +26,7 @@ class Clusterer:
 		clusterer.add(batch)
 		score=clusterer.get_score(batch)
 		print(f"{clusterer.k:2}, {score:.2f}")
-		return clusterer,score
+		return score,clusterer
 	
 	def add_and_get_best_score(self,batch):
 		"""
@@ -37,11 +37,10 @@ class Clusterer:
 		Returns:
 			(k,silhouette)
 		"""
-		best,score=min(
+		score,best=min(
 			self.pool.imap_unordered(
 				Clusterer.__handler,((clusterer,batch) for clusterer in self.drawer)
-			),
-			key=lambda t:t[1] #sil
+			)
 		)
 		self.best_clusterers[(self.batch_index,best.k)]=best.labels.copy()
 		self.batch_index+=1
