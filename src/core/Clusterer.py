@@ -3,6 +3,29 @@ from sklearn.metrics import silhouette_score
 from multiprocessing.dummy import Pool
 import numpy as np
 #drawer clusterer
+def maximize_silhouette(iterator):
+	"""
+	maximize clusterer score, minimizes it's k
+
+	Args:
+		iterator : iterator of tupples of score,clusterer
+	"""
+	score=-float("inf")
+	k=float("inf")
+	ans=None
+	for x,clusterer in iterator:
+		if x>score:
+			score=x
+			ans=clusterer
+			k=clusterer.k
+		elif x==score: #colision
+			if clusterer.k <= k:
+				score=x
+				ans=clusterer
+				k=clusterer.k
+	return score,ans
+
+
 class Clusterer:
 	"""
 	Creates various Clusterer Objects and manages it's silhouette for each batch
@@ -30,8 +53,8 @@ class Clusterer:
 		clusterer,batch=arg
 		clusterer.add(batch)
 		score=clusterer.get_score(batch)
-		print(f"{clusterer.k:2}, {score:.2f}")
-		return score,clusterer.k,clusterer
+		print(f"{clusterer.k:2}, {score:.3f}")
+		return score,clusterer
 	
 	def add_and_get_best_score(self,batch):
 		"""
@@ -42,14 +65,14 @@ class Clusterer:
 		Returns:
 			(k,silhouette)
 		"""
-		score,k,best=min(
+		score,best=maximize_silhouette(
 			self.pool.imap_unordered(
 				Clusterer.__handler,((clusterer,batch) for clusterer in self.drawer)
 			)
 		)
 		self.best_clusterers[(self.batch_index,best.k)]=self.__RESULT_FUNCTION(best)
 		self.batch_index+=1
-		return k,score
+		return best.k,score
 
 	def get_result(self,batch_index,k):
 		"""
