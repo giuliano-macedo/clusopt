@@ -33,6 +33,11 @@ class Bucket:
 					entry.sil=sil
 					entry.k=k
 					entry.msock=msock
+				elif sil==entry.sil and k<=entry.k:
+					entry.sil=sil
+					entry.k=k
+					entry.msock=msock
+
 			isfull=entry.counter==self.max_size
 			if isfull:
 				entry.timer.stop()

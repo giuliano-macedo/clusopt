@@ -18,11 +18,10 @@ def maximize_silhouette(iterator):
 			score=x
 			ans=clusterer
 			k=clusterer.k
-		elif x==score: #colision
-			if clusterer.k <= k:
-				score=x
-				ans=clusterer
-				k=clusterer.k
+		elif x==score and clusterer.k <= k: #colision
+			score=x
+			ans=clusterer
+			k=clusterer.k
 	return score,ans
 
 
