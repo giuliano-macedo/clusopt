@@ -115,13 +115,13 @@ def parse_args():
 		raise FileNotFoundError(args.input)
 	if args.verbose:
 		logging.basicConfig(format='[%(levelname)s]%(message)s',level=logging.DEBUG)
-	if args.algorithm=="minibatch" and args.lower_threshold==None:
+	if args.algorithm=="minibatch" and args.lower_threshold is None:
 		args.lower_threshold=int(ceil(sqrt(args.batch_size)))
-	elif args.algorithm=="clustream" and args.lower_threshold==None:
+	elif args.algorithm=="clustream" and args.lower_threshold is None:
 		args.lower_threshold=int(ceil(sqrt(args.microclusters)))
 	elif args.algorithm=="streamkm":
-		if args.lower_threshold==None:
+		if args.lower_threshold is None:
 			args.lower_threshold=int(ceil(sqrt(args.coreset_size)))
-		if args.length==None:
+		if args.length is None:
 			args.length=count_flines(args.input)
 	return args
