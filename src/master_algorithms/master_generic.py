@@ -14,12 +14,23 @@ class MasterGeneric(Master):
 		batch_size (int) : size of the chunks that the dataset will be splitted
 	Attributes:
 		winners (list): contains sockets winner for each bach index
-		bucket (list): contains each time, silhouete, and socket for each batch index
+		bucket (Bucket): contains each time, silhouete, and socket for each batch index
+		stream (iterator): iterator of the data stream
+		BATCH_DTYPE (str): defines the type of the data stream {float32,float64}
+		RESULT_MODE (str): defines the type of results {labels,centroids}
 	"""
 	
 	BATCH_DTYPE=None #{float32,float64}
 	RESULT_MODE=None #{labels,centroids}
-	def preproc(self,batch): #iterator
+	def preproc(self,batch):
+		"""
+		Function pre process batches before sending it to slaves
+
+		Args:
+			batch (np.ndarray):
+		Returns:
+			(np.ndarray)
+		"""
 		pass
 	
 
