@@ -1,7 +1,10 @@
-from slave import Slave
-class SlaveStreamkm(Slave):
+from .slave_generic import SlaveGeneric
+from sklearn.cluster import KMeans
+from functools import partial
+
+class SlaveStreamkm(SlaveGeneric):
+	BATCH_DTYPE="float64"
+	RESULT_MODE="centroids"
 	def __init__(self,*args,**kwargs):
 		super().__init__(*args,**kwargs)
-		raise NotImplementedError
-	def run(self):
-		pass
+		self.ALGORITHM=partial(KMeans,init="k-means++",n_init=1)

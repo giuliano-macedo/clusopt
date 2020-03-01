@@ -6,7 +6,7 @@ class SlaveGeneric(Slave):
 	RESULT_MODE=None #{labels,centroids}
 	ALGORITHM=None #sklearn clusterer
 
-	def __init__(self,*args,batch_size,**kwargs):
+	def __init__(self,*args,**kwargs):
 		super().__init__(*args,**kwargs)
 		self.__BATCH_PAYID={
 			"float32":PAYID.compressed_float32_matrix,
@@ -17,7 +17,6 @@ class SlaveGeneric(Slave):
 			"labels":PAYID.uint8_vector,
 			"centroids":PAYID.float64_matrix
 		}[self.RESULT_MODE]
-		self.batch_size=batch_size
 	
 	def run(self):
 		clusterer=Clusterer(self.ALGORITHM,self.kappa,self.RESULT_MODE)

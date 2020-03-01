@@ -98,14 +98,15 @@ class MasterGeneric(Master):
 		#---------------------------------------------------------------------------------
 		#start replicator sender threads
 		repl_threads=[]
-		for i,batch in enumerate(self.preproc(self.stream)):
-			print(f"t={i} sending {len(batch.values)} points")
-			compressed=zlib.compress(batch.values.tobytes(),level=1)
+		for i,chunk in enumerate(self.stream):
+			batch=self.preproc(chunk.values)
+			print(f"t={i} sending {len(batch)} points")
+			compressed=zlib.compress(batch.tobytes(),level=1)
 			for j,slave in enumerate(self.slaves):
 				t=Thread(
 					name=f"Replicator-{i,j}",
 					target=MasterGeneric.replicator_send_handler,
-					args=(self,slave,batch.values,compressed)
+					args=(self,slave,batch,compressed)
 				)
 				repl_threads.append(t)
 				t.start()
