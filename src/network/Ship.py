@@ -27,12 +27,7 @@ class Ship:
 			ans=None
 			for i in range(self.tries):
 				print(f"trying to connect to {ip}:3523 ({i+1})")
-				try:
-					ans=ClientSocket(ip,3523)
-					break
-				except Exception as e:
-					# print(e)
-					sleep(2)
-					pass
+				ans=ClientSocket(ip,3523)
+				break
 			assert ans!=None,f"Error connecting to {ip}"
 			yield ans
