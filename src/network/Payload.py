@@ -72,10 +72,10 @@ def write_uint8_vector(buff,obj):
 	buff+=(struct.pack("I",*ndarray.shape))
 	buff+=(ndarray.tobytes())
 
-def read_labels_req(sock):
+def read_results_req(sock):
 	return struct.unpack("II",sock.recv(8))
 
-def write_labels_req(buff,obj):
+def write_results_req(buff,obj):
 	buff+=(struct.pack("II",*obj))
 
 def read_silhouette(sock):
@@ -106,7 +106,7 @@ class PAYID(IntEnum):
 	float32_matrix=				5
 	float64_matrix=				6
 	uint8_vector=				8
-	labels_req=					9
+	results_req=				9
 	silhouette=					10
 	json=						11
 class Payload:
@@ -140,7 +140,7 @@ class Payload:
 			+---------------------------+----------+-------------------------------------------------------------+
 			| uint8_vector              | tuple    | (np.uint32 n, bytes(n*4))                                   |
 			+---------------------------+----------+-------------------------------------------------------------+
-			| labels_req                | tuple    | (np.uint32 batch_counter,np.uint32 k)                       |
+			| results_req                | tuple    | (np.uint32 batch_counter,np.uint32 k)                       |
 			+---------------------------+----------+-------------------------------------------------------------+
 			| silhouette                | tuple    | (np.uint32 batch_counter, np.uint32 k, np.float sil)        |
 			+---------------------------+----------+-------------------------------------------------------------+
@@ -153,7 +153,7 @@ class Payload:
 		PAYID.float32_matrix:read_float32_matrix,
 		PAYID.float64_matrix:read_float64_matrix,
 		PAYID.uint8_vector:read_uint8_vector,
-		PAYID.labels_req:read_labels_req,
+		PAYID.results_req:read_results_req,
 		PAYID.silhouette:read_silhouette,
 		PAYID.json:read_json
 	}
@@ -163,7 +163,7 @@ class Payload:
 		PAYID.float32_matrix:write_float32_matrix,
 		PAYID.float64_matrix:write_float64_matrix,
 		PAYID.uint8_vector:write_uint8_vector,
-		PAYID.labels_req:write_labels_req,
+		PAYID.results_req:write_results_req,
 		PAYID.silhouette:write_silhouette,
 		PAYID.json:write_json
 	}

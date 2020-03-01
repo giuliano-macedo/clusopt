@@ -43,6 +43,21 @@ class Master:
 		self.ship=Ship(self.number_nodes,remote_nodes)
 		self.overall_timer=Timer()
 	
+	def accept_handler(self,msock):
+		"""
+		Helper method to accept some socket based on the protocol.
+		adds msock to slaves list
+		
+		Args:
+			msock (network.Socket): socket to be added.
+		"""
+		self.slaves.add(msock)
+		print(f"slave {msock.ip} connected")
+
+	def send_to_all_slaves(self,payid,*args):
+		for slave in self.slaves:
+			slave.send(Payload(payid,*args))
+
 	def run(self,**json_opts):
 		"""
 		Run master's node initialization and send extra json_opts to slaves
@@ -70,6 +85,11 @@ class Master:
 				"algorithm":self.algorithm,
 				"kappa":kappa
 			},**json_opts}))
+
+	def __del__(self):
+		print("closing everything")
+		for slave in self.slaves:
+			slave.close()
 
 if __name__=="__main__":
 	args=parse_args()

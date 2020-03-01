@@ -1,6 +1,7 @@
 __pycache__/
 *.log
 *.csv
+results.json
 remote_nodes.txt
 build/
 *.o
