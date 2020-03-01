@@ -79,3 +79,5 @@ class Socket:
 		return str(self)
 	def __hash__(self):
 		return hash(self.ip)
+	def __eq__(self,other):
+		return self.ip==other
