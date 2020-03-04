@@ -7,6 +7,7 @@ The slave node
 from network import ClientSocket,PAYID
 from argparse import ArgumentParser
 from collections import namedtuple
+import numpy as np
 import logging
 		
 class Slave:
@@ -37,8 +38,12 @@ def get_args():
 def main(server):
 	print(f"Connected to {server.ip}")
 	config=server.recv(PAYID.json).obj
-	print("got config from server",config)
 	config=namedtuple('Config', sorted(config))(**config) #dict -> namedtuple
+	print("algorithm:",config.algorithm)
+	print("kappa:",config.kappa)
+	print("kappa length:",len(config.kappa))
+	print("kappa sum:",sum(config.kappa))
+	print(f"kappa variance: {np.var(config.kappa):.2f}")
 	slave_args={
 		"server":server,
 		"kappa":config.kappa
@@ -51,14 +56,14 @@ def main(server):
 		}}
 	elif config.algorithm=="clustream":
 		from slave_algorithms import SlaveCluStream as SlaveAlgorithm
-		slave_args={**slave_args,**{
-			#TODO
-		}}
+		# slave_args={**slave_args,**{
+			
+		# }}
 	elif config.algorithm=="streamkm":
 		from slave_algorithms import SlaveStreamkm as SlaveAlgorithm
-		slave_args={**slave_args,**{
-			#TODO
-		}}
+		# slave_args={**slave_args,**{
+			
+		# }}
 	else:
 		raise RuntimeError("Unexpected error")
 	slave=SlaveAlgorithm(**slave_args)
