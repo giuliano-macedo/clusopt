@@ -1,6 +1,7 @@
 #while true; do ./slave.py [master_ip] ; sleep 1 ; done
 
 import argparse
+import os
 from subprocess import Popen,CalledProcessError,PIPE,TimeoutExpired
 from signal import SIGINT
 from zipfile import ZipFile
@@ -50,7 +51,7 @@ for i in range(1,args.how_many_times+1):
 	print("command executed successfully")
 	with ZipFile(args.output,"a") as zipf:
 		zipf.write("buckets.csv",f"{i}/buckets.csv")
-		zipf.write("labels.csv",f"{i}/labels.csv")
+		zipf.write("results.json",f"{i}/results.json")
 		zipf.write("overall.csv",f"{i}/overall.csv")
 		zipf.write("log.txt",f"{i}/log.txt")
-
+os.unlink("log.txt")
