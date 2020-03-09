@@ -8,4 +8,9 @@ class SlaveMiniBatch(SlaveGeneric):
 	def __init__(self,*args,batch_size,**kwargs):
 		super().__init__(*args,**kwargs)
 		self.batch_size=batch_size
-		self.ALGORITHM=partial(MiniBatchKMeans,batch_size=self.batch_size,n_init=1)
+		self.ALGORITHM=partial(
+			MiniBatchKMeans,
+			random_state=self.seed,
+			batch_size=self.batch_size,
+			n_init=1
+		)

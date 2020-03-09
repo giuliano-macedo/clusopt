@@ -7,4 +7,9 @@ class SlaveStreamkm(SlaveGeneric):
 	RESULT_MODE="centroids"
 	def __init__(self,*args,**kwargs):
 		super().__init__(*args,**kwargs)
-		self.ALGORITHM=partial(KMeans,init="k-means++",n_init=1)
+		self.ALGORITHM=partial(
+			KMeans,
+			random_state=self.seed,
+			init="k-means++",
+			n_init=1
+		)

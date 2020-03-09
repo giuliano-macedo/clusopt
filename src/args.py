@@ -31,6 +31,13 @@ def parse_args():
 		choices=["gauss","v1","v2","random"]
 	)
 	parser.add_argument(
+		"-s",
+		'--seed',
+		type=int,
+		help="seed to use in the slaves algorithms (default 42)",
+		default=42
+	)
+	parser.add_argument(
 		'-v',
 		'--verbose',
 		action='store_true',
