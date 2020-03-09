@@ -12,5 +12,5 @@ class SlaveMiniBatch(SlaveGeneric):
 			MiniBatchKMeans,
 			random_state=self.seed,
 			batch_size=self.batch_size,
-			n_init=1
+			n_init=self.repetitions
 		)

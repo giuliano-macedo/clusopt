@@ -16,6 +16,7 @@ class Master:
 		input (str): URI of the dataset
 		number_nodes (int): number of remote nodes to connect
 		seed (int): seed to use in the slaves
+		repetitions (int): number of times to repeat slave algorithm
 		lower_threshold (int): lower threshold for kappas set generation
 		kappas_method (function): kappas set builder function
 		remote_nodes (str): path to the file that contains the ip for all remote slaves
@@ -31,11 +32,12 @@ class Master:
 	"""
 
 
-	def __init__(self,algorithm,_input,number_nodes,seed,lower_threshold,kappas_method,remote_nodes):
+	def __init__(self,algorithm,_input,number_nodes,seed,repetitions,lower_threshold,kappas_method,remote_nodes):
 		self.algorithm=algorithm
 		self.input=_input
 		self.number_nodes=number_nodes
 		self.seed=seed
+		self.repetitions=repetitions
 		self.lower_threshold=lower_threshold
 		self.kappas_method=kappas_method
 		self.kappas=np.empty(0)
@@ -86,7 +88,8 @@ class Master:
 			slave.send(Payload(PAYID.json,{**{
 				"algorithm":self.algorithm,
 				"kappa":kappa,
-				"seed":self.seed
+				"seed":self.seed,
+				"repetitions":self.repetitions
 			},**json_opts}))
 
 	def __del__(self):
@@ -101,6 +104,7 @@ if __name__=="__main__":
 		"_input":args.input,
 		"number_nodes":args.number_nodes,
 		"seed":args.seed,
+		"repetitions":args.repetitions,
 		"lower_threshold":args.lower_threshold,
 		"remote_nodes":args.remote_nodes
 	}

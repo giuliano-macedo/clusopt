@@ -34,8 +34,15 @@ def parse_args():
 		"-s",
 		'--seed',
 		type=int,
-		help="seed to use in the slaves algorithms (default 42)",
+		help="seed to use in the slaves algorithm (default 42)",
 		default=42
+	)
+	parser.add_argument(
+		"-R",
+		'--repetitions',
+		type=int,
+		help="number of times to repeat slave algorithm (default 10)",
+		default=10
 	)
 	parser.add_argument(
 		'-v',

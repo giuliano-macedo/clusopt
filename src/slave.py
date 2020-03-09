@@ -16,13 +16,15 @@ class Slave:
 		batch_size (int) : size of the chunks that the dataset will be splitted
 		kappa (ndarray) : K's to test
 		seed (int): seed to use
+		repetitions (int): number of repetitions
 	Attributes:
 		
 	"""
-	def __init__(self,server,kappa,seed):
+	def __init__(self,server,kappa,seed,repetitions):
 		self.server=server
 		self.kappa=kappa
 		self.seed=seed
+		self.repetitions=repetitions
 	def run(self,server):
 		"""
 		main method, run slave's node algorithm
@@ -42,7 +44,7 @@ def main(server):
 	config=server.recv(PAYID.json).obj
 	config=namedtuple('Config', sorted(config))(**config) #dict -> namedtuple
 	print("algorithm:",config.algorithm)
-	print("seed:",config.seed)
+	print("seed,repetitions:",config.seed,config.repetitions)
 	print("kappa:",config.kappa)
 	print("kappa length:",len(config.kappa))
 	print("kappa sum:",sum(config.kappa))
@@ -50,7 +52,8 @@ def main(server):
 	slave_args={
 		"server":server,
 		"kappa":config.kappa,
-		"seed":config.seed
+		"seed":config.seed,
+		"repetitions":config.repetitions
 	}
 
 	if config.algorithm=="minibatch":

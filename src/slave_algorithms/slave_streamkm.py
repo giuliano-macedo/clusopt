@@ -11,5 +11,5 @@ class SlaveStreamkm(SlaveGeneric):
 			KMeans,
 			random_state=self.seed,
 			init="k-means++",
-			n_init=1
+			n_init=self.repetitions
 		)
