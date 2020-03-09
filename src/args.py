@@ -26,8 +26,8 @@ def parse_args():
 		"-k",
 		'--kappas-method',
 		type=str,
-		help="kappas set method (default gauss)",
-		default="gauss",
+		help="kappas set method (default random for minibatch, gauss for others)",
+		default=None,
 		choices=["gauss","v1","v2","random"]
 	)
 	parser.add_argument(
@@ -129,6 +129,8 @@ def parse_args():
 		raise FileNotFoundError(args.input)
 	if args.verbose:
 		logging.basicConfig(format='[%(levelname)s]%(message)s',level=logging.DEBUG)
+	if args.kappas_method==None:
+		args.kappas_method={"minibatch":"random"}.get(args.algorithm,"gauss")
 	if args.algorithm=="minibatch" and args.lower_threshold is None:
 		args.lower_threshold=int(ceil(sqrt(args.batch_size)))
 	elif args.algorithm=="clustream" and args.lower_threshold is None:
