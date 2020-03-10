@@ -25,7 +25,12 @@ Args:\n\
 \n\
 Returns:\n\
 	ndarray\n"
-
+#define INIT_KERNELS_OFFLINE_DOC \
+"initialize m kernels with its coresponding initpoints and clustering centers\n\
+\n\
+Args:\n\
+	cluster_centers (ndarray): the offline clustering of the initpoints\n\
+	initpoints (ndarray): datapoints to initialize \n"
 PYBIND11_MODULE(clustream, m) {
 	py::class_<CluStream>(m, "CluStream",INIT_DOC)
 		.def(py::init<int,int,int>(),py::arg("h")=100,py::arg("m")=1000,py::arg("t")=2)
@@ -38,5 +43,6 @@ PYBIND11_MODULE(clustream, m) {
 		.def_readonly("points_merged",&CluStream::points_merged)
 		.def("batch_online_cluster",&CluStream::batch_online_cluster,BATCH_ONLINE_CLUSTER_DOC)
 		.def("get_kernel_centers",&CluStream::get_kernel_centers,GET_KERNEL_CENTERS_DOC)
+		.def("init_kernels_offline",&CluStream::init_kernels_offline,INIT_KERNELS_OFFLINE_DOC)
 	;
 }

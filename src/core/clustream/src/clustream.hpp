@@ -37,6 +37,7 @@ public:
 	long unsigned int points_merged;
 
 	CluStream(int h,int m,int t);
+	void init_kernels_offline(ndarray cluster_centers,ndarray initpoints);
 	void online_cluster(double* datapoint);
 	
 	void batch_online_cluster(ndarray batch);

@@ -10,6 +10,51 @@ CluStream::CluStream(int h,int m,int t){
 	points_merged=0;
 	dim=0;
 }
+void CluStream::init_kernels_offline(ndarray cluster_centers,ndarray initpoints){
+	auto cluster_centers_buff=cluster_centers.request();
+	auto initpoints_buff=initpoints.request();
+	if(initpoints_buff.ndim!=2)
+		throw std::runtime_error("initpoints must be a matrix");
+	if(cluster_centers_buff.ndim!=2)
+		throw std::runtime_error("cluster_centers must be a matrix");
+	if(cluster_centers_buff.shape[1]!=initpoints_buff.shape[1])
+		throw std::runtime_error("dimension of cluster_centers is different from initpoints");
+	if(cluster_centers_buff.shape[0]!=m)
+		throw std::runtime_error("number of cluster_centers must be equal to m");
+	if(dim==0)
+		dim=initpoints_buff.shape[1];
+	else if(dim!=initpoints_buff.shape[1])
+		throw std::runtime_error("initpoints must have a consistent number of columns");
+	if(kernels.size()>0)
+		throw std::runtime_error("kernels already initialized or semi-initialized");
+	unsigned int lines=initpoints_buff.shape[0];
+	double* initpoints_ptr=(double*)initpoints_buff.ptr;
+	double* cluster_centers_ptr=(double*)cluster_centers_buff.ptr;
+	
+	std::vector<double> zero_vector_tmp(dim,0);
+	double* zero_vector=&(zero_vector_tmp[0]);
+
+	for(unsigned int i=0;(int)i<m;i++)
+		kernels.push_back(Kernel(zero_vector,dim,0,t,m));
+
+	for(unsigned int i=0;i<lines;i++){
+		unsigned int kernel_index=0;
+		double min_distance = double_max;
+		double* current_center=cluster_centers_ptr;
+		for ( unsigned int j = 0; (int)j < m; j++ ){
+			double dist = c_distance(initpoints_ptr, current_center ,dim);
+			if ( dist < min_distance ) {
+				kernel_index = j;
+				min_distance = dist;
+			}
+			current_center+=dim;
+		}
+		Kernel temp_kernel(initpoints_ptr,dim,timestamp,t,m);
+		kernels[kernel_index].add(temp_kernel);
+		timestamp++;
+		initpoints_ptr+=dim;
+	}
+}
 void CluStream::online_cluster(double* datapoint){
 	// 0. Initialize
 	if((int)kernels.size()!=m){
