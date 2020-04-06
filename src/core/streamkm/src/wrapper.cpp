@@ -1,8 +1,9 @@
 #include "wrapper.hpp"
 
-Streamkm::Streamkm(unsigned int coresetsize,unsigned int length){
+Streamkm::Streamkm(unsigned int coresetsize,unsigned int length,unsigned int seed){
 	this->coresetsize=coresetsize;
 	this->length=length;
+	init_genrand(seed);
 	manager.buckets=NULL;
 	timestamp=0;
 	dim=0;

@@ -18,7 +18,7 @@ public:
 	unsigned int coresetsize;
 	unsigned int length;
 
-	Streamkm(unsigned int coresetsize, unsigned int length);
+	Streamkm(unsigned int coresetsize, unsigned int length,unsigned int seed);
 	~Streamkm();
 	void batch_online_cluster(ndarray batch);
 	ndarray get_streaming_coreset_centers();

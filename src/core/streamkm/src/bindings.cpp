@@ -23,7 +23,7 @@ Returns:\n\
 
 PYBIND11_MODULE(streamkm, m) {
 	py::class_<Streamkm>(m, "Streamkm",INIT_DOC)
-		.def(py::init<int,int>(),py::arg("coresetsize"),py::arg("length"))
+		.def(py::init<int,int,int>(),py::arg("coresetsize"),py::arg("length"),py::arg("seed"))
 		.def_readonly("coresetsize",&Streamkm::coresetsize)
 		.def_readonly("length",&Streamkm::length)
 		.def("batch_online_cluster",&Streamkm::batch_online_cluster,BATCH_ONLINE_CLUSTER_DOC)
