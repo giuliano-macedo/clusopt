@@ -1,6 +1,7 @@
 # MIDSC
 
 Micro service Infrastructure for Data Stream Clustering.
+
 ![Infraestructure](imgs/midsc-1.png)
 
 ## Prerequisites
