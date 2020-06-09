@@ -15,7 +15,7 @@ except ImportError:
 	os.chdir(backup)
 
 class CluStream(CluStream_):
-	def init_offline(self,init_points,seed=0,n_init=1):
+	def init_offline(self,init_points,seed=0,n_init=1,max_iter=300):
 		"""
 		initialize microclusters using kmeans++
 
@@ -28,6 +28,7 @@ class CluStream(CluStream_):
 			n_clusters=self.m,
 			init="k-means++",
 			random_state=seed,
-			n_init=n_init
+			n_init=n_init,
+			max_iter=max_iter
 		).fit(init_points).cluster_centers_
 		self.init_kernels_offline(cluster_centers,init_points)
