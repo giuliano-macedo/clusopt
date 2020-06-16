@@ -87,9 +87,9 @@ double Kernel::get_inclusion_probability(double* datapoint){
 	else{
 		double dist=calc_normalized_distance(datapoint);
 		if(dist<=get_radius())
-			return 0;
-		else 
 			return 1;
+		else 
+			return 0;
 	}
 }
 Point Kernel::get_variance_vector(){
