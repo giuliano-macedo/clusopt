@@ -104,8 +104,13 @@ Point Kernel::get_variance_vector(){
 
 		ans[i]=ss_div_n-ls_div_squared;
 
-		if(ans[i]<=0.0)
-			ans[i]=MIN_VARIANCE;
+		// if(ans[i]<=0.0)
+		// 	ans[i]=MIN_VARIANCE;
+		if (ans[i]<=0.0){
+			if(ans[i]> -EPSILON){
+				ans[i]=MIN_VARIANCE;
+			}
+		}
 	}
 	return ans;
 }
