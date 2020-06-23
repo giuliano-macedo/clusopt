@@ -49,18 +49,22 @@ void CluStream::init_kernels_offline(ndarray cluster_centers,ndarray initpoints)
 			}
 			current_center+=dim;
 		}
-		Kernel temp_kernel(initpoints_ptr,dim,timestamp,t,m);
+		//timestamp == m because it was fed at once in the algorithm
+		Kernel temp_kernel(initpoints_ptr,dim,m,t,m);
 		kernels[kernel_index].add(temp_kernel);
-		timestamp++;
 		initpoints_ptr+=dim;
 	}
+	timestamp=m+1;
 }
 void CluStream::online_cluster(double* datapoint){
 	// 0. Initialize
 	if((int)kernels.size()!=m){
-		kernels.push_back(Kernel(datapoint,dim,timestamp,t,m));
+		//timestamp == m because it was fed at once in the algorithm
+		kernels.push_back(Kernel(datapoint,dim,m,t,m)); 
 		return;
 	}
+
+
 	// 1. Determine closest kernel
 	Kernel* closest_kernel = NULL;
 	double min_distance = double_max;
