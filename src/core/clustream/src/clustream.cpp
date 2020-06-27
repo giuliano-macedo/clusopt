@@ -49,12 +49,12 @@ void CluStream::init_kernels_offline(ndarray cluster_centers,ndarray initpoints)
 			}
 			current_center+=dim;
 		}
-		//timestamp == m because it was fed at once in the algorithm
-		Kernel temp_kernel(initpoints_ptr,dim,m,t,m);
+		//timestamp == lines because it was fed at once in the algorithm
+		Kernel temp_kernel(initpoints_ptr,dim,lines,t,m);
 		kernels[kernel_index].add(temp_kernel);
 		initpoints_ptr+=dim;
 	}
-	timestamp=m+1;
+	timestamp=lines+1;
 }
 void CluStream::online_cluster(double* datapoint){
 	// 0. Initialize
