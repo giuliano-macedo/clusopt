@@ -34,8 +34,10 @@ void CluStream::init_kernels_offline(ndarray cluster_centers,ndarray initpoints)
 	std::vector<double> zero_vector_tmp(dim,0);
 	double* zero_vector=&(zero_vector_tmp[0]);
 
-	for(unsigned int i=0;(int)i<m;i++)
-		kernels.push_back(Kernel(zero_vector,dim,0,t,m));
+	for(unsigned int i=0;(int)i<m;i++){
+		//timestamp == lines because it was fed at once in the algorithm
+		kernels.push_back(Kernel(zero_vector,dim,lines,t,m));
+	}
 
 	for(unsigned int i=0;i<lines;i++){
 		unsigned int kernel_index=0;
@@ -49,8 +51,7 @@ void CluStream::init_kernels_offline(ndarray cluster_centers,ndarray initpoints)
 			}
 			current_center+=dim;
 		}
-		//timestamp == lines because it was fed at once in the algorithm
-		Kernel temp_kernel(initpoints_ptr,dim,lines,t,m);
+		Kernel temp_kernel(initpoints_ptr,dim,0,t,m);
 		kernels[kernel_index].add(temp_kernel);
 		initpoints_ptr+=dim;
 	}
