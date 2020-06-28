@@ -37,11 +37,18 @@ cd to the src directory
 cd src
 ```
 
-and
+---
+
 to run master node, use `-h` and `[ALGORITHM] -h` for more help
 ```bash
 ./master.py [ALGORITHM] [PATH OR URL TO CSV FILE]
 ```
+
+
+NOTE: CSV File must be `,` separated, `\n` line ended and **must not have a header**.
+
+---
+
 to run slave node, use `-h` flag for more options
 ```bash
 ./master [IP ADDRESS TO THE MASTER NODE]
