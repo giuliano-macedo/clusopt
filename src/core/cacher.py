@@ -4,19 +4,6 @@ import tempfile
 from queue import Queue
 from threading import Lock,Thread
 
-class Filler(Thread):
-	#will try to empty diskcache and put into memcache endlessly
-	def __init__(self,memcache,diskcache,delete_after):
-		super().__init__(name="Filler")
-		self.memcache=memcache
-		self.diskcache=diskcache
-		self.delete_after=delete_after
-		self.stop=False
-	def run(self):
-		while not self.stop:
-			data=self.diskcache.get(self.delete_after)
-			self.memcache.put(data)
-
 class Cacher:
 
 	"""
@@ -47,6 +34,18 @@ class Cacher:
 		self.diskcache.put(b"0") #dummy data
 		self.filler.join()
 
+class Filler(Thread):
+	#will try to empty diskcache and put into memcache endlessly
+	def __init__(self,memcache,diskcache,delete_after):
+		super().__init__(name="Filler")
+		self.memcache=memcache
+		self.diskcache=diskcache
+		self.delete_after=delete_after
+		self.stop=False
+	def run(self):
+		while not self.stop:
+			data=self.diskcache.get(self.delete_after)
+			self.memcache.put(data)
 
 class DirectoryCacherQueue:
 	def __init__(self,prefix):
