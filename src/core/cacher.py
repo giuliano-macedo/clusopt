@@ -1,64 +1,87 @@
 import os
 import shutil
 import tempfile
-from collections import deque
-from enum import IntEnum
+from queue import Queue
+from threading import Lock,Thread
 
-class Op(IntEnum):
-	disk=0
-	mem=1
+class Filler(Thread):
+	#will try to empty diskcache and put into memcache endlessly
+	def __init__(self,memcache,diskcache,delete_after):
+		super().__init__(name="Filler")
+		self.memcache=memcache
+		self.diskcache=diskcache
+		self.delete_after=delete_after
+		self.stop=False
+	def run(self):
+		while not self.stop:
+			data=self.diskcache.get(self.delete_after)
+			self.memcache.put(data)
 
 class Cacher:
+
 	"""
-		Cacher that will store data in disk if max_mem_length is reached
+		MT-Safe Cacher that will store data in disk if max_mem_length is reached
 	"""
-	def __init__(self,max_mem_length:int,prefix="DirectoryCacheQueue-"):
+	def __init__(self,max_mem_length:int,prefix="DirectoryCacheQueue-",delete_after=False):
 		self.max_mem_length=max_mem_length
-		self.memcache=deque()
+		self.memcache=Queue(max_mem_length)
 		self.diskcache=DirectoryCacherQueue(prefix=prefix)
-		self.op_list=[]
+		self.filler=Filler(self.memcache,self.diskcache,delete_after)
+		self.filler.start()
 
-	def push(self,data:bytes):
-		if len(self.memcache)>self.max_mem_length:
-			self.diskcache.push(data)
-			self.op_list.append(Op.disk)
+	def put(self,data:bytes):
+		if self.memcache.full():
+			self.diskcache.put(data)
 		else:
-			self.memcache.append(data)
-			self.op_list.append(Op.mem)
+			self.memcache.put(data)
 
-	def pop(self,delete_after=False)->bytes:
-		assert(self.op_list)
-		if self.op_list.pop(0)==Op.disk:
-			return self.diskcache.pop(delete_after)
-		else:
-			return self.memcache.popleft()
+	def get(self,delete_after=False)->bytes:
+		return self.memcache.get()
 
 	def __len__(self)->int:
-		return len(self.op_list)
+		return len(self.diskcache)+self.memcache.qsize()
+
+	def close(self):
+		#'kills' filler
+		self.filler.stop=True
+		self.diskcache.put(b"0") #dummy data
+		self.filler.join()
 
 
 class DirectoryCacherQueue:
 	def __init__(self,prefix):
 		self.directory=tempfile.mkdtemp(prefix=prefix)
-		self.elems=[]
+		self.elems=Queue()
+		self.nofiles=0
+		self.__write_lock=Lock()
 
-	def push(self,data:bytes):
-		new_elem=os.path.join(self.directory,f"{len(self.elems):010}")
-		self.elems.append(new_elem)
-		with open(new_elem,"wb") as f:
-			f.write(data)
+	def put(self,data:bytes):
+		with self.__write_lock:
+			new_elem=os.path.join(self.directory,f"{self.nofiles:010}")
+			self.nofiles+=1
+			with open(new_elem,"wb") as f:
+				f.write(data)
+			self.elems.put(new_elem)
 
-	def pop(self,delete_after)->bytes:
-		assert(self.elems)
-		elem=self.elems.pop(0)
+	def get(self,delete_after)->bytes:
+		#get if available, else wait
+		elem=self.elems.get()
 		with open(elem,"rb") as f:
 			ans:bytes=f.read()
 		if delete_after:
 			os.remove(elem)
 		return ans
 	
+	def get_disk_usage(self):
+		#very slow
+		ans=0
+		for f in os.listdir(self.directory):
+			with open(os.path.join(self.directory,f),"rb") as f:
+				ans+=len(f.read()) 
+		return ans
+
 	def __len__(self)->int:
-		return len(self.elems)
+		return self.elems.qsize()
 
 	def __del__(self):
 		shutil.rmtree(self.directory)
