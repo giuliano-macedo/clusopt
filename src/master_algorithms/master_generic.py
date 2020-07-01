@@ -4,10 +4,67 @@ from network import PAYID,Payload
 import numpy as np
 import logging
 from threading import Thread
+from queue import Queue
 from pandas import read_csv
 import json
 import zlib
 from utils import save_to_csv
+from collections import namedtuple
+
+#TODO: hacky workaround
+def create_dummy_ndarray(ndarray):
+	return create_dummy_ndarray.Dummy(ndarray.shape)
+create_dummy_ndarray.Dummy=namedtuple("DummyNDArray",["shape"])
+
+class Replicator(Thread):
+	"""
+	Thread responsible for sending compressed batches to each slave in synchronized
+	new threads
+	"""
+	def __init__(self,slaves,payid):
+		super().__init__(name="Replicator")
+		self.slaves=slaves
+		self.payid=payid
+		self.__queue=Queue() #maybe cache
+
+	def send_handler(payid,msock,batch,compressed):
+		"""
+		Send to a slaves the current chunk
+		
+		Args:
+			payid (Payload.Id) : data network id
+			msock (network.Socket): socket to send data.
+			batch (np.ndarray): dataset chunk
+			compressed (bytes): compressed batch data
+		"""
+		msock.send(Payload(payid,(batch,compressed)))
+
+	def run(self):
+		i=0
+		threads=[None for _ in self.slaves]
+		while True:
+			should_stop,batch,compressed = self.__queue.get()
+			if should_stop:break
+			print(f"t={i} sending {len(batch)} points")
+			for j,slave in enumerate(self.slaves):
+				thread=Thread(
+					name=f"Replicator.send_handler-{i,j}",
+					target=Replicator.send_handler,
+					args=(self.payid,slave,batch,compressed)
+				)
+				threads[j]=thread
+				thread.start()
+			for thread in threads:
+				thread.join()
+			i+=1
+
+	def add_job(self,dummy_ndarray,compressed):
+		self.__queue.put((False,dummy_ndarray,compressed))
+
+	def join(self):
+		self.__queue.put((True,None,None))		
+		super().join()
+
 class MasterGeneric(Master):
 	"""
 	Args:
@@ -80,17 +137,6 @@ class MasterGeneric(Master):
 				print(f"winner on t={t} {bucket_winner}")
 				self.winners[t]=bucket_winner
 
-	def replicator_send_handler(self,msock,batch,compressed):
-		"""
-		Send to all slaves the current chunk
-		
-		Args:
-			msock (network.Socket): socket to send data.
-			batch (np.ndarray): dataset chunk
-			compressed (bytes): compressed batch data
-		"""
-		msock.send(Payload(self.__BATCH_PAYID,(batch,compressed)))
-
 	def run(self):
 		super().run(batch_size=self.batch_size)
 		self.overall_timer.start()
@@ -108,23 +154,18 @@ class MasterGeneric(Master):
 			t.start()
 		#---------------------------------------------------------------------------------
 		#start replicator sender threads
-		repl_threads=[]
+		replicator=Replicator(self.slaves,self.__BATCH_PAYID)
+		replicator.start()
 		for i,chunk in enumerate(self.stream):
 			batch=self.preproc(chunk.values)
-			print(f"t={i} sending {len(batch)} points")
 			compressed=zlib.compress(batch.tobytes(),level=1)
-			for j,slave in enumerate(self.slaves):
-				t=Thread(
-					name=f"Replicator-{i,j}",
-					target=MasterGeneric.replicator_send_handler,
-					args=(self,slave,batch,compressed)
-				)
-				repl_threads.append(t)
-				t.start()
+			dummy=create_dummy_ndarray(batch)
+			del(batch)
+			replicator.add_job(dummy,compressed)
 		tmax=i
-		#join sends
-		for t in repl_threads:
-			t.join()
+		
+		replicator.join()
+		
 		self.send_to_all_slaves(PAYID.end)
 		#---------------------------------------------------------------------------------
 		#join recvs
