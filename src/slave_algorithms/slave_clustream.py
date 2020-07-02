@@ -1,7 +1,4 @@
-from slave import Slave
-class SlaveCluStream(Slave):
-	def __init__(self,*args,**kwargs):
-		super().__init__(*args,**kwargs)
-		raise NotImplementedError
-	def run(self):
-		pass
+from .slave_streamkm import SlaveStreamkm
+class SlaveCluStream(SlaveStreamkm):
+	#same thing as streamkm
+	pass

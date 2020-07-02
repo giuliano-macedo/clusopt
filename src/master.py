@@ -118,7 +118,8 @@ if __name__=="__main__":
 		master_args={**master_args,**{
 			"window_range":args.window_range,
 			"microkernels":args.microclusters,
-			"kernel_radius":args.kernel_radius
+			"kernel_radius":args.kernel_radius,
+			"clustream_seed":args.clustream_seed
 		}}
 	elif args.algorithm=="streamkm":
 		from master_algorithms import MasterStreamkm as MasterAlgorithm

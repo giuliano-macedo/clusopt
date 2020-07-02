@@ -104,6 +104,12 @@ def parse_args():
 		default=2,
 		help="Multiplier for the kernel radius (default 2)"
 	)
+	clustream.add_argument(
+		"--clustream-seed",
+		type=int,
+		help="clustream Kmeans++ offline initialization random number generator seed (default: 42)",
+		default=42
+	)
 	#streamkm
 	#------------------------------------------------------------------------------------
 	streamkm=subparsers.add_parser(
