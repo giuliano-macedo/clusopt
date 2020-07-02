@@ -9,12 +9,6 @@ from pandas import read_csv
 import json
 import zlib
 from utils import save_to_csv
-from collections import namedtuple
-
-#TODO: hacky workaround
-def create_dummy_ndarray(ndarray):
-	return create_dummy_ndarray.Dummy(ndarray.shape)
-create_dummy_ndarray.Dummy=namedtuple("DummyNDArray",["shape"])
 
 class Replicator(Thread):
 	"""
@@ -27,30 +21,30 @@ class Replicator(Thread):
 		self.payid=payid
 		self.__queue=Queue() #maybe cache
 
-	def send_handler(payid,msock,batch,compressed):
+	def send_handler(payid,msock,shape,compressed):
 		"""
 		Send to a slaves the current chunk
 		
 		Args:
 			payid (Payload.Id) : data network id
 			msock (network.Socket): socket to send data.
-			batch (np.ndarray): dataset chunk
+			shape (tuple): batch's number of lines and columns
 			compressed (bytes): compressed batch data
 		"""
-		msock.send(Payload(payid,(batch,compressed)))
+		msock.send(Payload(payid,(shape,compressed)))
 
 	def run(self):
 		i=0
 		threads=[None for _ in self.slaves]
 		while True:
-			should_stop,batch,compressed = self.__queue.get()
+			should_stop,shape,compressed = self.__queue.get()
 			if should_stop:break
-			print(f"t={i} sending {len(batch)} points")
+			print(f"t={i} sending {shape[0]} points")
 			for j,slave in enumerate(self.slaves):
 				thread=Thread(
 					name=f"Replicator.send_handler-{i,j}",
 					target=Replicator.send_handler,
-					args=(self.payid,slave,batch,compressed)
+					args=(self.payid,slave,shape,compressed)
 				)
 				threads[j]=thread
 				thread.start()
@@ -58,8 +52,8 @@ class Replicator(Thread):
 				thread.join()
 			i+=1
 
-	def add_job(self,dummy_ndarray,compressed):
-		self.__queue.put((False,dummy_ndarray,compressed))
+	def add_job(self,shape,compressed):
+		self.__queue.put((False,shape,compressed))
 
 	def join(self):
 		self.__queue.put((True,None,None))		
@@ -159,9 +153,9 @@ class MasterGeneric(Master):
 		for i,chunk in enumerate(self.stream):
 			batch=self.preproc(chunk.values)
 			compressed=zlib.compress(batch.tobytes(),level=1)
-			dummy=create_dummy_ndarray(batch)
+			batch_shape=batch.shape
+			replicator.add_job(batch_shape,compressed)
 			del(batch)
-			replicator.add_job(dummy,compressed)
 		tmax=i
 		
 		replicator.join()

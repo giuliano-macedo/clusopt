@@ -1,7 +1,11 @@
 from threading import Lock
 from .Payload import Payload,PAYID
 import logging
-import numpy as np
+
+#TODO: can cause problems if level set in err for example
+IS_IN_DEBUG=logging.root.level == logging.DEBUG
+
+
 class Socket:
 	"""
 	MT Safe Socket class, implements common protocol meachanisms
@@ -36,18 +40,19 @@ class Socket:
 		"""
 		with self.read_lock:
 			ans=Payload()
-			logging.debug(f"[SOCK RECV {self.ip}] starting")
+			if IS_IN_DEBUG:
+				logging.debug(f"[SOCK RECV {self.ip}] starting")
 			ans.readFrom(self.socket)
-			if ans.id==PAYID.err:
-				raise RuntimeError(f"Host {self.ip} sent a err payload")
-			if (len(pays_ids)!=0) and (ans.id not in pays_ids):
-				raise RuntimeError(f"Unexpected payload {ans.id}")
-			if ans.id==PAYID.compressed_float64_matrix:
-				pay_type=f"ndarray with shape={ans.obj.shape} {ans.obj[0],ans.obj[-1]}"
-				# breakpoint()
-			else:
-				pay_type=repr(ans.obj)[:64]
-			logging.debug(f"[SOCK RECV {self.ip}] {ans.id.name} {pay_type}")
+			if IS_IN_DEBUG:
+				if ans.id==PAYID.err:
+					raise RuntimeError(f"Host {self.ip} sent a err payload")
+				if (len(pays_ids)!=0) and (ans.id not in pays_ids):
+					raise RuntimeError(f"Unexpected payload {ans.id}")
+				if ans.id==PAYID.compressed_float64_matrix:
+					pay_type=f"ndarray with shape={ans.obj.shape} {ans.obj[0],ans.obj[-1]}"
+				else:
+					pay_type=repr(ans.obj)[:64]
+				logging.debug(f"[SOCK RECV {self.ip}] {ans.id.name} {pay_type}")
 			return ans
 	def send(self,pay):
 		"""
@@ -58,14 +63,16 @@ class Socket:
 
 		"""
 		with self.write_lock:
-			if pay.id==PAYID.compressed_float64_matrix:
-				ndarray,compressed=pay.obj
-				pay_type=f"datapoints with shape={ndarray.shape} {ndarray[0],ndarray[-1]}"
-			else:
-				pay_type=repr(pay.obj)[:64]
-			logging.debug(f"[SOCK SEND {self.ip}] {pay.id.name} {pay_type}")
+			if IS_IN_DEBUG:
+				if pay.id==PAYID.compressed_float64_matrix:
+					ndarray_shape,compressed=pay.obj
+					pay_type=f"datapoints with shape={ndarray_shape}"
+				else:
+					pay_type=repr(pay.obj)[:64]
+				logging.debug(f"[SOCK SEND {self.ip}] {pay.id.name} {pay_type}")
 			pay.sendTo(self.socket)
-			logging.debug(f"[SOCK SEND {self.ip}] sent")
+			if IS_IN_DEBUG:
+				logging.debug(f"[SOCK SEND {self.ip}] sent")
 	def close(self):
 		"""
 		closes the socket

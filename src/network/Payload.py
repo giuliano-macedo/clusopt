@@ -21,8 +21,8 @@ def read_compressed_float32_matrix(sock):
 	return np.frombuffer(data,dtype=np.float32).reshape((m, n))
 
 def write_compressed_float32_matrix(buff,obj):
-	ndarray,compressed=obj
-	buff+=(struct.pack("III",*ndarray.shape,len(compressed)))
+	ndarray_shape,compressed=obj
+	buff+=(struct.pack("III",*ndarray_shape,len(compressed)))
 	buff+=(compressed)
 
 def read_compressed_float64_matrix(sock):
@@ -34,8 +34,8 @@ def read_compressed_float64_matrix(sock):
 	return np.frombuffer(data,dtype=np.float64).reshape((m, n))
 
 def write_compressed_float64_matrix(buff,obj):
-	ndarray,compressed=obj
-	buff+=(struct.pack("III",*ndarray.shape,len(compressed)))
+	ndarray_shape,compressed=obj
+	buff+=(struct.pack("III",*ndarray_shape,len(compressed)))
 	buff+=(compressed)
 
 def read_float32_matrix(sock):
