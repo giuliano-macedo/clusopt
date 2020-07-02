@@ -124,6 +124,12 @@ def parse_args():
 		help="Number of datapoints to process (default:length of the dataset)",
 		default=None
 	)
+	streamkm.add_argument(
+		"--streamkm-seed",
+		type=int,
+		help="Streamkm++ random number generator seed (default: 42)",
+		default=42
+	)
 	args=parser.parse_args()
 	if not os.path.isfile(args.input):
 		raise FileNotFoundError(args.input)

@@ -124,7 +124,8 @@ if __name__=="__main__":
 		from master_algorithms import MasterStreamkm as MasterAlgorithm
 		master_args={**master_args,**{
 			"coreset_size":args.coreset_size,
-			"length":args.length
+			"length":args.length,
+			"streamkm_seed":args.streamkm_seed
 		}}
 	else:
 		raise RuntimeError("unexpected error")
