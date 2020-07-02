@@ -58,8 +58,13 @@ to run slave node, use `-h` flag for more options
 * **Jonathan Andrade Silva** - *Advisor*
 * **Dionisio Leite Machado Filho** - *Advisor*
 ## Acknowledgments
+
 Thanks to Dionisio for all the the tips to solve all the networking/cloud/virtualization related problems.
+
 To Jonathan to all stream clustering/clustering in general /clustering evaluation information used to build this system.
+
 ---
+
 Marcel R. Ackermann et al. for the StreamKM++ algorithm - [link](https://cs.uni-paderborn.de/cuk/forschung/abgeschlossene-projekte/dfg-schwerpunktprogramm-1307/streamkm/)
+
 The university of Waikato for the MOA framework - [link](https://moa.cms.waikato.ac.nz/)
