@@ -60,7 +60,7 @@ to run slave node, use `-h` flag for more options
 
 ## Acknowledgments
 
-####Thanks to:
+#### Thanks to:
 
 * **Dionisio** for all the the tips to solve all the networking/cloud/virtualization related problems.
 * **Jonathan** to all stream clustering/clustering in general /clustering evaluation information used to build this system.
