@@ -3,36 +3,7 @@ import shutil
 import tempfile
 from queue import Queue
 from threading import Lock,Thread
-
-class Cacher:
-
-	"""
-		MT-Safe Cacher that will store data in disk if max_mem_length is reached
-	"""
-	def __init__(self,max_mem_length:int,prefix="DirectoryCacheQueue-",delete_after=False):
-		self.max_mem_length=max_mem_length
-		self.memcache=Queue(max_mem_length)
-		self.diskcache=DirectoryCacherQueue(prefix=prefix)
-		self.filler=Filler(self.memcache,self.diskcache,delete_after)
-		self.filler.start()
-
-	def put(self,data:bytes):
-		if self.memcache.full():
-			self.diskcache.put(data)
-		else:
-			self.memcache.put(data)
-
-	def get(self,delete_after=False)->bytes:
-		return self.memcache.get()
-
-	def __len__(self)->int:
-		return len(self.diskcache)+self.memcache.qsize()
-
-	def close(self):
-		#'kills' filler
-		self.filler.stop=True
-		self.diskcache.put(b"0") #dummy data
-		self.filler.join()
+import logging
 
 class Filler(Thread):
 	#will try to empty diskcache and put into memcache endlessly
@@ -46,6 +17,47 @@ class Filler(Thread):
 		while not self.stop:
 			data=self.diskcache.get(self.delete_after)
 			self.memcache.put(data)
+
+class Cacher:
+
+	"""
+		MT-Safe Cacher that will store data in disk if max_mem_length is reached
+		quite slow in first payloads, but it gets faster as new data comes in
+	"""
+	def __init__(self,max_mem_length:int,prefix="DirectoryCacheQueue-",delete_after=False):
+		self.max_mem_length=max_mem_length
+		self.memcache=Queue(max_mem_length)
+		self.diskcache=DirectoryCacherQueue(prefix=prefix)
+		self.filler=Filler(self.memcache,self.diskcache,delete_after)
+		self.filler.start()
+
+	def put(self,data:bytes):
+		self.diskcache.put(data)
+
+	def get(self,delete_after=False)->bytes:
+		return self.memcache.get()
+
+	def __len__(self)->int:
+		return sum(self.get_sizes())
+
+	def get_sizes(self):
+		"""
+		Returns:
+			(int,int) : representing no of elemements in disk and in memory
+		"""
+
+		return (len(self.diskcache),self.memcache.qsize())
+
+	def __del__(self):
+		if len(self)!=0:
+			logging.warning("[CACHER] __del__ called when not empty, removing remaining data..")
+			while len(self)!=0:
+				self.get()
+		#'kills' filler
+		self.filler.stop=True
+		self.diskcache.put(b"0") #dummy data
+		self.filler.join()
+
 
 class DirectoryCacherQueue:
 	def __init__(self,prefix):
@@ -74,8 +86,8 @@ class DirectoryCacherQueue:
 	def get_disk_usage(self):
 		#very slow
 		ans=0
-		for f in os.listdir(self.directory):
-			with open(os.path.join(self.directory,f),"rb") as f:
+		for fname in os.listdir(self.directory):
+			with open(os.path.join(self.directory,fname),"rb") as f:
 				ans+=len(f.read()) 
 		return ans
 
