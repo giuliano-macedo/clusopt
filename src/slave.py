@@ -17,14 +17,19 @@ class Slave:
 		kappa (ndarray) : K's to test
 		seed (int): seed to use
 		repetitions (int): number of repetitions
+		ghost (int or None) : if not None, enable ghost mode when batch index equals itself
+		disk_cache (int or None) : enable disk cache with max memory size equal to itself
 	Attributes:
 		
 	"""
-	def __init__(self,server,kappa,seed,repetitions):
+	def __init__(self,server,kappa,seed,repetitions,ghost,disk_cache):
 		self.server=server
 		self.kappa=kappa
 		self.seed=seed
 		self.repetitions=repetitions
+		self.ghost=ghost
+		self.disk_cache=disk_cache
+
 	def run(self,server):
 		"""
 		main method, run slave's node algorithm
@@ -35,11 +40,13 @@ def get_args():
 	parser=ArgumentParser()
 	parser.add_argument("master_addr",help="address of the master")
 	parser.add_argument('-v','--verbose', action='store_true',help="enbale verbose")
+	parser.add_argument('-g','--ghost', type=int,help="enable ghost mode in batch index TIME",metavar="TIME")
+	parser.add_argument('-c','--disk-cache', type=int,help="use disk cache, keeping max of BATCHES in memory",metavar="BATCHES")
 	args=parser.parse_args()
 	if args.verbose:
 		logging.basicConfig(format='[%(levelname)s]%(message)s',level=logging.DEBUG)
 	return args
-def main(server):
+def main(server,opts):
 	print(f"Connected to {server.ip}")
 	config=server.recv(PAYID.json).obj
 	config=namedtuple('Config', sorted(config))(**config) #dict -> namedtuple
@@ -49,12 +56,13 @@ def main(server):
 	print("kappa length:",len(config.kappa))
 	print("kappa sum:",sum(config.kappa))
 	print(f"kappa variance: {np.var(config.kappa):.2f}")
-	slave_args={
-		"server":server,
-		"kappa":config.kappa,
-		"seed":config.seed,
-		"repetitions":config.repetitions
-	}
+	slave_args=dict(
+		server=server,
+		kappa=config.kappa,
+		seed=config.seed,
+		repetitions=config.repetitions,
+		**opts
+	)
 
 	if config.algorithm=="minibatch":
 		from slave_algorithms import SlaveMiniBatch as SlaveAlgorithm
@@ -85,6 +93,6 @@ if __name__=="__main__":
 	except ConnectionRefusedError:
 		print("Error connecting to",args.master_addr)
 		exit(-1)
-	main(server)
+	main(server,vars(args))
 	
 	
