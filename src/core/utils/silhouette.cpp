@@ -13,9 +13,13 @@ namespace py = pybind11;
 #include <vector>
 #include <cmath>
 #include <limits>
+#include <boost/numeric/ublas/matrix.hpp>
+
+typedef boost::numeric::ublas::matrix<double> double_matrix;
 
 typedef py::array_t<double,py::array::c_style| py::array::forcecast> ndarray_double;
 typedef py::array_t<int,py::array::c_style| py::array::forcecast> ndarray_int;
+
 
 typedef unsigned int uint;
 
@@ -60,36 +64,60 @@ public:
 class Silhouette{
 
 private:
-	std::vector<Accumulator> table;
+	std::vector<Accumulator> cluster_table;
+	double_matrix dist_table;
 	Accumulator score_accum;
 	uint dim;
 	uint k;
 
 public:
-	Silhouette(uint n_clusters):table(n_clusters),score_accum(),dim(0),k(n_clusters){}
+	Silhouette(uint n_clusters,uint batch_size):
+		cluster_table(n_clusters),
+		dist_table(batch_size,batch_size),
+		score_accum(),
+		dim(0),
+		k(n_clusters
+	){}
 
 	double get_score(uint no_samples,double* dataset,int* labels){
+
+		//build distance table
 		double* point_i=dataset;
+		for(uint i=0;i<no_samples;i++){	//parallelizable
+			
+			double* point_j=(point_i+dim);// point_i[i+1]
+
+			for(uint j=i+1;j<no_samples;j++){ 
+				
+				double dist=c_distance(point_i,point_j,dim);
+				dist_table(i,j)=dist;
+				dist_table(j,i)=dist;
+
+				point_j+=dim;
+			}
+			point_i+=dim;
+		}
+		//----------------------------------------------------
 		int* label_i=labels;
 
 		for(uint i=0;i<no_samples;i++){
 			//----------------------------------------------------
 			//compute ai,bi
-			double* point_j=dataset;
-			int* label_j=labels;
-			for(uint j=0;j<no_samples;j++){ //n^2, can be optimized to triangle
-				if(i!=j)
-					table[*label_j].add(c_distance(point_i,point_j,dim));
-				point_j+=dim;
-				label_j++;
-			}
 
-			double ai=table[*label_i].mean();
+			int* label_j=labels;
+			for(uint j=0;j<no_samples;j++){
+				if(i!=j)
+					cluster_table[*label_j].add(dist_table(i,j));
+				label_j++;
+			}			
+
+
+			double ai=cluster_table[*label_i].mean();
 			double bi=INF;
 
 			for(uint j=0;j<k;j++){
-				double m=table[j].mean();
-				table[j].reset();
+				double m=cluster_table[j].mean();
+				cluster_table[j].reset();
 				if(j==(uint)*label_i)continue;
 				if(m<bi)
 					bi=m;
@@ -98,8 +126,6 @@ public:
 			//----------------------------------------------------
 			double s=(bi-ai)/fmax(ai,bi);
 			score_accum.add(std::isnan(s)?0:s);
-			
-			point_i+=dim;
 			label_i++;
 		}
 		double ans=score_accum.mean();
@@ -131,7 +157,7 @@ public:
 };
 PYBIND11_MODULE(silhouette, m) {
 	py::class_<Silhouette>(m, "Silhouette")
-		.def(py::init<int>(),py::arg("n_clusters"))
+		.def(py::init<int,int>(),py::arg("n_clusters"),py::arg("batch_size"))
 		.def("get_score",&Silhouette::get_score_py)
 	;
 }
