@@ -6,3 +6,5 @@ remote_nodes.txt
 build/
 *.o
 *.so
+.rendered.*.cpp
+.*.cppimporthash

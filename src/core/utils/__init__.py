@@ -1,2 +1,2 @@
 from cppimport import imp
-Silhouette = imp("utils.silhouette").Silhouette
+Silhouette = imp("core.utils.silhouette").Silhouette
