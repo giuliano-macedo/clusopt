@@ -1,2 +1,3 @@
-from cppimport import imp
-Silhouette = imp("core.utils.silhouette").Silhouette
+import cppimport
+cppimport.set_quiet(False)
+Silhouette = cppimport.imp("core.utils.silhouette").Silhouette
