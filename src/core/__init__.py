@@ -4,7 +4,7 @@ core
 algorithms core components
 """
 
-from dataclass import dataclass
+from dataclasses import dataclass
 from utils import Timer
 from network import Socket
 @dataclass
