@@ -1,7 +1,7 @@
-# from sklearn.cluster import Birch as ClustererAlgo
-from sklearn.metrics import silhouette_score
+from sklearn.metrics import pairwise_distances
 from multiprocessing.dummy import Pool
 import numpy as np
+from core.utils import Silhouette
 #drawer clusterer
 def maximize_silhouette(iterator):
 	"""
@@ -49,9 +49,9 @@ class Clusterer:
 		self.batch_index=0
 
 	def __handler(arg):
-		clusterer,batch=arg
+		clusterer,batch,dist_matrix=arg
 		clusterer.add(batch)
-		score=clusterer.get_score(batch)
+		score=clusterer.get_score(dist_matrix)
 		print(f"{clusterer.k:2}, {score:.3f}")
 		return score,clusterer
 	
@@ -64,11 +64,13 @@ class Clusterer:
 		Returns:
 			(k,silhouette)
 		"""
+		dist_matrix=pairwise_distances(batch)
 		score,best=maximize_silhouette(
 			self.pool.imap_unordered(
-				Clusterer.__handler,((clusterer,batch) for clusterer in self.drawer)
+				Clusterer.__handler,((clusterer,batch,dist_matrix) for clusterer in self.drawer)
 			)
 		)
+		del(dist_matrix) #large mem
 		self.best_clusterers[(self.batch_index,best.k)]=self.__RESULT_FUNCTION(best)
 		self.batch_index+=1
 		return best.k,score
@@ -90,6 +92,7 @@ class Shelve:
 	def __init__(self,algorithm,k):
 		self.k=k
 		self.clusterer=algorithm(n_clusters=k)
+		self.silhouette=Silhouette(n_clusters=k)
 		if "partial_fit" in dir(self.clusterer):
 			self.add=self.add_online
 		else:
@@ -101,16 +104,5 @@ class Shelve:
 	def add_offline(self,batch):
 		self.clusterer.fit(batch)
 
-	def get_score(self,batch):
-		try:
-			return silhouette_score(batch,self.clusterer.labels_)
-		except ValueError: #all values in labels are identical
-			self.clusterer.labels_[-1]+=1
-			try:
-				ans=silhouette_score(batch,self.clusterer.labels_)
-			except Exception:
-				self.clusterer.labels_[-1]-=1
-				print("ERROR COMPUTING SILHOUETTE, RETURNING -1")
-				return -1
-			self.clusterer.labels_[-1]-=1
-			return ans
+	def get_score(self,dist_matrix):
+		return self.silhouette.get_score(dist_matrix,self.clusterer.labels_)
