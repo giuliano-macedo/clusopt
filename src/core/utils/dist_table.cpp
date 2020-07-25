@@ -60,20 +60,20 @@ public:
 	}
 	
 	void handler(uint m){
-		double* point_i=dataset;
 		uint counter=0;
 		for(uint i=0;i<no_samples;i++){
-			double* point_j=point_i+dim;
 			for(uint j=i+1;j<no_samples;j++){
 				if(counter%no_threads==m){
-					double dist=c_distance(point_i,point_j,dim);
+					double dist=c_distance(
+						dataset+(i*dim),
+						dataset+(j*dim),
+						dim
+					);
 					table_ptr[(i*no_samples)+j]=dist;
 					table_ptr[(j*no_samples)+i]=dist;
 				}
 				counter++;
-				point_j+=dim;
 			}
-			point_i+=dim;
 		}
 	}
 	
