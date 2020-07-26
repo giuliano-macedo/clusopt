@@ -21,7 +21,7 @@ class SlaveGeneric(Slave):
 		}[self.RESULT_MODE]
 	
 	def run(self):
-		clusterer=Clusterer(self.ALGORITHM,self.kappa,self.RESULT_MODE)
+		clusterer=Clusterer(self.ALGORITHM,self.kappa,self.RESULT_MODE,self.distance_matrix_algorithm)
 		#---------------------------------------------------------------------------------
 		#for every payload calc sil_score
 		bc=0

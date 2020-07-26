@@ -31,6 +31,14 @@ def parse_args():
 		choices=["gauss","v1","v2","random"]
 	)
 	parser.add_argument(
+		"-d",
+		'--distance-matrix-method',
+		type=str,
+		help="distance matrix computation method, for large dimensions (>~160) sklearn is recomended, else custom (default custom)",
+		default="custom",
+		choices=["custom","sklearn"]
+	)
+	parser.add_argument(
 		"-s",
 		'--seed',
 		type=int,

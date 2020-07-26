@@ -5,6 +5,7 @@ slave.py
 The slave node
 """
 from core.utils import Silhouette;Silhouette #force compile
+from core import DistanceMatrixAlgorithm
 from network import ClientSocket,PAYID
 from argparse import ArgumentParser
 from collections import namedtuple
@@ -20,16 +21,18 @@ class Slave:
 		repetitions (int): number of repetitions
 		ghost (int or None) : if not None, enable ghost mode when batch index equals itself
 		disk_cache (int or None) : enable disk cache with max memory size equal to itself
+		distance_matrix_algorithm (core.DistMatrixAlgorithm) : distance matrix algorithm to use
 	Attributes:
 		
 	"""
-	def __init__(self,server,kappa,seed,repetitions,ghost,disk_cache):
+	def __init__(self,server,kappa,seed,repetitions,ghost,disk_cache,distance_matrix_algorithm):
 		self.server=server
 		self.kappa=kappa
 		self.seed=seed
 		self.repetitions=repetitions
 		self.ghost=ghost
 		self.disk_cache=disk_cache
+		self.distance_matrix_algorithm=distance_matrix_algorithm
 
 	def run(self,server):
 		"""
@@ -53,6 +56,8 @@ def main(server,opts):
 	config=namedtuple('Config', sorted(config))(**config) #dict -> namedtuple
 	print("algorithm:",config.algorithm)
 	print("seed,repetitions:",config.seed,config.repetitions)
+	print("distance matrix method:",config.distance_matrix_method)
+	print("batch_size",config.batch_size)
 	print("kappa:",config.kappa)
 	print("kappa length:",len(config.kappa))
 	print("kappa sum:",sum(config.kappa))
@@ -62,6 +67,10 @@ def main(server,opts):
 		kappa=config.kappa,
 		seed=config.seed,
 		repetitions=config.repetitions,
+		distance_matrix_algorithm=DistanceMatrixAlgorithm(
+			method=config.distance_matrix_method,
+			max_size=config.batch_size
+		),
 		**opts
 	)
 

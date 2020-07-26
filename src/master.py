@@ -32,7 +32,17 @@ class Master:
 	"""
 
 
-	def __init__(self,algorithm,_input,number_nodes,seed,repetitions,lower_threshold,kappas_method,remote_nodes):
+	def __init__(self,
+			algorithm,
+			_input,
+			number_nodes,
+			seed,
+			repetitions,
+			lower_threshold,
+			kappas_method,
+			remote_nodes,
+			distance_matrix_method
+		):
 		self.algorithm=algorithm
 		self.input=_input
 		self.number_nodes=number_nodes
@@ -41,6 +51,7 @@ class Master:
 		self.lower_threshold=lower_threshold
 		self.kappas_method=kappas_method
 		self.kappas=np.empty(0)
+		self.distance_matrix_method=distance_matrix_method
 
 		self.slaves=set()
 		#t -> msock
@@ -89,7 +100,9 @@ class Master:
 				"algorithm":self.algorithm,
 				"kappa":kappa,
 				"seed":self.seed,
-				"repetitions":self.repetitions
+				"repetitions":self.repetitions,
+				"distance_matrix_method":self.distance_matrix_method,
+				"batch_size":self.batch_size
 			},**json_opts}))
 
 	def __del__(self):
@@ -106,7 +119,8 @@ if __name__=="__main__":
 		"seed":args.seed,
 		"repetitions":args.repetitions,
 		"lower_threshold":args.lower_threshold,
-		"remote_nodes":args.remote_nodes
+		"remote_nodes":args.remote_nodes,
+		"distance_matrix_method":args.distance_matrix_method
 	}
 	if args.algorithm=="minibatch":
 		from master_algorithms import MasterMiniBatch as MasterAlgorithm

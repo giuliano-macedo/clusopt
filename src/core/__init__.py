@@ -15,6 +15,7 @@ class BucketEntry:
 	msock:Socket
 	timer:Timer
 from .Clusterer import Clusterer
+from .distance_matrix_algorithm import DistanceMatrixAlgorithm
 from .Bucket import Bucket
 from .streamkm import Streamkm
 from .clustream import CluStream

@@ -33,12 +33,14 @@ class Clusterer:
 		algorithm (Clusterer class): clusterer algorithm to use
 		kappa (ndarray): kappa set
 		result_mode (string): {labels,centroids} mode to store the best results
+		distance_matrix_algorithm (core.DistMatrixAlgorithm) : distance matrix algorithm to use
 	Attributes:
 		best_clusterers (dict): dict that maps the best batch_index,k -> labels or centroids
 	"""
 
-	def __init__(self,algorithm,kappa,result_mode):
+	def __init__(self,algorithm,kappa,result_mode,distance_matrix_algorithm):
 		self.algorithm=algorithm
+		self.distance_matrix_algorithm=distance_matrix_algorithm
 		self.pool=Pool()
 		self.__RESULT_FUNCTION={
 			"labels":	lambda shelve:shelve.clusterer.labels_.astype(np.uint8).copy(),
@@ -64,7 +66,7 @@ class Clusterer:
 		Returns:
 			(k,silhouette)
 		"""
-		dist_matrix=pairwise_distances(batch)
+		dist_matrix=self.distance_matrix_algorithm.compute(batch)
 		score,best=maximize_silhouette(
 			self.pool.imap_unordered(
 				Clusterer.__handler,((clusterer,batch,dist_matrix) for clusterer in self.drawer)
