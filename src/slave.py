@@ -94,6 +94,12 @@ if __name__=="__main__":
 	except ConnectionRefusedError:
 		print("Error connecting to",args.master_addr)
 		exit(-1)
-	main(server,vars(args))
+	opts=vars(args)
+	
+	#not needed in Server class
+	del(opts["master_addr"])
+	del(opts["verbose"])
+
+	main(server,opts)
 	
 	
