@@ -29,6 +29,9 @@ class DistanceMatrixAlgorithm:
 		return self.last_ans
 
 	def custom_compute(self,batch):
+		if batch.shape[0]!=self.dist_table.table.shape[0]:
+			print("counter measure triggered")
+			return DistanceTable(max_size=batch.shape[0]).compute(batch)
 		return self.dist_table.compute(batch)
 
 	def sklearn_clean(self):
