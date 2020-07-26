@@ -112,7 +112,7 @@ public:
 		if(labels_buff.ndim!=1)
 			throw std::runtime_error("labels must be a vector");
 		if(labels_buff.shape[0]>dist_table_buff.shape[0])
-			throw std::runtime_error("number of samples is bigger than dataset, overlfow detected");
+			throw std::runtime_error("number of labels is bigger than distance matrix, overlfow detected");
 		
 		return get_score(
 			labels_buff.shape[0],
