@@ -13,6 +13,7 @@ class DistanceMatrixAlgorithm:
 		assert(method in DistanceMatrixAlgorithm.__available_algs)
 		getattr(self,method+"_setup")(max_size)
 		self.compute=getattr(self,method+"_compute")
+		self.clean=getattr(self,method+"_clean")
 
 	def compute(self,batch):
 		"""will be overloaded by corresponding alg"""
@@ -24,7 +25,13 @@ class DistanceMatrixAlgorithm:
 		self.dist_table=DistanceTable(max_size=max_size)
 
 	def sklearn_compute(self,batch):
-		return pairwise_distances(batch,n_jobs=1) #n_jobs>1 gets slower
+		self.last_ans=pairwise_distances(batch,n_jobs=1) #n_jobs>1 gets slower
+		return self.last_ans
 
 	def custom_compute(self,batch):
 		return self.dist_table.compute(batch)
+
+	def sklearn_clean(self):
+		del(self.last_ans) 
+
+	def custom_clean(self):pass #don't delete the matrix, it will be used next time

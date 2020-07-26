@@ -71,7 +71,7 @@ class Clusterer:
 				Clusterer.__handler,((clusterer,batch,dist_matrix) for clusterer in self.drawer)
 			)
 		)
-		del(dist_matrix) #large mem
+		self.distance_matrix_algorithm.clean()
 		self.best_clusterers[(self.batch_index,best.k)]=self.__RESULT_FUNCTION(best)
 		self.batch_index+=1
 		return best.k,score
