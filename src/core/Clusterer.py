@@ -1,4 +1,3 @@
-from sklearn.metrics import pairwise_distances
 from multiprocessing.dummy import Pool
 import numpy as np
 from core.utils import Silhouette
