@@ -1,5 +1,9 @@
 import time
 from subprocess import check_output
+from os import getpid
+from psutil import Process as ProcessInfo
+from dataclasses import dataclass
+
 def save_to_csv(filename,fmt,data,header=None):
 	crlf="\r\n"
 	fmt+=crlf
@@ -36,3 +40,26 @@ class Timer:
 		return "Timer()"
 	def __repr__(self):
 		return str(self)
+
+@dataclass
+class SystemPerfInfo:
+	rss:int
+	data_write:int
+	data_read:int
+
+def get_proc_info(pid=None)->SystemPerfInfo:
+	"""
+		get SystemPerfInfo if pid is provided, else from its own process
+		
+		Args:
+			pid (int): process id to analyze. defaults to None.
+	"""
+	p=get_proc_info.p if pid==None else ProcessInfo(pid)
+	meminfo=p.memory_info()
+	ioinfo=p.io_counters()
+	return SystemPerfInfo(
+		rss=		meminfo.rss,
+		data_write=	ioinfo.write_bytes,
+		data_read=	ioinfo.read_bytes
+	)
+get_proc_info.p=ProcessInfo(getpid())
