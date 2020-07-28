@@ -41,7 +41,7 @@ class Timer:
 	def __repr__(self):
 		return str(self)
 
-@dataclass
+@dataclass(frozen=True)
 class SystemPerfInfo:
 	rss:int
 	data_write:int
