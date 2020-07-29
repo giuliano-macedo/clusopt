@@ -42,14 +42,14 @@ class Timer:
 		return str(self)
 
 @dataclass(frozen=True)
-class SystemPerfInfo:
+class ProcInfo:
 	rss:int
 	data_write:int
 	data_read:int
 
-def get_proc_info(pid=None)->SystemPerfInfo:
+def get_proc_info(pid=None)->ProcInfo:
 	"""
-		get SystemPerfInfo if pid is provided, else from its own process
+		get ProcInfo if pid is provided, else from its own process
 		
 		Args:
 			pid (int): process id to analyze. defaults to None.
@@ -57,7 +57,7 @@ def get_proc_info(pid=None)->SystemPerfInfo:
 	p=get_proc_info.p if pid==None else ProcessInfo(pid)
 	meminfo=p.memory_info()
 	ioinfo=p.io_counters()
-	return SystemPerfInfo(
+	return ProcInfo(
 		rss=		meminfo.rss,
 		data_write=	ioinfo.write_bytes,
 		data_read=	ioinfo.read_bytes

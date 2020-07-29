@@ -1,6 +1,7 @@
 from threading import Lock
 from . import BucketEntry
-from utils import save_to_csv,Timer
+from utils import save_to_csv,Timer,get_proc_info
+from dataclasses import astuple
 class Bucket:
 	"""
 	Manages each bucket entry to caclulate best silhouette for each batch index
@@ -16,24 +17,24 @@ class Bucket:
 	def add(self,t,k,sil,msock):
 		with self.lock:
 			entry=self.data.get(t)
-			if entry==None:
+			if entry==None:#insert new entry
 				entry=BucketEntry(
 					sil=sil,
 					k=k,
 					counter=1,
 					msock=msock,
-					timer=Timer()
+					timer=Timer(),
+					proc_info=get_proc_info()
 				)
 				self.data[t]=entry
 				entry.timer.start()
-			else:	
+			else:#update entry
 				entry.counter+=1
 				if sil>entry.sil:
-					#update entry
 					entry.sil=sil
 					entry.k=k
 					entry.msock=msock
-				elif sil==entry.sil and k<=entry.k:
+				elif sil==entry.sil and k<=entry.k: #collision
 					entry.sil=sil
 					entry.k=k
 					entry.msock=msock
@@ -48,10 +49,21 @@ class Bucket:
 		with self.lock:
 			return self.data.get(t)
 	def save_logs(self,filename):
+		def to_tuple(t,entry):
+			proc_info=astuple(entry.proc_info)
+			return (
+				t,
+				entry.sil,
+				entry.k,
+				entry.counter,
+				entry.timer.t,
+				*proc_info
+			)
 		print(f"saving {len(self.data)} items")
+		header="batch_counter,silhouette,k,entry_counter,time,rss,data_write,data_read"
 		save_to_csv(
 			filename,
-			"%i,%e,%i,%i,%i",
-			((t,entry.sil,entry.k,entry.counter,entry.timer.t) for t,entry in self.data.items()),
-			header="batch_counter,silhouette,k,entry_counter,time"
+			"%i,%e,%i,%i,%i,%i,%i,%i",
+			(to_tuple(t,entry) for t,entry in self.data.items()),
+			header=header
 		)

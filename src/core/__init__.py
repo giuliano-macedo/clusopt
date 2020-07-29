@@ -5,7 +5,7 @@ algorithms core components
 """
 
 from dataclasses import dataclass
-from utils import Timer
+from utils import Timer,ProcInfo
 from network import Socket
 @dataclass
 class BucketEntry:
@@ -14,6 +14,7 @@ class BucketEntry:
 	counter:int
 	msock:Socket
 	timer:Timer
+	proc_info:ProcInfo
 from .Clusterer import Clusterer
 from .distance_matrix_algorithm import DistanceMatrixAlgorithm
 from .Bucket import Bucket
