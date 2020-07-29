@@ -108,7 +108,7 @@ class Shelve:
 	def get_score(self,dist_matrix):
 		try:
 			return self.silhouette.get_score(dist_matrix,self.clusterer.labels_)
-		except IndexError: # number of labels > dist_matrix
+		except IndexError: # number of labels != dist_matrix number of rows/columns
 			n=len(self.clusterer.labels_)
 			dist_matrix=dist_matrix[:n,:n]
 			return self.silhouette.get_score(dist_matrix,self.clusterer.labels_)
