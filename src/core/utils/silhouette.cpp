@@ -112,7 +112,7 @@ public:
 		if(labels_buff.ndim!=1)
 			throw std::runtime_error("labels must be a vector");
 		if(labels_buff.shape[0]!=dist_table_buff.shape[0])
-			throw std::runtime_error("inconsistent number of labels");
+			throw py::index_error("inconsistent number of labels");
 		
 		return get_score(
 			labels_buff.shape[0],
