@@ -3,15 +3,12 @@ from subprocess import check_output
 from os import getpid
 from psutil import Process as ProcessInfo
 from dataclasses import dataclass
+from pandas import DataFrame
+from collections.abc import Iterable
 
-def save_to_csv(filename,fmt,data,header=None):
-	crlf="\r\n"
-	fmt+=crlf
-	with open(filename,"w") as f:
-		if header is not None:
-			f.write(header+crlf)
-		for row in data:
-			f.write(fmt%tuple(row))
+def save_to_csv(filename,data:Iterable):
+	#saves list of dicts as csv
+	DataFrame(data).to_csv(filename,index=None)
 
 def count_flines(fname):
 	try:

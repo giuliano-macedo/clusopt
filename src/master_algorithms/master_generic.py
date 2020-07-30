@@ -179,7 +179,7 @@ class MasterGeneric(Master):
 		#log everything
 		t=self.overall_timer.stop()
 		print("saving overall.csv...")
-		save_to_csv("overall.csv","%i,%e",[[t,winner.sil]],header="time,silhouette")
+		save_to_csv("overall.csv",[dict(time=t,silhouette=winner.sil)])
 		print("saving buckets.csv...")
 		self.bucket.save_logs("buckets.csv")
 		print("saving results.json...")

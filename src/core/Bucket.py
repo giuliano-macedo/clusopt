@@ -1,7 +1,6 @@
 from threading import Lock
 from . import BucketEntry
 from utils import save_to_csv,Timer,get_proc_info
-from dataclasses import astuple
 class Bucket:
 	"""
 	Manages each bucket entry to caclulate best silhouette for each batch index
@@ -49,21 +48,18 @@ class Bucket:
 		with self.lock:
 			return self.data.get(t)
 	def save_logs(self,filename):
-		def to_tuple(t,entry):
-			proc_info=astuple(entry.proc_info)
-			return (
-				t,
-				entry.sil,
-				entry.k,
-				entry.counter,
-				entry.timer.t,
-				*proc_info
-			)
 		print(f"saving {len(self.data)} items")
-		header="batch_counter,silhouette,k,entry_counter,time,rss,data_write,data_read"
-		save_to_csv(
-			filename,
-			"%i,%e,%i,%i,%i,%i,%i,%i",
-			(to_tuple(t,entry) for t,entry in self.data.items()),
-			header=header
+		data=(
+			dict(
+				batch_counter=t,
+				silhouette=entry.sil,
+				k=entry.k,
+				entry_counter=entry.counter,
+				time=entry.timer.t,
+				rss=entry.proc_info.rss,
+				data_write=entry.proc_info.data_write,
+				data_read=entry.proc_info.data_write
+			)
+			for t,entry in self.data.items()
 		)
+		save_to_csv(filename,data)
