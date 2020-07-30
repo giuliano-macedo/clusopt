@@ -50,8 +50,8 @@ for i in range(1,args.how_many_times+1):
 		time.sleep(0.5)
 	print("command executed successfully")
 	with ZipFile(args.output,"a") as zipf:
-		zipf.write("buckets.csv",f"{i}/buckets.csv")
-		zipf.write("results.json",f"{i}/results.json")
-		zipf.write("overall.csv",f"{i}/overall.csv")
+		zipf.write("results/buckets.csv",f"{i}/buckets.csv")
+		zipf.write("results/results.json",f"{i}/results.json")
+		zipf.write("results/overall.csv",f"{i}/overall.csv")
 		zipf.write("log.txt",f"{i}/log.txt")
 os.unlink("log.txt")

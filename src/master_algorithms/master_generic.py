@@ -179,10 +179,13 @@ class MasterGeneric(Master):
 		#log everything
 		t=self.overall_timer.stop()
 		print("saving overall.csv...")
-		save_to_csv("overall.csv",[dict(time=t,silhouette=winner.sil)])
+		
+		save_to_csv("./results/overall.csv",[dict(time=t,silhouette=winner.sil)])
+		
 		print("saving buckets.csv...")
-		self.bucket.save_logs("buckets.csv")
+		self.bucket.save_logs("./results/buckets.csv")
+		
 		print("saving results.json...")
-		with open("results.json","w") as f:
+		with open("./results/results.json","w") as f:
 			json.dump(winner_results,f)
 		self.send_to_all_slaves(PAYID.end)

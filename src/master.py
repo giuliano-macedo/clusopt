@@ -8,6 +8,7 @@ import numpy as np
 from args import parse_args
 from utils import Timer
 from network import Ship,ServerSocket,PAYID,Payload
+import os
 
 class Master:
 	"""
@@ -110,8 +111,16 @@ class Master:
 		for slave in self.slaves:
 			slave.close()
 
+def create_results_dir():
+	path="./results"
+	if os.path.exists(path) and not os.path.isdir(path):
+		raise RuntimeError(f"{os.getcwd()}/results is not a directory")
+	elif not os.path.exists(path):
+		os.mkdir(path)
+
 if __name__=="__main__":
 	args=parse_args()
+	create_results_dir()
 	master_args={
 		"algorithm":args.algorithm,
 		"_input":args.input,
