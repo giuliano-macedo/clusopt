@@ -2,6 +2,7 @@ from slave import Slave
 from core import Clusterer
 from network import Payload,PAYID
 import numpy as np
+from utils import get_proc_info
 class SlaveGeneric(Slave):
 	BATCH_DTYPE=None #{float32,float64}
 	RESULT_MODE=None #{labels,centroids}
@@ -22,6 +23,7 @@ class SlaveGeneric(Slave):
 	
 	def run(self):
 		clusterer=Clusterer(self.ALGORITHM,self.kappa,self.RESULT_MODE,self.distance_matrix_algorithm)
+		proc_infos=[]
 		#---------------------------------------------------------------------------------
 		#for every payload calc sil_score
 		bc=0
@@ -42,6 +44,7 @@ class SlaveGeneric(Slave):
 				}[self.RESULT_MODE]
 				print(f"ghosted in t={bc}")
 			self.server.send(Payload(PAYID.silhouette,(bc,k,sil)))
+			proc_infos.append(get_proc_info())
 			print(f"i am finished with t={bc}")
 			bc+=1
 		self.server.send(Payload(PAYID.end))
@@ -60,3 +63,14 @@ class SlaveGeneric(Slave):
 				print("-"*48)
 				raise RuntimeError(f"Requested batch_index,k not found ({pay.obj}), values available {list(clusterer.best_clusterers.keys())}")
 			self.server.send(Payload(self.__RESULT_PAYID,result))
+		#---------------------------------------------------------------------------------
+		#send extra info
+		data=[
+			dict(
+				batch_counter=i,
+				rss=proc_info.rss,
+				data_write=proc_info.data_write,
+				data_read=proc_info.data_read
+			) for i,proc_info in enumerate(proc_infos)
+		]
+		self.server.send(Payload(PAYID.json,data))

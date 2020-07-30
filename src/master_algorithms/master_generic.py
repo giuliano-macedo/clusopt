@@ -175,11 +175,17 @@ class MasterGeneric(Master):
 			winner.msock.send(Payload(PAYID.results_req,(t,winner.k)))
 			result=winner.msock.recv(self.__RESULT_PAYID).obj
 			winner_results.append(result.tolist())
-		#---------------------------------------------------------------------------------
-		#log everything
+		self.send_to_all_slaves(PAYID.end)
 		t=self.overall_timer.stop()
+		#---------------------------------------------------------------------------------
+		#log slaves extra info
+		for i,slave in enumerate(self.slaves):
+			result=slave.recv(PAYID.json).obj
+			with open(f"./results/slave{i}.json","w") as f:
+				json.dump(result,f)
+		#---------------------------------------------------------------------------------
+		#log everything from master
 		print("saving overall.csv...")
-		
 		save_to_csv("./results/overall.csv",[dict(time=t,silhouette=winner.sil)])
 		
 		print("saving buckets.csv...")
@@ -188,4 +194,3 @@ class MasterGeneric(Master):
 		print("saving results.json...")
 		with open("./results/results.json","w") as f:
 			json.dump(winner_results,f)
-		self.send_to_all_slaves(PAYID.end)
