@@ -55,6 +55,8 @@ class Bucket:
 				silhouette=entry.sil,
 				k=entry.k,
 				entry_counter=entry.counter,
+				time_start=entry.timer.beginning,
+				time_end=entry.timer.end,
 				time=entry.timer.t,
 				rss=entry.proc_info.rss,
 				data_write=entry.proc_info.data_write,

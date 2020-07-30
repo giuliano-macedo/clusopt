@@ -26,13 +26,23 @@ def count_flines(fname):
 	return ans
 class Timer:
 	def __init__(self):
-		self.t=0
+		"""
+		store time between start() and end() in nanoseconds.
+		Attrs:
+			beginning (int): timestamp of start() in nanoseconds
+			end (int): timestamp of end() in nanoseconds
+			t (int): difference of end and beginning
+		"""
+		self.t=self.beginning=self.end=float("nan")
+	
 	def start(self):
-		self.t=time.time()
+		self.beginning=int(time.time()*1e9)
+	
 	def stop(self):
-		end=time.time()
-		self.t=int((end-self.t)*1e9)
+		self.end=int(time.time()*1e9)
+		self.t=self.end-self.beginning
 		return self.t
+	
 	def __str__(self):
 		return "Timer()"
 	def __repr__(self):
