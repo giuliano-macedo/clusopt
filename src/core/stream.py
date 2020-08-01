@@ -23,6 +23,11 @@ def __count_flines(fname):
 	return ans
 
 class Stream:
+
+	def __reset_stream(self,fname,chunksize,dtype):
+		self.stream=read_csv(fname,chunksize=chunksize,header=None,dtype=dtype)
+		self.__peek=None
+
 	def __init__(self,fname,chunksize,dtype=np.float64):
 		"""
 		class to generate a stream from a csv file, providing info about it's shape and 
@@ -38,8 +43,11 @@ class Stream:
 		self.chunksize=chunksize
 		self.lines=__count_flines(self.fname)
 		with open(fname) as f:self.columns=next(f).count(",")+1
-		self.stream=read_csv(fname,chunksize=chunksize,header=None,dtype=dtype)
-		self.__peek=None
+		self.__reset_stream(fname,chunksize,dtype)
+
+	def set_dtype(self,dtype):
+		#sets new dtype and reset stream
+		self.__reset_stream(self.fname,self.chunksize,dtype)
 
 	def peek(self):
 		assert(self.__peek==None)
