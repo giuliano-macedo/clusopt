@@ -3,6 +3,8 @@ from subprocess import check_output
 from itertools import chain
 
 import numpy as np
+
+BLOCK_SIZE=4096
 def __count_flines(fname):
 	try:
 		#try to use wc -l
@@ -10,10 +12,12 @@ def __count_flines(fname):
 	except FileNotFoundError:
 		pass
 	ans=0
-	with open(fname) as f:
+	block=bytearray(BLOCK_SIZE)
+	with open(fname,"rb") as f:
 		while True:
-			block=f.read(4000)
-			if not block:
+			bs=f.readinto(block)
+			if bs<BLOCK_SIZE:
+				ans+=block[:BLOCK_SIZE].count("\n")	
 				break
 			ans+=block.count("\n")
 	return ans
