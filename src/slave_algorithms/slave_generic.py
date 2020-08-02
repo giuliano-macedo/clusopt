@@ -22,7 +22,7 @@ class SlaveGeneric(Slave):
 		}[self.RESULT_MODE]
 	
 	def run(self):
-		clusterer=Clusterer(self.ALGORITHM,self.kappa,self.RESULT_MODE,self.distance_matrix_algorithm)
+		clusterer=Clusterer(self.ALGORITHM,self.kappa,self.RESULT_MODE,self.distance_matrix_algorithm,self.batch_size)
 		proc_infos=[]
 		#---------------------------------------------------------------------------------
 		#for every payload calc sil_score

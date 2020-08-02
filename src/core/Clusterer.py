@@ -1,6 +1,7 @@
 from multiprocessing.dummy import Pool
 import numpy as np
 from core.utils import Silhouette
+from .distance_matrix_algorithm import DistanceMatrixAlgorithm
 #drawer clusterer
 def maximize_silhouette(iterator):
 	"""
@@ -32,14 +33,18 @@ class Clusterer:
 		algorithm (Clusterer class): clusterer algorithm to use
 		kappa (ndarray): kappa set
 		result_mode (string): {labels,centroids} mode to store the best results
-		distance_matrix_algorithm (core.DistMatrixAlgorithm) : distance matrix algorithm to use
+		distance_matrix_method (str) : distance matrix algorithm to use
+		batch_size (int): length of each batch
 	Attributes:
 		best_clusterers (dict): dict that maps the best batch_index,k -> labels or centroids
 	"""
 
-	def __init__(self,algorithm,kappa,result_mode,distance_matrix_algorithm):
+	def __init__(self,algorithm,kappa,result_mode,distance_matrix_method,batch_size):
 		self.algorithm=algorithm
-		self.distance_matrix_algorithm=distance_matrix_algorithm
+		self.distance_matrix_algorithm=DistanceMatrixAlgorithm(
+			method=distance_matrix_method,
+			max_size=batch_size
+		)
 		self.pool=Pool()
 		self.__RESULT_FUNCTION={
 			"labels":	lambda shelve:shelve.clusterer.labels_.astype(np.uint8).copy(),

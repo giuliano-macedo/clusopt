@@ -16,7 +16,6 @@ class BucketEntry:
 	timer:Timer
 	proc_info:ProcInfo
 from .Clusterer import Clusterer
-from .distance_matrix_algorithm import DistanceMatrixAlgorithm
 from .Bucket import Bucket
 from .streamkm import Streamkm
 from .clustream import CluStream
