@@ -2,7 +2,8 @@ from enum import IntEnum
 import zlib
 import numpy as np
 import struct
-import json
+import pickle
+
 def recvall(sock, n):
     # Helper function to recv n bytes or return None if EOF is hit
     data = b''
@@ -84,14 +85,14 @@ def read_silhouette(sock):
 def write_silhouette(buff,obj):
 	buff+=(struct.pack("IIf",*obj))
 
-def read_json(sock):
+def read_pickle(sock):
 	#read uint32
 	n,=struct.unpack("I",sock.recv(4))
-	#read string and parse json
-	return json.loads(sock.recv(n))
+	#read string and parse pickle
+	return pickle.loads(recvall(sock,n))
 
-def write_json(buff,obj):
-	s=bytes(json.dumps(obj),"ascii")
+def write_pickle(buff,obj):
+	s=pickle.dumps(obj)
 	buff+= (struct.pack("I",len(s))+s)
 
 class PAYID(IntEnum):
@@ -140,11 +141,11 @@ class Payload:
 			+---------------------------+----------+-------------------------------------------------------------+
 			| uint8_vector              | tuple    | (np.uint32 n, bytes(n*4))                                   |
 			+---------------------------+----------+-------------------------------------------------------------+
-			| results_req                | tuple    | (np.uint32 batch_counter,np.uint32 k)                       |
+			| results_req               | tuple    | (np.uint32 batch_counter,np.uint32 k)                       |
 			+---------------------------+----------+-------------------------------------------------------------+
 			| silhouette                | tuple    | (np.uint32 batch_counter, np.uint32 k, np.float sil)        |
 			+---------------------------+----------+-------------------------------------------------------------+
-			| json                      | str      | (np.uint32 n, str(n))                                       |
+			| pickle                    | obj      | (np.uint32 n, pickled_data(n))                                       |
 			+---------------------------+----------+-------------------------------------------------------------+
 	"""
 	__hooks_read={
@@ -155,7 +156,7 @@ class Payload:
 		PAYID.uint8_vector:read_uint8_vector,
 		PAYID.results_req:read_results_req,
 		PAYID.silhouette:read_silhouette,
-		PAYID.json:read_json
+		PAYID.json:read_pickle
 	}
 	__hooks_write={
 		PAYID.compressed_float32_matrix:write_compressed_float32_matrix,
@@ -165,7 +166,7 @@ class Payload:
 		PAYID.uint8_vector:write_uint8_vector,
 		PAYID.results_req:write_results_req,
 		PAYID.silhouette:write_silhouette,
-		PAYID.json:write_json
+		PAYID.json:write_pickle
 	}
 	def __init__(self,payloadid=PAYID.ok,obj=None):
 		self.id=payloadid

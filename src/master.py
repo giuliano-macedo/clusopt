@@ -98,7 +98,7 @@ class Master:
 		assert len(self.slaves)!=0,"no slaves connected"
 		self.kappas=self.kappas_method(len(self.slaves),self.lower_threshold)
 		for slave,kappa in zip(self.slaves,self.kappas):
-			slave.send(Payload(PAYID.json,{**{
+			slave.send(Payload(PAYID.pickle,{**{
 				"algorithm":self.algorithm,
 				"kappa":kappa,
 				"seed":self.seed,

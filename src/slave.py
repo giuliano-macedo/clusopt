@@ -53,7 +53,7 @@ def get_args():
 	return args
 def main(server,opts):
 	print(f"Connected to {server.ip}")
-	config=server.recv(PAYID.json).obj
+	config=server.recv(PAYID.pickle).obj
 	config=namedtuple('Config', sorted(config))(**config) #dict -> namedtuple
 	print("algorithm:",config.algorithm)
 	print("seed,repetitions:",config.seed,config.repetitions)

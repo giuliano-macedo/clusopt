@@ -73,4 +73,4 @@ class SlaveGeneric(Slave):
 				data_read=proc_info.data_read
 			) for i,proc_info in enumerate(proc_infos)
 		]
-		self.server.send(Payload(PAYID.json,data))
+		self.server.send(Payload(PAYID.pickle,data))

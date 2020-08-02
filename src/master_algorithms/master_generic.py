@@ -170,7 +170,7 @@ class MasterGeneric(Master):
 		#---------------------------------------------------------------------------------
 		#log slaves extra info
 		for i,slave in enumerate(self.slaves):
-			result=slave.recv(PAYID.json).obj
+			result=slave.recv(PAYID.pickle).obj
 			with open(f"./results/slave{i}.json","w") as f:
 				json.dump(result,f)
 		#---------------------------------------------------------------------------------
