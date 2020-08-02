@@ -66,7 +66,6 @@ class MasterGeneric(Master):
 	Attributes:
 		winners (list): contains sockets winner for each bach index
 		bucket (Bucket): contains each time, silhouete, and socket for each batch index
-		stream (iterator): iterator of the data stream
 		BATCH_DTYPE (str): defines the type of the data stream {float32,float64}
 		RESULT_MODE (str): defines the type of results {labels,centroids}
 	"""
@@ -90,15 +89,6 @@ class MasterGeneric(Master):
 		self.batch_size=batch_size
 		self.bucket=None
 		self.winners={}
-		self.stream=read_csv(
-			self.input,
-			chunksize=self.batch_size,
-			header=None,
-			dtype={
-				"float32":np.float32,
-				"float64":np.float64
-			}[self.BATCH_DTYPE]
-		)
 		
 		self.__BATCH_PAYID={
 			"float32":PAYID.compressed_float32_matrix,

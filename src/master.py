@@ -9,12 +9,13 @@ from args import parse_args
 from utils import Timer
 from network import Ship,ServerSocket,PAYID,Payload
 import os
+from core import Stream
 
 class Master:
 	"""
 	Args:
 		algorithm (str): the algorithm to use
-		input (str): URI of the dataset
+		stream (core.Stream): Dataset stream
 		number_nodes (int): number of remote nodes to connect
 		seed (int): seed to use in the slaves
 		repetitions (int): number of times to repeat slave algorithm
@@ -22,7 +23,7 @@ class Master:
 		kappas_method (function): kappas set builder function
 		remote_nodes (str): path to the file that contains the ip for all remote slaves
 	Attributes:
-		input (str):
+		stream (str):
 		number_nodes (int):
 		lower_threshold (int):
 		kappas_method (function):
@@ -35,7 +36,7 @@ class Master:
 
 	def __init__(self,
 			algorithm,
-			_input,
+			stream,
 			number_nodes,
 			seed,
 			repetitions,
@@ -45,7 +46,7 @@ class Master:
 			distance_matrix_method
 		):
 		self.algorithm=algorithm
-		self.input=_input
+		self.stream=stream
 		self.number_nodes=number_nodes
 		self.seed=seed
 		self.repetitions=repetitions
@@ -123,7 +124,6 @@ if __name__=="__main__":
 	create_results_dir()
 	master_args={
 		"algorithm":args.algorithm,
-		"_input":args.input,
 		"number_nodes":args.number_nodes,
 		"seed":args.seed,
 		"repetitions":args.repetitions,
@@ -164,6 +164,7 @@ if __name__=="__main__":
 	else:
 		raise RuntimeError("unexpected error")
 	master_args["kappas_method"]=get_kappas
+	master_args["stream"]=Stream(args.input,args.chunk_size,MasterAlgorithm.BATCH_DTYPE)
 	master=MasterAlgorithm(**master_args)
 	master.run()
 	

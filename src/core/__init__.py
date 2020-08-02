@@ -20,3 +20,4 @@ from .Bucket import Bucket
 from .streamkm import Streamkm
 from .clustream import CluStream
 from .cacher import Cacher
+from .stream import Stream

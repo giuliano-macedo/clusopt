@@ -6,8 +6,8 @@ class MasterCluStream(MasterGeneric):
 	def __init__(self,*args,clustream_seed,window_range,microkernels,kernel_radius,**kwargs):
 		super().__init__(*args,batch_size=microkernels,**kwargs)
 		self.model=CluStream(m=microkernels,t=kernel_radius,h=window_range)
-		
-		init_points=next(self.stream).values
+		#init_points = self.stream.peek() if peek else self.stream.pop()
+		init_points=self.stream.pop()
 		print("initing clustream...")
 		self.model.init_offline(init_points,seed=clustream_seed)
 
