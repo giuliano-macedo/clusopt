@@ -109,7 +109,8 @@ class PAYID(IntEnum):
 	uint8_vector=				8
 	results_req=				9
 	silhouette=					10
-	json=						11
+	pickle=						11
+	
 class Payload:
 	"""
 	implements midsc's protocol usings it's ids
@@ -156,7 +157,7 @@ class Payload:
 		PAYID.uint8_vector:read_uint8_vector,
 		PAYID.results_req:read_results_req,
 		PAYID.silhouette:read_silhouette,
-		PAYID.json:read_pickle
+		PAYID.pickle:read_pickle
 	}
 	__hooks_write={
 		PAYID.compressed_float32_matrix:write_compressed_float32_matrix,
@@ -166,7 +167,7 @@ class Payload:
 		PAYID.uint8_vector:write_uint8_vector,
 		PAYID.results_req:write_results_req,
 		PAYID.silhouette:write_silhouette,
-		PAYID.json:write_pickle
+		PAYID.pickle:write_pickle
 	}
 	def __init__(self,payloadid=PAYID.ok,obj=None):
 		self.id=payloadid
