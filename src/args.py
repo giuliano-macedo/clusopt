@@ -16,6 +16,13 @@ def parse_args():
 		help="path or url of the comma-separated dataset"
 	)
 	parser.add_argument(
+		"-c",
+		"--chunk_size",
+		type=int,
+		help="size of chunks that the dataset will be splitted (default 2000)",
+		default=2000,
+	)
+	parser.add_argument(
 		'-n',
 		'--number-nodes',
 		type=int,
@@ -125,7 +132,7 @@ def parse_args():
 		help="StreamKm++ online clustering algorithm"
 	)
 	streamkm.add_argument(
-		"-c",
+		"-C",
 		"--coreset-size",
 		type=int,
 		help="Number of coresets to use (default 1000)",
