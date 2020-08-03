@@ -1,22 +1,21 @@
 from master import Master
 from core import Bucket
 from network import PAYID,Payload
-import numpy as np
 import logging
 from threading import Thread
 from queue import Queue
-from pandas import read_csv
 import json
 import zlib
-from utils import save_to_csv
+from utils import save_to_csv,ProgressMeter
 
 class Replicator(Thread):
 	"""
 	Thread responsible for sending compressed batches to each slave in synchronized
 	new threads
 	"""
-	def __init__(self,slaves,payid):
+	def __init__(self,slaves,payid,total_batches):
 		super().__init__(name="Replicator")
+		self.progress=ProgressMeter(total_batches,"Replicator")
 		self.slaves=slaves
 		self.payid=payid
 		self.__queue=Queue() #maybe cache
@@ -50,6 +49,7 @@ class Replicator(Thread):
 				thread.start()
 			for thread in threads:
 				thread.join()
+			self.progress.update(1)
 			i+=1
 
 	def add_job(self,shape,compressed):
@@ -124,7 +124,7 @@ class MasterGeneric(Master):
 	def run(self):
 		super().run(batch_size=self.batch_size)
 		self.overall_timer.start()
-		self.bucket=Bucket(len(self.slaves))
+		self.bucket=Bucket(len(self.slaves),self.total_batches)
 		#---------------------------------------------------------------------------------
 		#start silhoete receiver threads
 		sil_threads=[]
@@ -138,7 +138,7 @@ class MasterGeneric(Master):
 			t.start()
 		#---------------------------------------------------------------------------------
 		#start replicator sender threads
-		replicator=Replicator(self.slaves,self.__BATCH_PAYID)
+		replicator=Replicator(self.slaves,self.__BATCH_PAYID,self.total_batches)
 		replicator.start()
 		for i,chunk in enumerate(self.stream):
 			batch=self.preproc(chunk.values)

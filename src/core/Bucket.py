@@ -1,17 +1,20 @@
 from threading import Lock
 from . import BucketEntry
-from utils import save_to_csv,Timer,get_proc_info
+from utils import save_to_csv,Timer,get_proc_info,ProgressMeter
 class Bucket:
 	"""
 	Manages each bucket entry to caclulate best silhouette for each batch index
 
 	Args:
 		batch_size (int): size of each chunk of the dataset
+		total_batches (int): total number of batches
 	"""
-	def __init__(self,max_size):
+	def __init__(self,max_size,total_batches):
 		self.lock=Lock()
 		self.data={} #t -> Bucket.Entry
 		self.max_size=max_size
+		self.total_batches=total_batches
+		self.progress=ProgressMeter(total_batches,"Bucket")
 
 	def add(self,t,k,sil,msock):
 		with self.lock:
@@ -40,6 +43,7 @@ class Bucket:
 
 			isfull=entry.counter==self.max_size
 			if isfull:
+				self.progress.update(1)
 				entry.timer.stop()
 			if entry.counter>self.max_size:
 				raise RuntimeError("Unexpected error: bucket already full")

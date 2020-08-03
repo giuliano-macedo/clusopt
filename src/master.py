@@ -10,6 +10,7 @@ from utils import Timer
 from network import Ship,ServerSocket,PAYID,Payload
 import os
 from core import Stream
+from math import ceil
 
 class Master:
 	"""
@@ -55,6 +56,7 @@ class Master:
 		self.kappas=np.empty(0)
 		self.distance_matrix_method=distance_matrix_method
 
+		self.total_batches=ceil(self.stream.lines/self.stream.chunk_size)
 		self.slaves=set()
 		#t -> msock
 		self.ship=Ship(self.number_nodes,remote_nodes)

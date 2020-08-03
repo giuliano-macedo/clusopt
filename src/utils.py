@@ -6,6 +6,17 @@ from dataclasses import dataclass
 from pandas import DataFrame
 from collections.abc import Iterable
 
+class ProgressMeter:
+	def __init__(self,total,msg):
+		self.total=total
+		self.msg=msg
+		self.n=0
+	
+	def update(self,n):
+		self.n+=n
+		print(f"{self.msg} [{self.n*100/self.total:.2f}%]")
+
+
 def save_to_csv(filename,data:Iterable):
 	#saves list of dicts as csv
 	DataFrame(data).to_csv(filename,index=None)
