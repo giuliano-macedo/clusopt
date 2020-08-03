@@ -116,6 +116,7 @@ if __name__=="__main__":
 	#not needed in Server class
 	del(opts["master_addr"])
 	del(opts["verbose"])
+	del(opts["server_mode"])
 
 	main(server,opts)
 	
