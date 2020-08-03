@@ -5,7 +5,7 @@ slave.py
 The slave node
 """
 from core.utils import Silhouette;Silhouette #force compile
-from network import ClientSocket,PAYID
+from network import ClientSocket,PAYID,ServerSocket
 from argparse import ArgumentParser
 from collections import namedtuple
 import numpy as np
@@ -45,12 +45,14 @@ def get_args():
 	parser=ArgumentParser()
 	parser.add_argument("master_addr",help="address of the master")
 	parser.add_argument('-v','--verbose', action='store_true',help="enbale verbose")
+	parser.add_argument('-s','--server-mode',action='store_true', help="starts as a server, so that the master starts the connection")
 	parser.add_argument('-g','--ghost', type=int,help="enable ghost mode in batch index TIME",metavar="TIME")
 	parser.add_argument('-c','--disk-cache', type=int,help="use disk cache, keeping max of BATCHES in memory",metavar="BATCHES")
 	args=parser.parse_args()
 	if args.verbose:
 		logging.basicConfig(format='[%(levelname)s]%(message)s',level=logging.DEBUG)
 	return args
+
 def main(server,opts):
 	print(f"Connected to {server.ip}")
 	config=server.recv(PAYID.pickle).obj
@@ -97,11 +99,18 @@ def main(server,opts):
 if __name__=="__main__":
 	
 	args=get_args()
-	try:
-		server=ClientSocket(args.master_addr,3523)
-	except ConnectionRefusedError:
-		print("Error connecting to",args.master_addr)
-		exit(-1)
+	if args.server_mode:
+		print("auxiliar server started")
+		print("waiting connection:")
+		aux_server=ServerSocket(3523)
+		server=aux_server.accept()
+		print(f"connected to {server.ip}")
+	else:
+		try:
+			server=ClientSocket(args.master_addr,3523)
+		except ConnectionRefusedError:
+			print("Error connecting to",args.master_addr)
+			exit(-1)
 	opts=vars(args)
 	
 	#not needed in Server class
