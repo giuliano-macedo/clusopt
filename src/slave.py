@@ -71,15 +71,15 @@ def main(server,opts):
 		seed=config.seed,
 		repetitions=config.repetitions,
 		distance_matrix_method=config.distance_matrix_method,
-		batch_size=config.batch_size
+		batch_size=config.batch_size,
 		**opts
 	)
 
 	if config.algorithm=="minibatch":
 		from slave_algorithms import SlaveMiniBatch as SlaveAlgorithm
-		slave_args={**slave_args,**{
-			"batch_size":config.batch_size
-		}}
+		# slave_args={**slave_args,**{
+		
+		# }}
 	elif config.algorithm=="clustream":
 		from slave_algorithms import SlaveCluStream as SlaveAlgorithm
 		# slave_args={**slave_args,**{

@@ -86,7 +86,7 @@ class MasterGeneric(Master):
 
 	def __init__(self,*args,batch_size,**kwargs):
 		super().__init__(*args,**kwargs)
-		self.batch_size=batch_size
+		self.batch_size=batch_size if batch_size!=None else self.stream.chunk_size
 		self.bucket=None
 		self.winners={}
 		

@@ -136,7 +136,6 @@ if __name__=="__main__":
 	if args.algorithm=="minibatch":
 		from master_algorithms import MasterMiniBatch as MasterAlgorithm
 		master_args={**master_args,**{
-			"batch_size":args.batch_size
 		}}
 	elif args.algorithm=="clustream":
 		from master_algorithms import MasterCluStream as MasterAlgorithm

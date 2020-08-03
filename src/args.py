@@ -70,7 +70,7 @@ def parse_args():
 		'--lower-threshold',
 		type=int,
 		default=None,
-		help="lower threshold for kappa set generation, default is sqrt(ceil(batch_size|m|coresetsize))"
+		help="lower threshold for kappa set generation, default is sqrt(ceil(chunk_size|m|coresetsize))"
 	)
 	parser.add_argument(
 		"-r",
@@ -84,13 +84,6 @@ def parse_args():
 	minibatch=subparsers.add_parser(
 		"minibatch",
 		help="MiniBatchKmeans online clustering algorithm"
-	)
-	minibatch.add_argument(
-		"-b",
-		"--batch-size",
-		type=int,
-		help="size of chunks to send to slaves (default 2000)",
-		default=2000
 	)
 	#clustream
 	#------------------------------------------------------------------------------------
@@ -159,7 +152,7 @@ def parse_args():
 	if args.kappas_method==None:
 		args.kappas_method={"minibatch":"random"}.get(args.algorithm,"gauss")
 	if args.algorithm=="minibatch" and args.lower_threshold is None:
-		args.lower_threshold=int(ceil(sqrt(args.batch_size)))
+		args.lower_threshold=int(ceil(sqrt(args.chunk_size)))
 	elif args.algorithm=="clustream" and args.lower_threshold is None:
 		args.lower_threshold=int(ceil(sqrt(args.microclusters)))
 	elif args.algorithm=="streamkm":
