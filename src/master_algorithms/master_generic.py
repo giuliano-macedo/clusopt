@@ -118,7 +118,7 @@ class MasterGeneric(Master):
 			isfull=self.bucket.add(t,k,sil,msock)
 			if isfull:
 				bucket_winner=self.bucket.get(t)
-				print(f"winner on t={t} {bucket_winner}")
+				print(f"winner on t={t}: {bucket_winner.msock.ip} {bucket_winner.sil:.3f} {bucket_winner.k}")
 				self.winners[t]=bucket_winner
 
 	def run(self):

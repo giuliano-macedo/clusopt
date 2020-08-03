@@ -10,6 +10,7 @@ from argparse import ArgumentParser
 from collections import namedtuple
 import numpy as np
 import logging
+from pandas import DataFrame
 		
 class Slave:
 	"""
@@ -53,18 +54,32 @@ def get_args():
 		logging.basicConfig(format='[%(levelname)s]%(message)s',level=logging.DEBUG)
 	return args
 
+def print_config(config):
+	df=DataFrame(
+		[
+			("algorithm:",config.algorithm),
+			("seed:",config.seed),
+			("repetitions:",config.repetitions),
+			("distance matrix method:",config.distance_matrix_method),
+			("batch_size:",config.batch_size),
+			("kappa:",config.kappa),
+			("kappa length:",len(config.kappa)),
+			("kappa sum:",sum(config.kappa)),
+			("kappa variance:",np.var(config.kappa))
+		]
+	)
+	print("CONFIG RECEIVED FROM MASTER")
+	print("-"*48)
+	print(df.to_string(header=None,index=None))
+	print("-"*48)
+
+
+
 def main(server,opts):
 	print(f"Connected to {server.ip}")
 	config=server.recv(PAYID.pickle).obj
 	config=namedtuple('Config', sorted(config))(**config) #dict -> namedtuple
-	print("algorithm:",config.algorithm)
-	print("seed,repetitions:",config.seed,config.repetitions)
-	print("distance matrix method:",config.distance_matrix_method)
-	print("batch_size",config.batch_size)
-	print("kappa:",config.kappa)
-	print("kappa length:",len(config.kappa))
-	print("kappa sum:",sum(config.kappa))
-	print(f"kappa variance: {np.var(config.kappa):.2f}")
+	print_config(config)
 	slave_args=dict(
 		server=server,
 		kappa=config.kappa,
@@ -78,7 +93,7 @@ def main(server,opts):
 	if config.algorithm=="minibatch":
 		from slave_algorithms import SlaveMiniBatch as SlaveAlgorithm
 		# slave_args={**slave_args,**{
-		
+
 		# }}
 	elif config.algorithm=="clustream":
 		from slave_algorithms import SlaveCluStream as SlaveAlgorithm

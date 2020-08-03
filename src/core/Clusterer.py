@@ -70,7 +70,6 @@ class Clusterer:
 		Returns:
 			(k,silhouette)
 		"""
-		print(batch.shape)
 		dist_matrix=self.distance_matrix_algorithm.compute(batch)
 		score,best=maximize_silhouette(
 			self.pool.imap_unordered(
