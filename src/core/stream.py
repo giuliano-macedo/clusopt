@@ -17,9 +17,9 @@ def __count_flines(fname):
 		while True:
 			bs=f.readinto(block)
 			if bs<BLOCK_SIZE:
-				ans+=block[:BLOCK_SIZE].count("\n")	
+				ans+=block[:BLOCK_SIZE].count(b"\n")	
 				break
-			ans+=block.count("\n")
+			ans+=block.count(b"\n")
 	return ans
 
 class Stream:
