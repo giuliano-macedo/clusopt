@@ -5,7 +5,7 @@ master.py
 The master node
 """
 import os
-from master import parse_args
+from master.args import parse_args
 from master.core import (
 	Stream,get_kappas_gauss,
 	get_kappas_v1,

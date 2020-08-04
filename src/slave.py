@@ -4,25 +4,12 @@ slave.py
 ====================================
 The slave node
 """
+from slave.args import get_args
 from slave.core import Silhouette;Silhouette #force compile
 from network import ClientSocket,PAYID,ServerSocket
-from argparse import ArgumentParser
 from collections import namedtuple
 import numpy as np
-import logging
 from pandas import DataFrame
-
-def get_args():
-	parser=ArgumentParser()
-	parser.add_argument("master_addr",help="address of the master")
-	parser.add_argument('-v','--verbose', action='store_true',help="enbale verbose")
-	parser.add_argument('-s','--server-mode',action='store_true', help="starts as a server, so that the master starts the connection")
-	parser.add_argument('-g','--ghost', type=int,help="enable ghost mode in batch index TIME",metavar="TIME")
-	parser.add_argument('-c','--disk-cache', type=int,help="use disk cache, keeping max of BATCHES in memory",metavar="BATCHES")
-	args=parser.parse_args()
-	if args.verbose:
-		logging.basicConfig(format='[%(levelname)s]%(message)s',level=logging.DEBUG)
-	return args
 
 def print_config(config):
 	df=DataFrame(
