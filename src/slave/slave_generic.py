@@ -1,15 +1,44 @@
-from .slave import Slave
 from .core import Clusterer
 from network import Payload,PAYID
 import numpy as np
 from utils import get_proc_info
-class SlaveGeneric(Slave):
+class SlaveGeneric:
+	"""
+	Args:
+		kappa (ndarray) : K's to test
+		seed (int): seed to use
+		repetitions (int): number of repetitions
+		ghost (int or None) : if not None, enable ghost mode when batch index equals itself
+		disk_cache (int or None) : enable disk cache with max memory size equal to itself
+		distance_matrix_method (str) : distance matrix algorithm to use
+		batch_size (int): length of each batch
+	Attributes:
+		
+	"""
 	BATCH_DTYPE=None #{float32,float64}
 	RESULT_MODE=None #{labels,centroids}
 	ALGORITHM=None #sklearn clusterer
 
-	def __init__(self,*args,**kwargs):
-		super().__init__(*args,**kwargs)
+	def __init__(
+			self,
+			server,
+			kappa,
+			seed,
+			repetitions,
+			ghost,
+			disk_cache,
+			distance_matrix_method,
+			batch_size
+		):
+		self.server=server
+		self.kappa=kappa
+		self.seed=seed
+		self.repetitions=repetitions
+		self.ghost=ghost
+		self.disk_cache=disk_cache
+		self.distance_matrix_method=distance_matrix_method
+		self.batch_size=batch_size
+
 		if self.disk_cache != None: raise NotImplemented #TODO
 		self.__BATCH_PAYID={
 			"float32":PAYID.compressed_float32_matrix,
