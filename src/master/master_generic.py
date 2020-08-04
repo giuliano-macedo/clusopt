@@ -1,4 +1,4 @@
-from .master import Master
+from .master_bootstrap import MasterBootstrap
 from .core import Bucket
 from network import PAYID,Payload
 import logging
@@ -59,7 +59,7 @@ class Replicator(Thread):
 		self.__queue.put((True,None,None))		
 		super().join()
 
-class MasterGeneric(Master):
+class MasterGeneric(MasterBootstrap):
 	"""
 	Args:
 		batch_size (int) : size of the chunks that the dataset will be splitted

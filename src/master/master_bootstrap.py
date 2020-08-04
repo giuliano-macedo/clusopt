@@ -3,7 +3,7 @@ from utils import Timer
 from network import Ship,ServerSocket,PAYID,Payload
 from math import ceil
 
-class Master:
+class MasterBootstrap:
 	"""
 	Args:
 		algorithm (str): the algorithm to use
@@ -24,8 +24,6 @@ class Master:
 		ship (midsc.network.Ship): ship object containing the number of nodes necessary
 		overall_timer (midsc.Timer): Timer object for overall runtime
 	"""
-
-
 	def __init__(self,
 			algorithm,
 			stream,
