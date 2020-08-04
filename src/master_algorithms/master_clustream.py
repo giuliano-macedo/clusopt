@@ -1,4 +1,4 @@
-from core import CluStream
+from .core import CluStream
 from .master_generic import MasterGeneric
 class MasterCluStream(MasterGeneric):
 	BATCH_DTYPE="float64"

@@ -1,4 +1,4 @@
-from core import Streamkm
+from .core import Streamkm
 from .master_generic import MasterGeneric
 class MasterStreamkm(MasterGeneric):
 	BATCH_DTYPE="float64"

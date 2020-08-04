@@ -1,6 +1,17 @@
 from threading import Lock
-from . import BucketEntry
-from utils import save_to_csv,Timer,get_proc_info,ProgressMeter
+from utils import save_to_csv,Timer,get_proc_info,ProgressMeter,ProcInfo
+from dataclasses import dataclass
+from network import Socket
+
+@dataclass
+class BucketEntry:
+	sil:int
+	k:int
+	counter:int
+	msock:Socket
+	timer:Timer
+	proc_info:ProcInfo
+
 class Bucket:
 	"""
 	Manages each bucket entry to caclulate best silhouette for each batch index

@@ -1,5 +1,5 @@
 from slave import Slave
-from core import Clusterer
+from .core import Clusterer
 from network import Payload,PAYID
 import numpy as np
 from utils import get_proc_info

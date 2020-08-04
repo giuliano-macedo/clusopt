@@ -1,5 +1,5 @@
 from master import Master
-from core import Bucket
+from .core import Bucket
 from network import PAYID,Payload
 import logging
 from threading import Thread

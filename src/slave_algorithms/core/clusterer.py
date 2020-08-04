@@ -1,7 +1,7 @@
 from multiprocessing.dummy import Pool
 import numpy as np
-from core.utils import Silhouette
-from .distance_matrix_algorithm import DistanceMatrixAlgorithm
+from . import Silhouette,DistanceMatrixAlgorithm
+
 #drawer clusterer
 def maximize_silhouette(iterator):
 	"""

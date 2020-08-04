@@ -9,7 +9,7 @@ from args import parse_args
 from utils import Timer
 from network import Ship,ServerSocket,PAYID,Payload
 import os
-from core import Stream
+from master_algorithms.core import Stream
 from math import ceil
 
 class Master:

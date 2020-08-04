@@ -4,7 +4,7 @@ slave.py
 ====================================
 The slave node
 """
-from core.utils import Silhouette;Silhouette #force compile
+from slave_algorithms.core import Silhouette;Silhouette #force compile
 from network import ClientSocket,PAYID,ServerSocket
 from argparse import ArgumentParser
 from collections import namedtuple

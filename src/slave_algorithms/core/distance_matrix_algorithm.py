@@ -1,5 +1,6 @@
-from core.utils import DistanceTable
+from . import DistanceTable
 from sklearn.metrics import pairwise_distances
+
 class DistanceMatrixAlgorithm:
 	__available_algs={"custom","sklearn"}
 	def __init__(self,method,max_size):
