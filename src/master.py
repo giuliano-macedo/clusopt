@@ -11,6 +11,7 @@ from network import Ship,ServerSocket,PAYID,Payload
 import os
 from master_algorithms.core import Stream
 from math import ceil
+from master_algorithms.core import get_kappas_gauss,get_kappas_v1,get_kappas_v2,get_kappas_random
 
 class Master:
 	"""
@@ -154,17 +155,12 @@ if __name__=="__main__":
 		}}
 	else:
 		raise RuntimeError("unexpected error")
-	if args.kappas_method=="gauss":
-		from kappas import get_kappas_gauss as get_kappas
-	elif args.kappas_method=="v1":
-		from kappas import get_kappas_v1 as get_kappas
-	elif args.kappas_method=="v2":
-		from kappas import get_kappas_v2 as get_kappas
-	elif args.kappas_method=="random":
-		from kappas import get_kappas_random as get_kappas
-	else:
-		raise RuntimeError("unexpected error")
-	master_args["kappas_method"]=get_kappas
+	master_args["kappas_method"]=dict(
+		gauss=get_kappas_gauss,
+		v1=get_kappas_v1,
+		v2=get_kappas_v2,
+		random=get_kappas_random
+	)[args.kappas_method]
 	master_args["stream"]=Stream(args.input,args.chunk_size,MasterAlgorithm.BATCH_DTYPE)
 	master=MasterAlgorithm(**master_args)
 	master.run()
