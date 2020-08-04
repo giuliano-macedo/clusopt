@@ -4,43 +4,13 @@ slave.py
 ====================================
 The slave node
 """
-from slave_algorithms.core import Silhouette;Silhouette #force compile
+from slave.core import Silhouette;Silhouette #force compile
 from network import ClientSocket,PAYID,ServerSocket
 from argparse import ArgumentParser
 from collections import namedtuple
 import numpy as np
 import logging
 from pandas import DataFrame
-		
-class Slave:
-	"""
-	Args:
-		batch_size (int) : size of the chunks that the dataset will be splitted
-		kappa (ndarray) : K's to test
-		seed (int): seed to use
-		repetitions (int): number of repetitions
-		ghost (int or None) : if not None, enable ghost mode when batch index equals itself
-		disk_cache (int or None) : enable disk cache with max memory size equal to itself
-		distance_matrix_method (str) : distance matrix algorithm to use
-		batch_size (int): length of each batch
-	Attributes:
-		
-	"""
-	def __init__(self,server,kappa,seed,repetitions,ghost,disk_cache,distance_matrix_method,batch_size):
-		self.server=server
-		self.kappa=kappa
-		self.seed=seed
-		self.repetitions=repetitions
-		self.ghost=ghost
-		self.disk_cache=disk_cache
-		self.distance_matrix_method=distance_matrix_method
-		self.batch_size=batch_size
-
-	def run(self,server):
-		"""
-		main method, run slave's node algorithm
-		"""
-		pass
 
 def get_args():
 	parser=ArgumentParser()
@@ -91,17 +61,17 @@ def main(server,opts):
 	)
 
 	if config.algorithm=="minibatch":
-		from slave_algorithms import SlaveMiniBatch as SlaveAlgorithm
+		from slave import SlaveMiniBatch as SlaveAlgorithm
 		# slave_args={**slave_args,**{
 
 		# }}
 	elif config.algorithm=="clustream":
-		from slave_algorithms import SlaveCluStream as SlaveAlgorithm
+		from slave import SlaveCluStream as SlaveAlgorithm
 		# slave_args={**slave_args,**{
 			
 		# }}
 	elif config.algorithm=="streamkm":
-		from slave_algorithms import SlaveStreamkm as SlaveAlgorithm
+		from slave import SlaveStreamkm as SlaveAlgorithm
 		# slave_args={**slave_args,**{
 			
 		# }}

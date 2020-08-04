@@ -1,4 +1,4 @@
-from slave import Slave
+from .slave import Slave
 from .core import Clusterer
 from network import Payload,PAYID
 import numpy as np
