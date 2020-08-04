@@ -4,9 +4,14 @@ master.py
 ====================================
 The master node
 """
-from args import parse_args
 import os
-from master.core import Stream,get_kappas_gauss,get_kappas_v1,get_kappas_v2,get_kappas_random
+from master import parse_args
+from master.core import (
+	Stream,get_kappas_gauss,
+	get_kappas_v1,
+	get_kappas_v2,
+	get_kappas_random
+)
 
 def create_results_dir():
 	path="./results"
