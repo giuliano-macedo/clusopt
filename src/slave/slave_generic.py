@@ -66,7 +66,7 @@ class SlaveGeneric:
 			if not should_ghost:
 				k,sil=clusterer.add_and_get_best_score(pay.obj)
 			else:
-				k,sil=self.kappas[0],-1
+				k,sil=self.kappa[0],-1
 				clusterer.best_clusterers[(bc,k)]={ #against measure
 					"labels":np.array([0],dtype=np.uint8),
 					"centroids":np.array([[0]],dtype=np.float64)
