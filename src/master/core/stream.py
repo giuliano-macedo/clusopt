@@ -51,6 +51,6 @@ class Stream:
 		return next(self.stream)
 
 	def __iter__(self):
-		extra=[] if self.__peek==None else [self.__peek]
+		extra=[] if self.__peek is None else [self.__peek]
 		return chain(extra,self.stream)
 			
