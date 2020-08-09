@@ -3,6 +3,39 @@ from network import Payload,PAYID
 import numpy as np
 from utils import get_proc_info
 import zlib
+from utils import Cacher
+from threading import Thread
+import pickle
+
+class Receiver(Thread):
+	def __init__(self,msock,payid,max_mem):
+		"""
+			receives batches from master and use it in cacher
+
+			Args:
+				msock (network.Socket): master socket
+				payid (PAYID): id to receive
+				max_mem (int): maximum number of batches to store in mem
+		"""
+		super().__init__(name="Receiver")
+		self.msock=msock
+		self.payid=payid
+		self.cacher=Cacher(max_mem)
+
+	def run(self):
+		while True:
+			pay=self.msock.recv(self.payid,PAYID.end)
+			if pay.id==PAYID.end:break
+			self.cacher.put(pickle.dumps(pay.obj))
+		self.cacher.put(b"")
+
+	def get(self):
+		data=self.cacher.get()
+		if data==b"":
+			return None
+		return pickle.loads(data)
+		
+
 class SlaveGeneric:
 	"""
 	Args:
@@ -10,7 +43,7 @@ class SlaveGeneric:
 		seed (int): seed to use
 		repetitions (int): number of repetitions
 		ghost (int or None) : if not None, enable ghost mode when batch index equals itself
-		disk_cache (int or None) : enable disk cache with max memory size equal to itself
+		max_mem (int or None) : maximum number of batches to store in memory
 		distance_matrix_method (str) : distance matrix algorithm to use
 		batch_size (int): length of each batch
 	Attributes:
@@ -26,7 +59,7 @@ class SlaveGeneric:
 			seed,
 			repetitions,
 			ghost,
-			disk_cache,
+			max_mem,
 			distance_matrix_method,
 			batch_size
 		):
@@ -35,11 +68,10 @@ class SlaveGeneric:
 		self.seed=seed
 		self.repetitions=repetitions
 		self.ghost=ghost
-		self.disk_cache=disk_cache
+		self.max_mem=max_mem
 		self.distance_matrix_method=distance_matrix_method
 		self.batch_size=batch_size
 
-		if self.disk_cache != None: raise NotImplementedError() #TODO
 		self.__BATCH_PAYID={
 			"float32":PAYID.compressed_float32_matrix,
 			"float64":PAYID.compressed_float64_matrix,
@@ -49,19 +81,20 @@ class SlaveGeneric:
 	
 	def run(self):
 		clusterer=Clusterer(self.ALGORITHM,self.kappa,self.distance_matrix_method,self.batch_size)
+		receiver=Receiver(self.server,self.__BATCH_PAYID,self.max_mem)
 		proc_infos=[]
 		#---------------------------------------------------------------------------------
 		#for every payload calc sil_score
 		bc=0
+		receiver.start()
 		while True:
-			pay=self.server.recv(self.__BATCH_PAYID,PAYID.end)
-			if pay.id==PAYID.end:
+			batch=receiver.get()
+			if batch is None:
 				print(f"ended with {bc}")
 				break
-			
 			should_ghost=self.ghost!=None and bc>=self.ghost
 			if not should_ghost:
-				k,sil=clusterer.add_and_get_best_score(pay.obj)
+				k,sil=clusterer.add_and_get_best_score(batch)
 			else:
 				k,sil=self.kappa[0],-1
 				#against measure

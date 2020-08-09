@@ -26,11 +26,12 @@ def get_args():
 		metavar="TIME"
 	)
 	parser.add_argument(
-		'-c',
-		'--disk-cache',
+		'-m',
+		'--max-mem',
 		type=int,
-		help="use disk cache, keeping max of BATCHES in memory",
-		metavar="BATCHES"
+		help="set maximum number of BATCHES to store in memory, disk cache rest (default 10)",
+		metavar="BATCHES",
+		default=10
 	)
 	
 	args=parser.parse_args()
