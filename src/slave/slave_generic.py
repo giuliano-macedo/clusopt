@@ -39,7 +39,7 @@ class SlaveGeneric:
 		self.distance_matrix_method=distance_matrix_method
 		self.batch_size=batch_size
 
-		if self.disk_cache != None: raise NotImplemented #TODO
+		if self.disk_cache != None: raise NotImplementedError() #TODO
 		self.__BATCH_PAYID={
 			"float32":PAYID.compressed_float32_matrix,
 			"float64":PAYID.compressed_float64_matrix,
