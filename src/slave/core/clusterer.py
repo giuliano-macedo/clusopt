@@ -32,24 +32,19 @@ class Clusterer:
 	Args:
 		algorithm (Clusterer class): clusterer algorithm to use
 		kappa (ndarray): kappa set
-		result_mode (string): {labels,centroids} mode to store the best results
 		distance_matrix_method (str) : distance matrix algorithm to use
 		batch_size (int): length of each batch
 	Attributes:
 		best_clusterers (dict): dict that maps the best batch_index,k -> labels or centroids
 	"""
 
-	def __init__(self,algorithm,kappa,result_mode,distance_matrix_method,batch_size):
+	def __init__(self,algorithm,kappa,distance_matrix_method,batch_size):
 		self.algorithm=algorithm
 		self.distance_matrix_algorithm=DistanceMatrixAlgorithm(
 			method=distance_matrix_method,
 			max_size=batch_size
 		)
 		self.pool=Pool()
-		self.__RESULT_FUNCTION={
-			"labels":	lambda shelve:shelve.clusterer.labels_.astype(np.uint8).copy(),
-			"centroids":lambda shelve:shelve.clusterer.cluster_centers_.astype(np.float64).copy()
-		}[result_mode]
 		self.drawer=[Shelve(self.algorithm,k) for k in kappa]
 		self.best_clusterers=dict()
 		self.batch_index=0
@@ -77,7 +72,8 @@ class Clusterer:
 			)
 		)
 		self.distance_matrix_algorithm.clean()
-		self.best_clusterers[(self.batch_index,best.k)]=self.__RESULT_FUNCTION(best)
+		best_cluster_center=best.clusterer.cluster_centers_.astype(np.float64).copy()
+		self.best_clusterers[(self.batch_index,best.k)]=best_cluster_center
 		self.batch_index+=1
 		return best.k,score
 

@@ -67,11 +67,9 @@ class MasterGeneric(MasterBootstrap):
 		winners (list): contains sockets winner for each bach index
 		bucket (Bucket): contains each time, silhouete, and socket for each batch index
 		BATCH_DTYPE (str): defines the type of the data stream {float32,float64}
-		RESULT_MODE (str): defines the type of results {labels,centroids}
 	"""
 	
 	BATCH_DTYPE=None #{float32,float64}
-	RESULT_MODE=None #{labels,centroids}
 	def preproc(self,batch):
 		"""
 		Function pre process batches before sending it to slaves
@@ -94,11 +92,6 @@ class MasterGeneric(MasterBootstrap):
 			"float32":PAYID.compressed_float32_matrix,
 			"float64":PAYID.compressed_float64_matrix,
 		}[self.BATCH_DTYPE]
-
-		self.__RESULT_PAYID={
-			"labels":PAYID.uint8_vector,
-			"centroids":PAYID.float64_matrix
-		}[self.RESULT_MODE]
 	
 	def silhoete_recv_handler(self,msock):
 		"""
@@ -163,7 +156,7 @@ class MasterGeneric(MasterBootstrap):
 		for t,winner in enumerate(self.winners.values()):
 			print(f"requesting results for {winner.msock} on k={winner.k} and time={t}")
 			winner.msock.send(Payload(PAYID.results_req,(t,winner.k)))
-			result=winner.msock.recv(self.__RESULT_PAYID).obj
+			result=winner.msock.recv(PAYID.compressed_float64_matrix).obj
 			winner_results.append(result.tolist())
 		self.send_to_all_slaves(PAYID.end)
 		t=self.overall_timer.stop()
@@ -181,6 +174,6 @@ class MasterGeneric(MasterBootstrap):
 		print("saving buckets.csv...")
 		self.bucket.save_logs("./results/buckets.csv")
 		
-		print("saving results.json...")
-		with open("./results/results.json","w") as f:
+		print("saving cluster_centers.json...")
+		with open("./results/cluster_centers.json","w") as f:
 			json.dump(winner_results,f)

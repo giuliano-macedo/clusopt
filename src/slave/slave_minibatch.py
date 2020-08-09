@@ -4,7 +4,6 @@ from functools import partial
 
 class SlaveMiniBatch(SlaveGeneric):
 	BATCH_DTYPE="float32"
-	RESULT_MODE="labels"
 	def __init__(self,*args,**kwargs):
 		super().__init__(*args,**kwargs)
 		self.ALGORITHM=partial(

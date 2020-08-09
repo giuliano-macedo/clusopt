@@ -12,25 +12,21 @@ import numpy as np
 from pandas import DataFrame
 
 def print_config(config):
-	df=DataFrame(
-		[
-			("algorithm:",config.algorithm),
-			("seed:",config.seed),
-			("repetitions:",config.repetitions),
-			("distance matrix method:",config.distance_matrix_method),
-			("batch_size:",config.batch_size),
-			("kappa:",config.kappa),
-			("kappa length:",len(config.kappa)),
-			("kappa sum:",sum(config.kappa)),
-			("kappa variance:",np.var(config.kappa))
-		]
-	)
+	df=DataFrame([
+		("algorithm:",config.algorithm),
+		("seed:",config.seed),
+		("repetitions:",config.repetitions),
+		("distance matrix method:",config.distance_matrix_method),
+		("batch_size:",config.batch_size),
+		("kappa:",config.kappa),
+		("kappa length:",len(config.kappa)),
+		("kappa sum:",sum(config.kappa)),
+		("kappa variance:",np.var(config.kappa))
+	])
 	print("CONFIG RECEIVED FROM MASTER")
 	print("-"*48)
 	print(df.to_string(header=None,index=None))
 	print("-"*48)
-
-
 
 def main(server,opts):
 	print(f"Connected to {server.ip}")
@@ -85,7 +81,7 @@ if __name__=="__main__":
 			exit(-1)
 	opts=vars(args)
 	
-	#not needed in Server class
+	#not needed in Slave class
 	del(opts["master_addr"])
 	del(opts["verbose"])
 	del(opts["server_mode"])

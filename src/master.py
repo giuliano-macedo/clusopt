@@ -7,7 +7,8 @@ The master node
 import os
 from master.args import parse_args
 from master.core import (
-	Stream,get_kappas_gauss,
+	Stream,
+	get_kappas_gauss,
 	get_kappas_v1,
 	get_kappas_v2,
 	get_kappas_random

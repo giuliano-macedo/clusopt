@@ -2,6 +2,7 @@ from .core import Clusterer
 from network import Payload,PAYID
 import numpy as np
 from utils import get_proc_info
+import zlib
 class SlaveGeneric:
 	"""
 	Args:
@@ -16,7 +17,6 @@ class SlaveGeneric:
 		
 	"""
 	BATCH_DTYPE=None #{float32,float64}
-	RESULT_MODE=None #{labels,centroids}
 	ALGORITHM=None #sklearn clusterer
 
 	def __init__(
@@ -45,13 +45,10 @@ class SlaveGeneric:
 			"float64":PAYID.compressed_float64_matrix,
 		}[self.BATCH_DTYPE]
 
-		self.__RESULT_PAYID={
-			"labels":PAYID.uint8_vector,
-			"centroids":PAYID.float64_matrix
-		}[self.RESULT_MODE]
+		
 	
 	def run(self):
-		clusterer=Clusterer(self.ALGORITHM,self.kappa,self.RESULT_MODE,self.distance_matrix_method,self.batch_size)
+		clusterer=Clusterer(self.ALGORITHM,self.kappa,self.distance_matrix_method,self.batch_size)
 		proc_infos=[]
 		#---------------------------------------------------------------------------------
 		#for every payload calc sil_score
@@ -67,10 +64,8 @@ class SlaveGeneric:
 				k,sil=clusterer.add_and_get_best_score(pay.obj)
 			else:
 				k,sil=self.kappa[0],-1
-				clusterer.best_clusterers[(bc,k)]={ #against measure
-					"labels":np.array([0],dtype=np.uint8),
-					"centroids":np.array([[0]],dtype=np.float64)
-				}[self.RESULT_MODE]
+				#against measure
+				clusterer.best_clusterers[(bc,k)]=np.array([[0]],dtype=np.float64)
 				print(f"ghosted in t={bc}")
 			self.server.send(Payload(PAYID.silhouette,(bc,k,sil)))
 			proc_infos.append(get_proc_info())
@@ -91,7 +86,9 @@ class SlaveGeneric:
 				print(*clusterer.best_clusterers.items(),sep="\n")
 				print("-"*48)
 				raise RuntimeError(f"Requested batch_index,k not found ({pay.obj}), values available {list(clusterer.best_clusterers.keys())}")
-			self.server.send(Payload(self.__RESULT_PAYID,result))
+			
+			compressed=zlib.compress(result.tobytes(),level=1)
+			self.server.send(Payload(PAYID.compressed_float64_matrix,(result.shape,compressed)))
 		#---------------------------------------------------------------------------------
 		#send extra info
 		data=[
