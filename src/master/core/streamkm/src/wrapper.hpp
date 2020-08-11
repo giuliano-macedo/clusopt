@@ -26,4 +26,5 @@ private:
 	unsigned int dim;
 	struct Bucketmanager manager;
 	unsigned int timestamp;
+	struct point last_point;
 };

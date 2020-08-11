@@ -135,11 +135,7 @@ class MasterGeneric(MasterBootstrap):
 		replicator.start()
 		#feed replicator
 		for i,chunk in enumerate(self.stream):
-			try:
-				batch=self.preproc(chunk.values)
-			except ArithmeticError:
-				print(f"t={i} skipped due to arithmetic error")
-				continue
+			batch=self.preproc(chunk.values)
 			compressed=zlib.compress(batch.tobytes(),level=1)
 			batch_shape=batch.shape
 			replicator.add_job(batch_shape,compressed)
