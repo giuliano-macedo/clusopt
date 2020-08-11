@@ -95,5 +95,6 @@ class DirectoryCacherQueue:
 		return self.elems.qsize()
 
 	def __del__(self):
+		print("deleting",self.directory)
 		shutil.rmtree(self.directory)
 

@@ -6,7 +6,6 @@ import zlib
 from utils import Cacher
 from threading import Thread
 import pickle
-
 class Receiver(Thread):
 	def __init__(self,msock,payid,max_mem):
 		"""
