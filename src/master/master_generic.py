@@ -7,6 +7,12 @@ from queue import Queue
 import json
 import zlib
 from utils import save_to_csv,ProgressMeter
+from random import Random
+
+def outplace_shuffle(l):
+	# returns a shuffled l with random seed
+	return outplace_shuffle.rng.sample(l,k=len(l))
+outplace_shuffle.rng=Random()
 
 class Replicator(Thread):
 	"""
@@ -39,7 +45,8 @@ class Replicator(Thread):
 			should_stop,shape,compressed = self.__queue.get()
 			if should_stop:break
 			print(f"t={i} sending {shape[0]} points")
-			for j,slave in enumerate(self.slaves):
+			#shuffles slaves to reduce same interface distribution problem
+			for j,slave in enumerate(outplace_shuffle(self.slaves)):
 				thread=Thread(
 					name=f"Replicator.send_handler-{i,j}",
 					target=Replicator.send_handler,
