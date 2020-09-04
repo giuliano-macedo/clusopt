@@ -1,7 +1,7 @@
 """
-master_algorithms.core
+primary_algorithms.core
 ====================================
-master node core components
+primary node core components
 """
 
 from .clustream import CluStream

@@ -1,8 +1,8 @@
-from .slave_generic import SlaveGeneric
+from .replica_generic import ReplicaGeneric
 from sklearn.cluster import KMeans
 from functools import partial
 
-class SlaveStreamkm(SlaveGeneric):
+class ReplicaStreamkm(ReplicaGeneric):
 	BATCH_DTYPE="float64"
 	def __init__(self,*args,**kwargs):
 		super().__init__(*args,**kwargs)

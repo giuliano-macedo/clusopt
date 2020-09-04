@@ -1,8 +1,8 @@
-from .slave_generic import SlaveGeneric
+from .replica_generic import ReplicaGeneric
 from sklearn.cluster import MiniBatchKMeans
 from functools import partial
 
-class SlaveMiniBatch(SlaveGeneric):
+class ReplicaMiniBatch(ReplicaGeneric):
 	BATCH_DTYPE="float32"
 	def __init__(self,*args,**kwargs):
 		super().__init__(*args,**kwargs)

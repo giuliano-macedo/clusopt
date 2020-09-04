@@ -9,10 +9,10 @@ import pickle
 class Receiver(Thread):
 	def __init__(self,msock,payid,max_mem):
 		"""
-			receives batches from master and use it in cacher
+			receives batches from primary and use it in cacher
 
 			Args:
-				msock (network.Socket): master socket
+				msock (network.Socket): primary socket
 				payid (PAYID): id to receive
 				max_mem (int): maximum number of batches to store in mem
 		"""
@@ -35,7 +35,7 @@ class Receiver(Thread):
 		return pickle.loads(data)
 		
 
-class SlaveGeneric:
+class ReplicaGeneric:
 	"""
 	Args:
 		kappa (ndarray) : K's to test

@@ -1,6 +1,6 @@
 from .core import CluStream
-from .master_generic import MasterGeneric
-class MasterCluStream(MasterGeneric):
+from .primary_generic import PrimaryGeneric
+class PrimaryCluStream(PrimaryGeneric):
 	BATCH_DTYPE="float64"
 	def __init__(self,*args,clustream_seed,window_range,microkernels,kernel_radius,**kwargs):
 		super().__init__(*args,batch_size=microkernels,**kwargs)

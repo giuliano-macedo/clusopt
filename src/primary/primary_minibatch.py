@@ -1,5 +1,5 @@
-from .master_generic import MasterGeneric
-class MasterMiniBatch(MasterGeneric):
+from .primary_generic import PrimaryGeneric
+class PrimaryMiniBatch(PrimaryGeneric):
 	BATCH_DTYPE="float32"
 
 	def __init__(self,*args,**kwargs):

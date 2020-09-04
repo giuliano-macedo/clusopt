@@ -1,4 +1,4 @@
-#while true; do ./slave.py [master_ip] ; sleep 1 ; done
+#while true; do ./replica.py [primary_ip] ; sleep 1 ; done
 
 import argparse
 import os
@@ -13,8 +13,8 @@ class AutoKillPopen(Popen):
 		self.kill()
 		super().__del__()
 
-def runmaster(master_args):
-	cmd=["./master.py",*shlex.split(master_args)]
+def runprimary(primary_args):
+	cmd=["./primary.py",*shlex.split(primary_args)]
 	with open("log.txt","wb") as f:
 		p=AutoKillPopen(cmd,stdout=f.fileno(),stderr=PIPE)
 		print("running"," ".join(cmd))
@@ -31,7 +31,7 @@ def runmaster(master_args):
 		
 
 parser=argparse.ArgumentParser()
-parser.add_argument("master_args",type=str)
+parser.add_argument("primary_args",type=str)
 parser.add_argument("how_many_times",type=int)
 parser.add_argument("output",type=str)
 args=parser.parse_args()
@@ -41,7 +41,7 @@ for i in range(1,args.how_many_times+1):
 	print(f"try {i}/{args.how_many_times}")
 	while True:
 		try:
-			runmaster(args.master_args)
+			runprimary(args.primary_args)
 			break
 		except CalledProcessError as e:
 			print(f"execution failed with ({e.returncode})")

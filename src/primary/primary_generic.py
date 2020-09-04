@@ -1,4 +1,4 @@
-from .master_bootstrap import MasterBootstrap
+from .primary_bootstrap import PrimaryBootstrap
 from .core import Bucket
 from network import PAYID,Payload
 import logging
@@ -16,19 +16,19 @@ outplace_shuffle.rng=Random()
 
 class Replicator(Thread):
 	"""
-	Thread responsible for sending compressed batches to each slave in synchronized
+	Thread responsible for sending compressed batches to each replica in synchronized
 	new threads
 	"""
-	def __init__(self,slaves,payid,total_batches):
+	def __init__(self,replicas,payid,total_batches):
 		super().__init__(name="Replicator")
 		self.progress=ProgressMeter(total_batches,"Replicator")
-		self.slaves=slaves
+		self.replicas=replicas
 		self.payid=payid
 		self.__queue=Queue() #maybe cache
 
 	def send_handler(payid,msock,shape,compressed):
 		"""
-		Send to a slaves the current chunk
+		Send to a replicas the current chunk
 		
 		Args:
 			payid (Payload.Id) : data network id
@@ -40,17 +40,17 @@ class Replicator(Thread):
 
 	def run(self):
 		i=0
-		threads=[None for _ in self.slaves]
+		threads=[None for _ in self.replicas]
 		while True:
 			should_stop,shape,compressed = self.__queue.get()
 			if should_stop:break
 			print(f"t={i} sending {shape[0]} points")
-			#shuffles slaves to reduce same interface distribution problem
-			for j,slave in enumerate(outplace_shuffle(self.slaves)):
+			#shuffles replicas to reduce same interface distribution problem
+			for j,replica in enumerate(outplace_shuffle(self.replicas)):
 				thread=Thread(
 					name=f"Replicator.send_handler-{i,j}",
 					target=Replicator.send_handler,
-					args=(self.payid,slave,shape,compressed)
+					args=(self.payid,replica,shape,compressed)
 				)
 				threads[j]=thread
 				thread.start()
@@ -66,7 +66,7 @@ class Replicator(Thread):
 		self.__queue.put((True,None,None))		
 		super().join()
 
-class MasterGeneric(MasterBootstrap):
+class PrimaryGeneric(PrimaryBootstrap):
 	"""
 	Args:
 		batch_size (int) : size of the chunks that the dataset will be splitted
@@ -79,7 +79,7 @@ class MasterGeneric(MasterBootstrap):
 	BATCH_DTYPE=None #{float32,float64}
 	def preproc(self,batch):
 		"""
-		Function pre process batches before sending it to slaves
+		Function pre process batches before sending it to replicas
 
 		Args:
 			batch (np.ndarray):
@@ -124,21 +124,21 @@ class MasterGeneric(MasterBootstrap):
 	def run(self):
 		super().run(batch_size=self.batch_size)
 		self.overall_timer.start()
-		self.bucket=Bucket(len(self.slaves),self.total_batches)
+		self.bucket=Bucket(len(self.replicas),self.total_batches)
 		#---------------------------------------------------------------------------------
 		#start silhoete receiver threads
 		sil_threads=[]
-		for i,slave in enumerate(self.slaves):
+		for i,replica in enumerate(self.replicas):
 			t=Thread(
 				name=f"Silhoete-{i}",
-				target=MasterGeneric.silhoete_recv_handler,
-				args=(self,slave)
+				target=PrimaryGeneric.silhoete_recv_handler,
+				args=(self,replica)
 			)
 			sil_threads.append(t)
 			t.start()
 		#---------------------------------------------------------------------------------
 		#start replicator sender threads
-		replicator=Replicator(self.slaves,self.__BATCH_PAYID,self.total_batches)
+		replicator=Replicator(self.replicas,self.__BATCH_PAYID,self.total_batches)
 		replicator.start()
 		#feed replicator
 		for i,chunk in enumerate(self.stream):
@@ -151,7 +151,7 @@ class MasterGeneric(MasterBootstrap):
 		
 		replicator.join()
 		
-		self.send_to_all_slaves(PAYID.end)
+		self.send_to_all_replicas(PAYID.end)
 		#---------------------------------------------------------------------------------
 		#join recvs
 		for t in sil_threads:
@@ -166,16 +166,16 @@ class MasterGeneric(MasterBootstrap):
 			winner.msock.send(Payload(PAYID.results_req,(t,winner.k)))
 			result=winner.msock.recv(PAYID.compressed_float64_matrix).obj
 			winner_results.append(result.tolist())
-		self.send_to_all_slaves(PAYID.end)
+		self.send_to_all_replicas(PAYID.end)
 		t=self.overall_timer.stop()
 		#---------------------------------------------------------------------------------
-		#log slaves extra info
-		for i,slave in enumerate(self.slaves):
-			result=slave.recv(PAYID.pickle).obj
-			with open(f"./results/slave{i}.json","w") as f:
+		#log replicas extra info
+		for i,replica in enumerate(self.replicas):
+			result=replica.recv(PAYID.pickle).obj
+			with open(f"./results/replica{i}.json","w") as f:
 				json.dump(result,f)
 		#---------------------------------------------------------------------------------
-		#log everything from master
+		#log everything from primary
 		print("saving overall.csv...")
 		save_to_csv("./results/overall.csv",[dict(time=t,silhouette=winner.sil)])
 		

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-slave.py
+replica.py
 ====================================
-The slave node
+The replica node
 """
-from slave.args import get_args
-from slave.core import Silhouette;Silhouette #force compile
+from replica.args import get_args
+from replica.core import Silhouette;Silhouette #force compile
 from network import ClientSocket,PAYID,ServerSocket
 from collections import namedtuple
 import numpy as np
@@ -33,7 +33,7 @@ def main(server,opts):
 	config=server.recv(PAYID.pickle).obj
 	config=namedtuple('Config', sorted(config))(**config) #dict -> namedtuple
 	print_config(config)
-	slave_args=dict(
+	replica_args=dict(
 		server=server,
 		kappa=config.kappa,
 		seed=config.seed,
@@ -44,24 +44,24 @@ def main(server,opts):
 	)
 
 	if config.algorithm=="minibatch":
-		from slave import SlaveMiniBatch as SlaveAlgorithm
-		# slave_args={**slave_args,**{
+		from replica import ReplicaMiniBatch as ReplicaAlgorithm
+		# replica_args={**replica_args,**{
 
 		# }}
 	elif config.algorithm=="clustream":
-		from slave import SlaveCluStream as SlaveAlgorithm
-		# slave_args={**slave_args,**{
+		from replica import ReplicaCluStream as ReplicaAlgorithm
+		# replica_args={**replica_args,**{
 			
 		# }}
 	elif config.algorithm=="streamkm":
-		from slave import SlaveStreamkm as SlaveAlgorithm
-		# slave_args={**slave_args,**{
+		from replica import ReplicaStreamkm as ReplicaAlgorithm
+		# replica_args={**replica_args,**{
 			
 		# }}
 	else:
 		raise RuntimeError("Unexpected error")
-	slave=SlaveAlgorithm(**slave_args)
-	slave.run()
+	replica=ReplicaAlgorithm(**replica_args)
+	replica.run()
 	print("done")
 
 if __name__=="__main__":
@@ -75,14 +75,14 @@ if __name__=="__main__":
 		print(f"connected to {server.ip}")
 	else:
 		try:
-			server=ClientSocket(args.master_addr,3523)
+			server=ClientSocket(args.primary_addr,3523)
 		except ConnectionRefusedError:
-			print("Error connecting to",args.master_addr)
+			print("Error connecting to",args.primary_addr)
 			exit(-1)
 	opts=vars(args)
 	
-	#not needed in Slave class
-	del(opts["master_addr"])
+	#not needed in Replica class
+	del(opts["primary_addr"])
 	del(opts["verbose"])
 	del(opts["server_mode"])
 

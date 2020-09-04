@@ -3,8 +3,8 @@ import logging
 def get_args():
 	parser=ArgumentParser()
 	parser.add_argument(
-		"master_addr",
-		help="address of the master"
+		"primary_addr",
+		help="address of the primary"
 	)
 	parser.add_argument(
 		'-v',
@@ -16,7 +16,7 @@ def get_args():
 		'-s',
 		'--server-mode',
 		action='store_true',
-		help="starts as a server, so that the master starts the connection"
+		help="starts as a server, so that the primary starts the connection"
 	)
 	parser.add_argument(
 		'-g',

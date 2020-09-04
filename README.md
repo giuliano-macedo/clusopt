@@ -2,7 +2,7 @@
 
 Micro service Infrastructure for Data Stream Clustering.
 
-![Infraestructure](imgs/midsc-1.png)
+![Infraestructure](imgs/midsc-1.jpg)
 
 ## Prerequisites
 
@@ -28,7 +28,7 @@ Your nodes must be running midsc container in docker, to do so use the following
 docker build -t midsc .
 docker run -p 3523:3523 midsc
 ```
-then use `-n` flag to set how many nodes you want to use in the master node
+then use `-n` flag to set how many nodes you want to use in the primary node
 
 ## Usage
 cd to the src directory 
@@ -39,9 +39,9 @@ cd src
 
 ---
 
-to run master node, use `-h` and `[ALGORITHM] -h` for more help
+to run primary node, use `-h` and `[ALGORITHM] -h` for more help
 ```bash
-./master.py [ALGORITHM] [PATH OR URL TO CSV FILE]
+./primary.py [ALGORITHM] [PATH OR URL TO CSV FILE]
 ```
 
 
@@ -49,12 +49,12 @@ NOTE: CSV File must be `,` separated, `\n` line ended and **must not have a head
 
 ---
 
-to run slave node, use `-h` flag for more options
+to run replica node, use `-h` flag for more options
 ```bash
-./master [IP ADDRESS TO THE MASTER NODE]
+./replica [IP ADDRESS TO THE PRIMARY NODE]
 ```
 ## Authors
-* **Giuliano Oliveira de Macedo** - *Coder* [llpinokio](https://github.com/llpinokio)
+* **Giuliano Oliveira de Macedo** - *Coder* [giuliano-oliveira](https://github.com/giuliano-oliveira)
 * **Jonathan Andrade Silva** - *Advisor*
 * **Dionisio Leite Machado Filho** - *Advisor*
 

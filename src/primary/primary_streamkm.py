@@ -1,6 +1,6 @@
 from .core import Streamkm
-from .master_generic import MasterGeneric
-class MasterStreamkm(MasterGeneric):
+from .primary_generic import PrimaryGeneric
+class PrimaryStreamkm(PrimaryGeneric):
 	BATCH_DTYPE="float64"
 	def __init__(self,*args,coreset_size,length,streamkm_seed,**kwargs):
 		super().__init__(*args,batch_size=coreset_size,**kwargs)
