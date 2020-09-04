@@ -11,5 +11,5 @@ class MasterCluStream(MasterGeneric):
 		self.model.init_offline(init_points,seed=clustream_seed)
 
 	def preproc(self,batch): 
-		self.model.batch_online_cluster(batch)
-		return self.model.get_kernel_centers()
+		self.model.partial_fit(batch)
+		return self.model.get_partial_cluster_centers()

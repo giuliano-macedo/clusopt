@@ -7,6 +7,6 @@ class MasterStreamkm(MasterGeneric):
 		self.model=Streamkm(length=length,coresetsize=coreset_size,seed=streamkm_seed)
 
 	def preproc(self,batch): 
-		self.model.batch_online_cluster(batch)
-		return self.model.get_streaming_coreset_centers()
+		self.model.partial_fit(batch)
+		return self.model.get_partial_cluster_centers()
 		

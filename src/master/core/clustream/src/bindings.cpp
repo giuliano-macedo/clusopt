@@ -42,7 +42,9 @@ PYBIND11_MODULE(clustream, m) {
 		.def_readonly("points_forgot",&CluStream::points_forgot)
 		.def_readonly("points_merged",&CluStream::points_merged)
 		.def("batch_online_cluster",&CluStream::batch_online_cluster,BATCH_ONLINE_CLUSTER_DOC)
+		.def("partial_fit",&CluStream::batch_online_cluster,BATCH_ONLINE_CLUSTER_DOC)
 		.def("get_kernel_centers",&CluStream::get_kernel_centers,GET_KERNEL_CENTERS_DOC)
+		.def("get_partial_cluster_centers",&CluStream::get_kernel_centers,GET_KERNEL_CENTERS_DOC)
 		.def("init_kernels_offline",&CluStream::init_kernels_offline,INIT_KERNELS_OFFLINE_DOC)
 	;
 }

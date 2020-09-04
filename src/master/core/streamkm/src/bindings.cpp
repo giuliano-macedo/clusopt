@@ -27,6 +27,8 @@ PYBIND11_MODULE(streamkm, m) {
 		.def_readonly("coresetsize",&Streamkm::coresetsize)
 		.def_readonly("length",&Streamkm::length)
 		.def("batch_online_cluster",&Streamkm::batch_online_cluster,BATCH_ONLINE_CLUSTER_DOC)
+		.def("partial_fit",&Streamkm::batch_online_cluster,BATCH_ONLINE_CLUSTER_DOC)
 		.def("get_streaming_coreset_centers",&Streamkm::get_streaming_coreset_centers,GET_STREAMING_CORESET_CENTERS_DOC)
+		.def("get_partial_cluster_centers",&Streamkm::get_streaming_coreset_centers,GET_STREAMING_CORESET_CENTERS_DOC)
 	;
 }
