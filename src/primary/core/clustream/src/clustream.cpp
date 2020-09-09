@@ -35,8 +35,9 @@ void CluStream::init_kernels_offline(ndarray cluster_centers,ndarray initpoints)
 	double* zero_vector=&(zero_vector_tmp[0]);
 
 	for(unsigned int i=0;(int)i<m;i++){
-		//timestamp == lines because it was fed at once in the algorithm
-		kernels.push_back(Kernel(zero_vector,dim,lines,t,m));
+		//no points assigned, yet
+		kernels.push_back(Kernel(zero_vector,dim,0,t,m));
+		kernels[i].n=0;
 	}
 
 	for(unsigned int i=0;i<lines;i++){
@@ -51,8 +52,8 @@ void CluStream::init_kernels_offline(ndarray cluster_centers,ndarray initpoints)
 			}
 			current_center+=dim;
 		}
-		Kernel temp_kernel(initpoints_ptr,dim,0,t,m);
-		kernels[kernel_index].add(temp_kernel);
+		//add point on timestamp==lines
+		kernels[kernel_index].insert(initpoints_ptr,lines);
 		initpoints_ptr+=dim;
 	}
 	timestamp=lines+1;
