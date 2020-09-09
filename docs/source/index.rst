@@ -1,8 +1,8 @@
 Welcome to midsc's documentation!
 =================================
-.. automodule:: master
+.. automodule:: primary
     :members:
-.. automodule:: slave
+.. automodule:: replica
     :members:
 .. automodule:: container
     :members:
