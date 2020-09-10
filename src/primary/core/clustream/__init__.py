@@ -43,12 +43,17 @@ class CluStream(CluStream_):
 			seed (int): random number generator seed
 			n_init (int): number of kmeans runs
 			max_iter (int): max number of kmeans iterations
+
+		Returns:
+			centers,labels
 		"""
-		return KMeans(
+		model=KMeans(
 			init="k-means++",
 	 		random_state=seed,
 	 		n_clusters=k,
 	 		n_init=n_init,
 	 		max_iter=max_iter
-
-	 	).fit(self.get_kernel_centers()).cluster_centers_
+	 	)
+		labels=model.fit_predict(self.get_kernel_centers())
+		centers=model.cluster_centers_
+		return centers,labels
