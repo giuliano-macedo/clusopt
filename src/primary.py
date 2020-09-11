@@ -4,7 +4,6 @@ primary.py
 ====================================
 The primary node
 """
-import os
 from primary.args import parse_args
 from primary.core import (
 	Stream,
@@ -13,19 +12,11 @@ from primary.core import (
 	get_kappas_v2,
 	get_kappas_random
 )
-
-def create_results_dir():
-	path="./results"
-	if os.path.exists(path) and not os.path.isdir(path):
-		raise RuntimeError(f"{os.getcwd()}/results is not a directory")
-	elif not os.path.exists(path):
-		os.mkdir(path)
-
 if __name__=="__main__":
 	args=parse_args()
-	create_results_dir()
 	primary_args={
 		"algorithm":args.algorithm,
+		"output":args.output,
 		"number_nodes":args.number_nodes,
 		"seed":args.seed,
 		"repetitions":args.repetitions,

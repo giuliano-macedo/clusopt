@@ -7,6 +7,7 @@ class PrimaryBootstrap:
 	"""
 	Args:
 		algorithm (str): the algorithm to use
+		output (str): zip output fname
 		stream (core.Stream): Dataset stream
 		number_nodes (int): number of remote nodes to connect
 		seed (int): seed to use in the replicas
@@ -26,6 +27,7 @@ class PrimaryBootstrap:
 	"""
 	def __init__(self,
 			algorithm,
+			output,
 			stream,
 			number_nodes,
 			seed,
@@ -36,6 +38,7 @@ class PrimaryBootstrap:
 			distance_matrix_method
 		):
 		self.algorithm=algorithm
+		self.output=output
 		self.stream=stream
 		self.number_nodes=number_nodes
 		self.seed=seed

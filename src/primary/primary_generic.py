@@ -169,9 +169,8 @@ class PrimaryGeneric(PrimaryBootstrap):
 		t=self.overall_timer.stop()
 		#---------------------------------------------------------------------------------
 		#save results
-		result_fname="./results/result.zip"
-		print(f"saving results '{result_fname}'")
-		with CustomZipFile(result_fname) as zf:
+		print(f"saving results '{self.output}'")
+		with CustomZipFile(self.output) as zf:
 			#-----------------------------------------------------------------------------
 			#log replicas extra info
 			for i,replica in enumerate(self.replicas):

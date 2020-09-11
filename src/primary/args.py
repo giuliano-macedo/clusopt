@@ -2,6 +2,21 @@ import argparse
 import logging
 from math import ceil,sqrt
 from utils import count_flines
+
+def create_results_dir():
+	path="./results"
+	if os.path.exists(path) and not os.path.isdir(path):
+		raise RuntimeError(f"{os.getcwd()}/results is not a directory")
+	elif not os.path.exists(path):
+		os.mkdir(path)
+
+def choose_zip_fname(algorithm_name):
+	for _ in range(10):
+		ans=os.path.join("./results",f"{algorithm_name}_{os.urandom(4).hex()}.zip")
+		if not os.path.exists(ans):
+			return ans
+	raise RuntimeError("Couldnt choose a .zip file")
+
 import os
 
 def parse_args():
@@ -21,6 +36,12 @@ def parse_args():
 		type=int,
 		help="size of chunks that the dataset will be splitted (default 2000)",
 		default=2000,
+	)
+	parser.add_argument(
+		"-o",
+		"--output",
+		help=".zip output path that contains information on primary and replica nodes (default results/algorithm_uuid.zip)",
+		default=None
 	)
 	parser.add_argument(
 		'-n',
@@ -145,6 +166,9 @@ def parse_args():
 		default=42
 	)
 	args=parser.parse_args()
+	create_results_dir()
+	if args.output==None:
+		args.output=choose_zip_fname(args.algorithm)
 	if not os.path.isfile(args.input):
 		raise FileNotFoundError(args.input)
 	if args.verbose:
