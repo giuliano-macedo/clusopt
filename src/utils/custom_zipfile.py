@@ -2,6 +2,7 @@ import zipfile
 import io
 import pandas as pd
 import json
+from datetime import datetime
 
 class IOStringToBytes(io.IOBase):
     def __init__(self,file_handler,encoding="utf-8"):
@@ -24,16 +25,23 @@ class CustomZipFile:
     def __exit__(self,*exc_info):
         self.close()
 
+    def __create_info(self,name):
+        date=datetime.now()
+        return zipfile.ZipInfo(
+            filename=name,
+            date_time=(date.year,date.month,date.day,date.hour,date.minute,date.second)
+        )
+
     def add_json(self,fname:str,obj,encoding="utf-8",ensure_ascii=False,indent=None):
-        with self.zf.open(fname,"w") as f:
+        with self.zf.open(self.__create_info(fname),"w") as f:
             json.dump(obj,IOStringToBytes(f,encoding),ensure_ascii=ensure_ascii,indent=indent)
 
     def add_dataframe(self,fname:str,df:pd.DataFrame,encoding="utf-8",index=None,header=True):
-        with self.zf.open(fname,"w") as f:
+        with self.zf.open(self.__create_info(fname),"w") as f:
             df.to_csv(IOStringToBytes(f,encoding),index=index,header=header)
 
     def add_txt(self,fname:str,string:str,encoding="utf-8"):
-        with self.zf.open(fname,"w") as f:
+        with self.zf.open(self.__create_info(fname),"w") as f:
             f.write(string.encode(encoding))
 
     def close(self):
