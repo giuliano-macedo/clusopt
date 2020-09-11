@@ -1,5 +1,5 @@
 from threading import Lock
-from utils import save_to_csv,Timer,get_proc_info,ProgressMeter,ProcInfo
+from utils import Timer,get_proc_info,ProgressMeter,ProcInfo
 from dataclasses import dataclass
 from network import Socket
 
@@ -62,9 +62,8 @@ class Bucket:
 	def get(self,t):
 		with self.lock:
 			return self.data.get(t)
-	def save_logs(self,filename):
-		print(f"saving {len(self.data)} items")
-		data=(
+	def to_dicts(self):
+		return [
 			dict(
 				batch_counter=t,
 				silhouette=entry.sil,
@@ -78,5 +77,5 @@ class Bucket:
 				data_read=entry.proc_info.data_write
 			)
 			for t,entry in self.data.items()
-		)
-		save_to_csv(filename,data)
+		]
+		

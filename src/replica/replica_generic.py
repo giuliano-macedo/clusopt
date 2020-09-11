@@ -3,7 +3,7 @@ from network import Payload,PAYID
 import numpy as np
 from utils import get_proc_info
 import zlib
-from utils import Cacher
+from utils import Cacher,force_json
 from threading import Thread
 import pickle
 class Receiver(Thread):
@@ -131,4 +131,4 @@ class ReplicaGeneric:
 				data_read=proc_info.data_read
 			) for i,proc_info in enumerate(proc_infos)
 		]
-		self.server.send(Payload(PAYID.pickle,data))
+		self.server.send(Payload(PAYID.pickle,dict(config=force_json(self),per_batch=data)))

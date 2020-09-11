@@ -4,9 +4,8 @@ from network import PAYID,Payload
 import logging
 from threading import Thread
 from queue import Queue
-import json
 import zlib
-from utils import save_to_csv,ProgressMeter
+from utils import ProgressMeter,CustomZipFile,force_json
 from random import Random
 
 def outplace_shuffle(l):
@@ -169,19 +168,19 @@ class PrimaryGeneric(PrimaryBootstrap):
 		self.send_to_all_replicas(PAYID.end)
 		t=self.overall_timer.stop()
 		#---------------------------------------------------------------------------------
-		#log replicas extra info
-		for i,replica in enumerate(self.replicas):
-			result=replica.recv(PAYID.pickle).obj
-			with open(f"./results/replica{i}.json","w") as f:
-				json.dump(result,f)
-		#---------------------------------------------------------------------------------
-		#log everything from primary
-		print("saving overall.csv...")
-		save_to_csv("./results/overall.csv",[dict(time=t,silhouette=winner.sil)])
-		
-		print("saving buckets.csv...")
-		self.bucket.save_logs("./results/buckets.csv")
-		
-		print("saving cluster_centers.json...")
-		with open("./results/cluster_centers.json","w") as f:
-			json.dump(winner_results,f)
+		#save results
+		result_fname="./results/result.zip"
+		print(f"saving results '{result_fname}'")
+		with CustomZipFile(result_fname) as zf:
+			#-----------------------------------------------------------------------------
+			#log replicas extra info
+			for i,replica in enumerate(self.replicas):
+				result=replica.recv(PAYID.pickle).obj
+				result["ip"]=replica.ip
+				zf.add_json(f"replica{i}.json",result)
+			#---------------------------------------------------------------------------------
+			#log everything from primary
+			zf.add_json("overall.json",dict(time=t,silhouette=winner.sil))
+			zf.add_json("per_batch.json",self.bucket.to_dicts())
+			zf.add_json("cluster_centers.json",winner_results)
+			zf.add_json("config.json",force_json(self),indent=4)
