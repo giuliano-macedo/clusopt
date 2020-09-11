@@ -1,12 +1,6 @@
 from subprocess import check_output
-from pandas import DataFrame
-from collections.abc import Iterable
 
-
-def save_to_csv(filename,data:Iterable):
-	#saves list of dicts as csv
-	DataFrame(data).to_csv(filename,index=None)
-
+BLOCK_SIZE=4096
 def count_flines(fname):
 	try:
 		#try to use wc -l
@@ -14,10 +8,12 @@ def count_flines(fname):
 	except FileNotFoundError:
 		pass
 	ans=0
-	with open(fname) as f:
+	block=bytearray(BLOCK_SIZE)
+	with open(fname,"rb") as f:
 		while True:
-			block=f.read(4000)
-			if not block:
+			bytes_read=f.readinto(block)
+			if bytes_read<len(block):
+				ans+=block[:bytes_read].count(b"\n")	
 				break
-			ans+=block.count("\n")
+			ans+=block.count(b"\n")
 	return ans
