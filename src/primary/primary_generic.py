@@ -183,4 +183,6 @@ class PrimaryGeneric(PrimaryBootstrap):
 			zf.add_json("overall.json",dict(time=t,silhouette=winner.sil))
 			zf.add_json("per_batch.json",self.bucket.to_dicts())
 			zf.add_json("cluster_centers.json",winner_results)
-			zf.add_json("config.json",force_json(self),indent=4)
+			config_json=force_json(self)
+			config_json["stream_fname"]=self.stream.fname
+			zf.add_json("config.json",config_json,indent=4)
