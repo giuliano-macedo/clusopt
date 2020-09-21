@@ -6,6 +6,7 @@ import zlib
 from utils import Cacher,force_json
 from threading import Thread
 import pickle
+from psutil import virtual_memory
 class Receiver(Thread):
 	def __init__(self,msock,payid,max_mem):
 		"""
@@ -131,4 +132,8 @@ class ReplicaGeneric:
 				data_read=proc_info.data_read
 			) for i,proc_info in enumerate(proc_infos)
 		]
-		self.server.send(Payload(PAYID.pickle,dict(config=force_json(self),per_batch=data)))
+		config=force_json(self)
+		config.update(
+			total_mem=virtual_memory().total,
+		)
+		self.server.send(Payload(PAYID.pickle,dict(config=config,per_batch=data)))

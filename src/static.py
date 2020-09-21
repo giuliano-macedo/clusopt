@@ -2,11 +2,11 @@
 import argparse
 from math import ceil
 from tqdm import tqdm
-from utils import CustomZipFile,create_results_dir,choose_zip_fname
+from utils import CustomZipFile,create_results_dir,choose_zip_fname,get_proc_info,Timer
 
 from replica.core import Silhouette,DistanceTable
 from primary.core import CluStream,Stream
-from utils import get_proc_info,Timer
+from psutil import virtual_memory
 
 parser=argparse.ArgumentParser()
 parser.add_argument(
@@ -126,6 +126,7 @@ with CustomZipFile(args.output) as zf:
 		dict(
 			algorithm="clustream",
 			stream_fname=stream.fname,
+			total_mem=virtual_memory().total,
 			**vars(args)
 		)
 		,indent=4

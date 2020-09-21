@@ -7,6 +7,8 @@ from queue import Queue
 import zlib
 from utils import ProgressMeter,CustomZipFile,force_json
 from random import Random
+from psutil import virtual_memory
+
 
 def outplace_shuffle(l):
 	# returns a shuffled l with random seed
@@ -183,5 +185,8 @@ class PrimaryGeneric(PrimaryBootstrap):
 			zf.add_json("per_batch.json",self.bucket.to_dicts())
 			zf.add_json("cluster_centers.json",winner_results)
 			config_json=force_json(self)
-			config_json["stream_fname"]=self.stream.fname
+			config_json.update(
+				stream_fname=self.stream.fname,
+				total_mem=virtual_memory().total
+			)
 			zf.add_json("config.json",config_json,indent=4)
