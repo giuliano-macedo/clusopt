@@ -2,8 +2,7 @@
 import argparse
 from math import ceil
 from tqdm import tqdm
-import pandas as pd
-import json
+from utils import CustomZipFile,create_results_dir,choose_zip_fname
 
 from replica.core import Silhouette,DistanceTable
 from primary.core import CluStream,Stream
@@ -25,6 +24,12 @@ parser.add_argument(
 	"k",
 	help="number of macro-clusters",
 	type=int
+)
+parser.add_argument(
+	"-o",
+	"--output",
+	help=".zip output path that contains information experiment (default results/algorithm_uuid.zip)",
+	default=None
 )
 parser.add_argument(
 	"-H",
@@ -53,8 +58,11 @@ parser.add_argument(
 	help="clustream Kmeans++ offline initialization and macro-cluster generation random number generator seed (default: 42)",
 	default=42
 )
-
 args=parser.parse_args()
+create_results_dir()
+
+if args.output==None:
+	args.output=choose_zip_fname("clustream_static")
 
 model=CluStream(
 	h=args.window_range,
@@ -100,7 +108,7 @@ for i,chunk in tqdm(enumerate(stream),total=total):
 	procinfo=get_proc_info()
 	buckets.append(dict(
 		i=i,
-		sil=sil,
+		silhouette=sil,
 		rss=procinfo.rss,
 		data_write=procinfo.data_write,
 		data_read=procinfo.data_write,
@@ -108,12 +116,18 @@ for i,chunk in tqdm(enumerate(stream),total=total):
 	))
 overall_timer.stop()
 
-print("saving results..")
-buckets_df=pd.DataFrame(buckets).to_csv("./results/buckets.csv",index=None)
-pd.DataFrame([dict(
-	t=overall_timer.t,
-	sil=buckets[-1]["sil"]
-)]).to_csv("./results/overall.csv",index=None)
-
-with open("./results/cluster_centers.json","w") as f:
-	json.dump(cluster_centers,f)
+print(f"saving results '{args.output}'")
+with CustomZipFile(args.output) as zf:
+	zf.add_json("overall.json",dict(time=overall_timer.t,silhouette=buckets[-1]["silhouette"]))
+	zf.add_json("per_batch.json",buckets)
+	zf.add_json("cluster_centers.json",cluster_centers)
+	
+	zf.add_json("config.json",
+		dict(
+			algorithm="clustream",
+			stream_fname=stream.fname,
+			**vars(args)
+		)
+		,indent=4
+	)
+	
