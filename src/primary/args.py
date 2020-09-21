@@ -1,24 +1,8 @@
 import argparse
 import logging
 from math import ceil,sqrt
-from utils import count_flines
-
-def create_results_dir():
-	path="./results"
-	if os.path.exists(path) and not os.path.isdir(path):
-		raise RuntimeError(f"{os.getcwd()}/results is not a directory")
-	elif not os.path.exists(path):
-		os.mkdir(path)
-
-def choose_zip_fname(algorithm_name):
-	for _ in range(10):
-		ans=os.path.join("./results",f"{algorithm_name}_{os.urandom(4).hex()}.zip")
-		if not os.path.exists(ans):
-			return ans
-	raise RuntimeError("Couldnt choose a .zip file")
-
 import os
-
+from utils import count_flines,create_results_dir,choose_zip_fname
 def parse_args():
 	parser=argparse.ArgumentParser()
 	subparsers=parser.add_subparsers(
