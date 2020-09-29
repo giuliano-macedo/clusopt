@@ -15,7 +15,7 @@ parser.add_argument(
 )
 parser.add_argument(
 	"-c",
-	"--chunk_size",
+	"--chunk-size",
 	type=int,
 	help="size of chunks that the dataset will be splitted (default 4000)",
 	default=4000,
@@ -125,6 +125,7 @@ with CustomZipFile(args.output) as zf:
 	zf.add_json("config.json",
 		dict(
 			algorithm="clustream",
+			batch_size=args.chunk_size,
 			stream_fname=stream.fname,
 			total_mem=virtual_memory().total,
 			**vars(args)
