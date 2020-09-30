@@ -5,3 +5,9 @@ from .timer import Timer
 from .progress_meter import ProgressMeter
 from .force_json import force_json
 from .custom_zipfile import CustomZipFile
+from subprocess import check_output
+def get_current_commit_hash():
+	try:
+		return check_output(["git", "describe","--always"]).strip().decode()
+	except Exception:pass
+	return None

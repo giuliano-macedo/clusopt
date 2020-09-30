@@ -1,7 +1,7 @@
 from .core import Clusterer
 from network import Payload,PAYID
 import numpy as np
-from utils import get_proc_info
+from utils import get_proc_info,get_current_commit_hash
 import zlib
 from utils import Cacher,force_json
 from threading import Thread
@@ -135,5 +135,6 @@ class ReplicaGeneric:
 		config=force_json(self)
 		config.update(
 			total_mem=virtual_memory().total,
+			commit_hash=get_current_commit_hash()
 		)
 		self.server.send(Payload(PAYID.pickle,dict(config=config,per_batch=data)))

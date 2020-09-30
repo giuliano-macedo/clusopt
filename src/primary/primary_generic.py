@@ -8,7 +8,7 @@ import zlib
 from utils import ProgressMeter,CustomZipFile,force_json
 from random import Random
 from psutil import virtual_memory
-from subprocess import check_output
+from utils import get_current_commit_hash
 
 
 def outplace_shuffle(l):
@@ -190,6 +190,6 @@ class PrimaryGeneric(PrimaryBootstrap):
 				stream_fname=self.stream.fname.name,
 				output_fname=self.output.name,
 				total_mem=virtual_memory().total,
-				commit_hash=check_output(["git", "describe","--always"]).strip()
+				commit_hash=get_current_commit_hash()
 			)
 			zf.add_json("config.json",config_json,indent=4)
