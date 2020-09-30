@@ -2,8 +2,9 @@
 import argparse
 from math import ceil
 from tqdm import tqdm
-from utils import CustomZipFile,create_results_dir,choose_zip_fname,get_proc_info,Timer
+from pathlib import Path
 
+from utils import CustomZipFile,create_results_dir,choose_zip_fname,get_proc_info,Timer,get_current_commit_hash
 from replica.core import Silhouette,DistanceTable
 from primary.core import CluStream,Stream
 from psutil import virtual_memory
@@ -11,7 +12,8 @@ from psutil import virtual_memory
 parser=argparse.ArgumentParser()
 parser.add_argument(
 	"input",
-	help="path or url of the comma-separated dataset"
+	help="path or url of the comma-separated dataset",
+	type=Path
 )
 parser.add_argument(
 	"-c",
@@ -29,7 +31,8 @@ parser.add_argument(
 	"-o",
 	"--output",
 	help=".zip output path that contains information experiment (default results/algorithm_uuid.zip)",
-	default=None
+	default=None,
+	type=Path
 )
 parser.add_argument(
 	"-H",
@@ -107,12 +110,16 @@ for i,chunk in tqdm(enumerate(stream),total=total):
 
 	procinfo=get_proc_info()
 	buckets.append(dict(
-		i=i,
+		batch_counter=i,
 		silhouette=sil,
+		k=args.k,
+		entry_counter=1,
+		time_start=chunk_timer.beginning,
+		time_end=chunk_timer.end,
+		time=chunk_timer.t,
 		rss=procinfo.rss,
 		data_write=procinfo.data_write,
-		data_read=procinfo.data_write,
-		time=chunk_timer.t
+		data_read=procinfo.data_write
 	))
 overall_timer.stop()
 
@@ -126,9 +133,10 @@ with CustomZipFile(args.output) as zf:
 		dict(
 			algorithm="clustream",
 			batch_size=args.chunk_size,
-			stream_fname=stream.fname,
+			stream_fname=stream.fname.stem,
 			total_mem=virtual_memory().total,
-			**vars(args)
+			commit_hash=get_current_commit_hash(),
+			**{k:(v if not isinstance(v,Path) else v.name) for k,v in vars(args).items()}
 		)
 		,indent=4
 	)
