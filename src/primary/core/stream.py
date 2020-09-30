@@ -1,24 +1,27 @@
 from pandas import read_csv
 from utils import count_flines
 from itertools import chain
+from pathlib import Path
 
 import numpy as np
 
 
 class Stream:
 
-	def __init__(self,fname,chunk_size,dtype=np.float64):
+	def __init__(self,fname:Path,chunk_size,dtype=np.float64):
 		"""
 		class to generate a stream from a csv file, providing info about it's shape and 
 		peek/pop() functions
 
 		Args:
-			fname (str): path to csv file
+			fname (pathlib.Path): path to csv file
 			chunksize (int): length of chunks to split the dataset
 			dtype : datatype for each chunk
 
 		"""
-		self.fname=fname
+		self.fname=Path(fname)
+		if not self.fname.exists():
+			FileNotFoundError(str(fname))
 		self.chunk_size=chunk_size
 		self.lines=count_flines(self.fname)
 		with open(fname) as f:self.columns=next(f).count(",")+1

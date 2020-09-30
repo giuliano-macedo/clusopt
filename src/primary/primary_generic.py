@@ -8,6 +8,7 @@ import zlib
 from utils import ProgressMeter,CustomZipFile,force_json
 from random import Random
 from psutil import virtual_memory
+from subprocess import check_output
 
 
 def outplace_shuffle(l):
@@ -186,7 +187,9 @@ class PrimaryGeneric(PrimaryBootstrap):
 			zf.add_json("cluster_centers.json",winner_results)
 			config_json=force_json(self)
 			config_json.update(
-				stream_fname=self.stream.fname,
-				total_mem=virtual_memory().total
+				stream_fname=self.stream.fname.name,
+				output_fname=self.output.name,
+				total_mem=virtual_memory().total,
+				commit_hash=check_output(["git", "describe","--always"]).strip()
 			)
 			zf.add_json("config.json",config_json,indent=4)

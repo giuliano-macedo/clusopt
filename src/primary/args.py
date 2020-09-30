@@ -1,7 +1,7 @@
 import argparse
 import logging
 from math import ceil,sqrt
-import os
+from pathlib import Path
 from utils import count_flines,create_results_dir,choose_zip_fname
 def parse_args():
 	parser=argparse.ArgumentParser()
@@ -12,7 +12,8 @@ def parse_args():
 	)
 	parser.add_argument(
 		"input",
-		help="path or url of the comma-separated dataset"
+		help="path or url of the comma-separated dataset",
+		type=Path
 	)
 	parser.add_argument(
 		"-c",
@@ -25,6 +26,7 @@ def parse_args():
 		"-o",
 		"--output",
 		help=".zip output path that contains information on primary and replica nodes (default results/algorithm_uuid.zip)",
+		type=Path,
 		default=None
 	)
 	parser.add_argument(
@@ -153,8 +155,8 @@ def parse_args():
 	create_results_dir()
 	if args.output==None:
 		args.output=choose_zip_fname(args.algorithm)
-	if not os.path.isfile(args.input):
-		raise FileNotFoundError(args.input)
+	if not args.input.exists():
+		raise FileNotFoundError(str(args.input))
 	if args.verbose:
 		logging.basicConfig(format='[%(levelname)s]%(message)s',level=logging.DEBUG)
 	if args.kappas_method==None:
