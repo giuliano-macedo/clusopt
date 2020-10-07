@@ -188,6 +188,8 @@ class PrimaryGeneric(PrimaryBootstrap):
 			config_json=force_json(self)
 			config_json.update(
 				stream_fname=self.stream.fname.name,
+				chunk_size=self.stream.chunk_size,
+				stream_dtype=str(self.stream.dtype),
 				output_fname=self.output.name,
 				total_mem=virtual_memory().total,
 				commit_hash=get_current_commit_hash()

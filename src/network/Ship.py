@@ -1,6 +1,5 @@
-from time import sleep
 from . import ClientSocket
-import os
+from pathlib import Path
 
 class Ship:
 	"""
@@ -13,7 +12,11 @@ class Ship:
 	def __init__(self,n,remote_nodes,tries=15):
 		self.n=n
 		self.tries=tries
-		self.ips=open(remote_nodes).read().strip().split("\n")[:self.n] if os.path.isfile(remote_nodes) else []
+		self.ips=[]
+		if remote_nodes==None:return
+		file_handler=Path(remote_nodes)
+		if not file_handler.exists():return
+		self.ips=file_handler.read_text().strip().split("\n")[:self.n]
 		
 	def get_node_sockets(self):
 		"""

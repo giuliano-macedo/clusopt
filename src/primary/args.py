@@ -33,8 +33,8 @@ def parse_args():
 		'-n',
 		'--number-nodes',
 		type=int,
-		help="number of docker nodes (default 0)",
-		default=0
+		help="number of total replicas to connect (default None, meaning wait for user input)",
+		default=None
 	)
 	parser.add_argument(
 		"-k",
@@ -83,8 +83,15 @@ def parse_args():
 		"-r",
 		"--remote-nodes",
 		type=str,
-		default="./remote_nodes.txt",
-		help="list of remote notes ip txt file path"
+		default=None,
+		help="list of remote notes ip txt file path (default None, meaning don't use it)"
+	)
+	parser.add_argument(
+		"-t",
+		"--time-to-wait",
+		type=int,
+		default=None,
+		help="time to wait for replicas (default None, meaning wait for user input)"
 	)
 	#minibatch
 	#------------------------------------------------------------------------------------
@@ -113,7 +120,7 @@ def parse_args():
 		help="Maximum number of micro clusters to use (default 1000)"
 	)
 	clustream.add_argument(
-		"-t",
+		"-T",
 		"--kernel-radius",
 		type=int,
 		default=2,
