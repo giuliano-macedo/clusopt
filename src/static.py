@@ -75,10 +75,6 @@ model=CluStream(
 
 stream=Stream(args.input,args.chunk_size)
 
-print("initing clustream")
-init_points=stream.pop()
-model.init_offline(init_points,args.clustream_seed)
-
 dist_table=DistanceTable(max_size=model.m)
 silhouette=Silhouette(args.k)
 
@@ -88,15 +84,21 @@ buckets=[]
 chunk_timer=Timer()
 overall_timer=Timer()
 
-total=ceil(stream.lines/stream.chunk_size)-1
+total=ceil(stream.lines/stream.chunk_size)
 
-print("clustering")
+print("clustering ...")
+model_inited=False
 overall_timer.start()
 for i,chunk in tqdm(enumerate(stream),total=total):
 	
 	chunk_timer.start()
 	
-	model.partial_fit(chunk.values)
+	if model_inited:
+		model.partial_fit(chunk.values)
+	else:
+		model.init_offline(chunk,args.clustream_seed)
+		model_inited=True
+
 
 	macro_cluster,labels=model.get_macro_clusters(args.k,args.clustream_seed)
 	dist_table.compute(model.get_partial_cluster_centers())
