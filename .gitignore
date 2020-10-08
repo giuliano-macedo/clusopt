@@ -8,3 +8,4 @@ build/
 *.so
 .rendered.*.cpp
 .*.cppimporthash
+src/experiment.sh

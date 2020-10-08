@@ -2,6 +2,7 @@
 import argparse
 from subprocess import Popen,CalledProcessError,PIPE
 from pathlib import Path
+from utils import Timer
 from tempfile import mkdtemp
 from zipfile import ZipFile
 from time import sleep
@@ -38,7 +39,6 @@ def main(tmp_path):
 	log_path=tmp_path/"log.txt"
 
 	for i in range(1,args.how_many_times+1):
-		print("-"*48)
 		
 		output_path=tmp_path/f"{args.output_prefix}-{i}.zip"
 		
@@ -52,8 +52,12 @@ def main(tmp_path):
 		]+cmd_injected
 		while True:
 			try:
+				print("-"*48)
 				print(f"attempt {i}/{args.how_many_times}")
+				timer=Timer()
+				timer.start()
 				runprimary(cmd_injected,log_path)
+				timer.stop()
 				if not output_path.exists():
 					raise FileNotFoundError()
 				break
@@ -73,7 +77,7 @@ def main(tmp_path):
 		with ZipFile(final_output_path,"a") as zipf:
 			zipf.write(str(output_path),f"{args.output_prefix}-{i}.zip")
 
-		print("command executed successfully")
+		print(f"command executed successfully, finished in {timer.t/1e9:.4f} seconds")
 
 if __name__=="__main__":
 	TEMP_DIR=Path(mkdtemp(prefix="looper-"))
