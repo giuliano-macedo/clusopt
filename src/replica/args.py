@@ -7,6 +7,15 @@ def get_args():
 		help="address of the primary"
 	)
 	parser.add_argument(
+		"-l",
+		"--loop",
+		metavar="TIME",
+		help="tries to connect to primary node and sleep for TIME seconds (default None, meaning 'try once')",
+		type=int,
+		default=None
+	)
+
+	parser.add_argument(
 		'-v',
 		'--verbose',
 		action='store_true',

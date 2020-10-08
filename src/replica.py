@@ -10,6 +10,7 @@ from network import ClientSocket,PAYID,ServerSocket
 from collections import namedtuple
 import numpy as np
 from pandas import DataFrame
+from os import system
 
 def print_config(config):
 	df=DataFrame([
@@ -67,6 +68,11 @@ def main(server,opts):
 if __name__=="__main__":
 	
 	args=get_args()
+
+	if args.loop!=None:
+		system(f"while true; do ./replica.py {args.primary_addr} ; sleep {args.loop} ; done")
+		exit()
+
 	if args.server_mode:
 		print("auxiliar server started")
 		print("waiting connection:")
@@ -85,6 +91,7 @@ if __name__=="__main__":
 	del(opts["primary_addr"])
 	del(opts["verbose"])
 	del(opts["server_mode"])
+	del(opts["loop"])
 
 	main(server,opts)
 	
