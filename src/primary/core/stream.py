@@ -20,6 +20,7 @@ class Stream:
 
 		"""
 		self.fname=Path(fname)
+		self.dtype=dtype
 		if not self.fname.exists():
 			FileNotFoundError(str(fname))
 		self.chunk_size=chunk_size

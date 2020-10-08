@@ -28,6 +28,13 @@ parser.add_argument(
 	type=int
 )
 parser.add_argument(
+	"-s",
+	"--seed",
+	type=int,
+	help="seed to use in the algorithm (default 42)",
+	default=42
+)
+parser.add_argument(
 	"-o",
 	"--output",
 	help=".zip output path that contains information experiment (default results/algorithm_uuid.zip)",
@@ -54,12 +61,6 @@ parser.add_argument(
 	type=int,
 	default=2,
 	help="Multiplier for the kernel radius (default 2)"
-)
-parser.add_argument(
-	"--clustream-seed",
-	type=int,
-	help="clustream Kmeans++ offline initialization and macro-cluster generation random number generator seed (default: 42)",
-	default=42
 )
 args=parser.parse_args()
 create_results_dir()
@@ -96,11 +97,11 @@ for i,chunk in tqdm(enumerate(stream),total=total):
 	if model_inited:
 		model.partial_fit(chunk.values)
 	else:
-		model.init_offline(chunk,args.clustream_seed)
+		model.init_offline(chunk,args.seed)
 		model_inited=True
 
 
-	macro_cluster,labels=model.get_macro_clusters(args.k,args.clustream_seed)
+	macro_cluster,labels=model.get_macro_clusters(args.k,args.seed)
 	dist_table.compute(model.get_partial_cluster_centers())
 
 	sil=silhouette.get_score(dist_table.table,labels)
