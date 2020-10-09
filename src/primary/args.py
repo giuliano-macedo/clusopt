@@ -56,7 +56,7 @@ def parse_args():
 		"-s",
 		'--seed',
 		type=int,
-		help="seed to use in the replicas algorithm (default 42)",
+		help="seed to use in both replicas and primary (default 42)",
 		default=42
 	)
 	parser.add_argument(
@@ -126,12 +126,6 @@ def parse_args():
 		default=2,
 		help="Multiplier for the kernel radius (default 2)"
 	)
-	clustream.add_argument(
-		"--clustream-seed",
-		type=int,
-		help="clustream Kmeans++ offline initialization random number generator seed (default: 42)",
-		default=42
-	)
 	#streamkm
 	#------------------------------------------------------------------------------------
 	streamkm=subparsers.add_parser(
@@ -151,12 +145,6 @@ def parse_args():
 		type=int,
 		help="Number of datapoints to process (default:length of the dataset)",
 		default=None
-	)
-	streamkm.add_argument(
-		"--streamkm-seed",
-		type=int,
-		help="Streamkm++ random number generator seed (default: 42)",
-		default=42
 	)
 	args=parser.parse_args()
 	create_results_dir()

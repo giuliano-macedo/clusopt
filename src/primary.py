@@ -34,15 +34,13 @@ if __name__=="__main__":
 		primary_args={**primary_args,**{
 			"window_range":args.window_range,
 			"microkernels":args.microclusters,
-			"kernel_radius":args.kernel_radius,
-			"clustream_seed":args.clustream_seed
+			"kernel_radius":args.kernel_radius
 		}}
 	elif args.algorithm=="streamkm":
 		from primary import PrimaryStreamkm as PrimaryAlgorithm
 		primary_args={**primary_args,**{
 			"coreset_size":args.coreset_size,
-			"length":args.length,
-			"streamkm_seed":args.streamkm_seed
+			"length":args.length
 		}}
 	else:
 		raise RuntimeError("unexpected error")

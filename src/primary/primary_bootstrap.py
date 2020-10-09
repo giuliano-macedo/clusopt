@@ -10,7 +10,7 @@ class PrimaryBootstrap:
 		output (str): zip output fname
 		stream (core.Stream): Dataset stream
 		number_nodes (int): total number of replica nodes to connect
-		seed (int): seed to use in the replicas
+		seed (int): seed to use in both replicas and primary
 		repetitions (int): number of times to repeat replica algorithm
 		lower_threshold (int): lower threshold for kappas set generation
 		kappas_method (function): kappas set builder function
@@ -120,11 +120,11 @@ class PrimaryBootstrap:
 			self.__connect_local_nodes()
 		
 		self.kappas=self.kappas_method(len(self.replicas),self.lower_threshold)
-		for replica,kappa in zip(self.replicas,self.kappas):
+		for i,(replica,kappa) in enumerate(zip(self.replicas,self.kappas)):
 			replica.send(Payload(PAYID.pickle,{**{
 				"algorithm":self.algorithm,
 				"kappa":kappa,
-				"seed":self.seed,
+				"seed":self.seed+i,
 				"repetitions":self.repetitions,
 				"distance_matrix_method":self.distance_matrix_method,
 				"batch_size":self.batch_size
