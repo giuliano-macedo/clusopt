@@ -63,8 +63,8 @@ def parse_args():
 		"-R",
 		'--repetitions',
 		type=int,
-		help="number of times to repeat replica algorithm (default 10)",
-		default=10
+		help="number of times to repeat replica algorithm (default 3)",
+		default=3
 	)
 	parser.add_argument(
 		'-v',
@@ -98,7 +98,22 @@ def parse_args():
 	minibatch=subparsers.add_parser(
 		"minibatch",
 		help="MiniBatchKmeans online clustering algorithm"
+	);minibatch
+	
+	#minibatch split
+	minibatch_split=subparsers.add_parser(
+		"minibatchsplit",
+		help="Modified minibatch with micro-macro clustering"
 	)
+	minibatch_split.add_argument(
+		"-m",
+		"--microclusters",
+		type=int,
+		default=1000,
+		help="number of microclusters to use (default 1000)"
+	)
+
+	#------------------------------------------------------------------------------------
 	#clustream
 	#------------------------------------------------------------------------------------
 	clustream=subparsers.add_parser(
@@ -157,6 +172,8 @@ def parse_args():
 	if args.kappas_method==None:
 		args.kappas_method={"minibatch":"random"}.get(args.algorithm,"gauss")
 	if args.algorithm=="minibatch" and args.lower_threshold is None:
+		args.lower_threshold=int(ceil(sqrt(args.chunk_size)))
+	elif args.algorithm=="minibatchsplit" and args.lower_threshold is None:
 		args.lower_threshold=int(ceil(sqrt(args.chunk_size)))
 	elif args.algorithm=="clustream" and args.lower_threshold is None:
 		args.lower_threshold=int(ceil(sqrt(args.microclusters)))

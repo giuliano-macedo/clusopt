@@ -1,3 +1,4 @@
 from .replica_minibatch import ReplicaMiniBatch
 from .replica_clustream import ReplicaCluStream
 from .replica_streamkm import ReplicaStreamkm
+from .replica_minibatch_split import ReplicaMiniBatchSplit

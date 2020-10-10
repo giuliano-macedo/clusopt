@@ -2,13 +2,15 @@ import numpy as np
 from utils import Timer,timeout
 from network import Ship,ServerSocket,PAYID,Payload
 from math import ceil
+from .core import Stream
 
 class PrimaryBootstrap:
 	"""
 	Args:
+		stream_fname (Path): stream file path
+		chunk_size (int): size of the chunks
 		algorithm (str): the algorithm to use
 		output (str): zip output fname
-		stream (core.Stream): Dataset stream
 		number_nodes (int): total number of replica nodes to connect
 		seed (int): seed to use in both replicas and primary
 		repetitions (int): number of times to repeat replica algorithm
@@ -16,7 +18,8 @@ class PrimaryBootstrap:
 		kappas_method (function): kappas set builder function
 		remote_nodes (str): path to the file that contains the ip for all remote replicas
 	Attributes:
-		stream (str):
+		stream_fname (Path):
+		chunk_size (int):
 		number_nodes (int):
 		lower_threshold (int):
 		kappas_method (function):
@@ -27,9 +30,10 @@ class PrimaryBootstrap:
 		time_to_wait (int or None): time in seconds to wait for replicas
 	"""
 	def __init__(self,
+			stream_fname,
+			chunk_size,
 			algorithm,
 			output,
-			stream,
 			number_nodes,
 			seed,
 			repetitions,
@@ -41,7 +45,8 @@ class PrimaryBootstrap:
 		):
 		self.algorithm=algorithm
 		self.output=output
-		self.stream=stream
+		self.stream_fname=stream_fname
+		self.chunk_size=chunk_size
 		self.number_nodes=number_nodes
 		self.seed=seed
 		self.repetitions=repetitions
@@ -51,6 +56,7 @@ class PrimaryBootstrap:
 		self.distance_matrix_method=distance_matrix_method
 		self.time_to_wait=time_to_wait
 
+		self.stream=Stream(self.stream_fname,self.chunk_size,self.BATCH_DTYPE)
 		self.total_batches=ceil(self.stream.lines/self.stream.chunk_size)
 		self.replicas=set()
 		#t -> msock

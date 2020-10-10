@@ -46,21 +46,22 @@ def main(server,opts):
 
 	if config.algorithm=="minibatch":
 		from replica import ReplicaMiniBatch as ReplicaAlgorithm
-		# replica_args={**replica_args,**{
-
-		# }}
+		replica_args.update(
+		)
+	elif config.algorithm=="minibatchsplit":
+		from replica import ReplicaMiniBatchSplit as ReplicaAlgorithm
+		replica_args.update(
+		)
 	elif config.algorithm=="clustream":
 		from replica import ReplicaCluStream as ReplicaAlgorithm
-		# replica_args={**replica_args,**{
-			
-		# }}
+		replica_args.update(
+		)
 	elif config.algorithm=="streamkm":
 		from replica import ReplicaStreamkm as ReplicaAlgorithm
-		# replica_args={**replica_args,**{
-			
-		# }}
+		replica_args.update(
+		)
 	else:
-		raise RuntimeError("Unexpected error")
+		raise RuntimeError("Unrecognized algorith",config.algorith)
 	replica=ReplicaAlgorithm(**replica_args)
 	replica.run()
 	print("done")
