@@ -29,14 +29,16 @@ def main(tmp_path):
 	parser.add_argument("how_many_times",type=int)
 	parser.add_argument("output_prefix",type=str)
 	parser.add_argument("-i","--initial-seed",type=int,default=42)
+	parser.add_argument("-r","--results-dir",type=Path,default=Path("./results"))
 	args=parser.parse_args()
 
 	cmd=shlex.split(args.cmd)
 
-	results_path=Path("./results")
-
-	final_output_path=results_path/f"{args.output_prefix}.zip"
+	args.results_dir.mkdir(exist_ok=True)
+	final_output_path=args.results_dir/f"{args.output_prefix}.zip"
 	log_path=tmp_path/"log.txt"
+
+	print(f"log path : {log_path}")
 
 	for i in range(1,args.how_many_times+1):
 		
