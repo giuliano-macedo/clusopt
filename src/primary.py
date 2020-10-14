@@ -24,7 +24,8 @@ if __name__=="__main__":
 		"lower_threshold":args.lower_threshold,
 		"remote_nodes":args.remote_nodes,
 		"distance_matrix_method":args.distance_matrix_method,
-		"time_to_wait":args.time_to_wait
+		"time_to_wait":args.time_to_wait,
+		"ghost":args.ghost
 	}
 	if args.algorithm=="minibatch":
 		from primary import PrimaryMiniBatch as PrimaryAlgorithm

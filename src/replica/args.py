@@ -28,13 +28,6 @@ def get_args():
 		help="starts as a server, so that the primary starts the connection"
 	)
 	parser.add_argument(
-		'-g',
-		'--ghost',
-		type=int,
-		help="enable ghost mode in batch index TIME",
-		metavar="TIME"
-	)
-	parser.add_argument(
 		'-m',
 		'--max-mem',
 		type=int,

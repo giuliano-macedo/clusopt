@@ -3,6 +3,7 @@ from utils import Timer,timeout
 from network import Ship,ServerSocket,PAYID,Payload
 from math import ceil
 from .core import Stream
+import random
 
 class PrimaryBootstrap:
 	"""
@@ -11,6 +12,7 @@ class PrimaryBootstrap:
 		chunk_size (int): size of the chunks
 		algorithm (str): the algorithm to use
 		output (str): zip output fname
+		ghost (int): number of nodes to set ghost mode in random batch counter
 		number_nodes (int): total number of replica nodes to connect
 		seed (int): seed to use in both replicas and primary
 		repetitions (int): number of times to repeat replica algorithm
@@ -34,6 +36,7 @@ class PrimaryBootstrap:
 			chunk_size,
 			algorithm,
 			output,
+			ghost,
 			number_nodes,
 			seed,
 			repetitions,
@@ -55,6 +58,8 @@ class PrimaryBootstrap:
 		self.kappas=np.empty(0)
 		self.distance_matrix_method=distance_matrix_method
 		self.time_to_wait=time_to_wait
+		self.ghost=ghost
+		random.seed(self.seed)
 
 		self.stream=Stream(self.stream_fname,self.chunk_size,self.BATCH_DTYPE)
 		self.total_batches=ceil(self.stream.lines/self.stream.chunk_size)
@@ -125,16 +130,25 @@ class PrimaryBootstrap:
 		else:
 			self.__connect_local_nodes()
 		
+		self.ghosted_nodes={
+			replica.ip:int(random.random()*self.total_batches)
+			for replica in random.sample(self.replicas,self.ghost)
+		}
 		self.kappas=self.kappas_method(len(self.replicas),self.lower_threshold)
+		
+		json_opts.update(
+			algorithm=self.algorithm,
+			repetitions=self.repetitions,
+			distance_matrix_method=self.distance_matrix_method,
+			batch_size=self.batch_size
+		)
+
 		for i,(replica,kappa) in enumerate(zip(self.replicas,self.kappas)):
-			replica.send(Payload(PAYID.pickle,{**{
-				"algorithm":self.algorithm,
-				"kappa":kappa,
-				"seed":self.seed+i,
-				"repetitions":self.repetitions,
-				"distance_matrix_method":self.distance_matrix_method,
-				"batch_size":self.batch_size
-			},**json_opts}))
+			replica.send(Payload(PAYID.pickle,{**dict(
+				kappa=kappa,
+				seed=self.seed+i,
+				ghost=self.ghosted_nodes.get(replica.ip,None)
+			),**json_opts}))
 
 	def __del__(self):
 		print("closing everything")

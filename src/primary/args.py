@@ -23,6 +23,14 @@ def parse_args():
 		default=2000,
 	)
 	parser.add_argument(
+		"-g",
+		"--ghost",
+		type=int,
+		help="set N replica nodes to ghost in random batch counter (default 0)",
+		metavar="N",
+		default=0,
+	)
+	parser.add_argument(
 		"-o",
 		"--output",
 		help=".zip output path that contains information on primary and replica nodes (default results/algorithm_uuid.zip)",
