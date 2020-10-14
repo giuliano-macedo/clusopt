@@ -4,7 +4,7 @@ class PrimaryCluStream(PrimaryGeneric):
 	BATCH_DTYPE="float64"
 	def __init__(self,*args,window_range,microkernels,kernel_radius,**kwargs):
 		super().__init__(*args,batch_size=microkernels,**kwargs)
-		self.model=CluStream(m=microkernels,t=kernel_radius,h=window_range*2)
+		self.model=CluStream(m=microkernels,t=kernel_radius,h=window_range)
 		self.clustream_is_initted=False
 		
 	def preproc(self,batch): 
