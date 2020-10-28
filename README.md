@@ -53,6 +53,15 @@ to run replica node, use `-h` flag for more options
 ```bash
 ./replica [IP ADDRESS TO THE PRIMARY NODE]
 ```
+
+## Published Works
+
+<a id="1">[1]</a> 
+G. O. MACEDO and J. A. SILVA and D. M. L. FILHO. (2020). 
+UM MODELO DE INFRAESTRUTURA DE MICROSSERVIÇOS PARA ALGORITMOS DE AGRUPAMENTO DE FLUXOS CONTÍNUOS DE DADOS.
+SODEBRAS Journal, 15(178), 48-52.
+https://doi.org/10.29367%2Fissn.1809-3957.15.2020.178.48
+
 ## Authors
 * **Giuliano Oliveira de Macedo** - *Coder* [giuliano-oliveira](https://github.com/giuliano-oliveira)
 * **Jonathan Andrade Silva** - *Advisor*
