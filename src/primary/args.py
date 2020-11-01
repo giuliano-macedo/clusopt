@@ -132,8 +132,8 @@ def parse_args():
 		"-H",
 		"--window-range",
 		type=int,
-		help="Range of the window (default 100)",
-		default=100
+		help="Range of the window (default dataset length)",
+		default=None
 	)
 	clustream.add_argument(
 		"-m",
