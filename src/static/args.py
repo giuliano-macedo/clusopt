@@ -34,6 +34,13 @@ def parse_args():
 		default=2000,
 	)
 	parser.add_argument(
+		"-r",
+		"--repetitions",
+		type=int,
+		help="number of times to repeat replica algorithm (default 3)",
+		default=3,
+	)
+	parser.add_argument(
 		"-o",
 		"--output",
 		help=".zip output path that contains information on primary and replica nodes (default results/algorithm_uuid.zip)",
@@ -128,7 +135,12 @@ def parse_args():
 		"float32" if args.algorithm=="minibatch" else "float64"
 	)
 
-	algo_args=dict(k=args.k,seed=args.seed)
+	algo_args=dict(
+		k=args.k,
+		seed=args.seed,
+		repetitions=args.repetitions,
+		chunk_size=args.chunk_size,
+	)
 	if args.algorithm==StaticClustream.NAME:
 		Algorithm=StaticClustream
 		algo_args.update(
@@ -145,12 +157,11 @@ def parse_args():
 	elif args.algorithm==StaticMinibatch.NAME:
 		Algorithm=StaticMinibatch
 		algo_args.update(
-			chunk_size=args.chunk_size
+			
 		)
 	elif args.algorithm==StaticMinibatchSplit.NAME:
 		Algorithm=StaticMinibatchSplit
 		algo_args.update(
-			chunk_size=args.chunk_size,
 			microclusters=args.microclusters
 		)
 	else:

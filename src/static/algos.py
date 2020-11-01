@@ -7,6 +7,12 @@ class StaticGeneric(ABC):
 
 	# batch_size and NAME members are abstract
 
+	def __init__(self,repetitions,seed,k,chunk_size):
+		self.chunk_size=chunk_size
+		self.repetitions=repetitions
+		self.seed=seed
+		self.k=k
+
 	@abstractmethod
 	def partial_fit(self,chunk):pass
 
@@ -20,19 +26,20 @@ class StaticGeneric(ABC):
 class StaticClustream(StaticGeneric):
 	NAME="clustream"
 
-	def __init__(self,seed,k,window_range,microclusters,kernel_radius):
+	def __init__(self,*args,window_range,microclusters,kernel_radius,**kwargs):
+		super().__init__(*args,**kwargs)
 		self.batch_size=microclusters
 		self.model=CluStream(
 			h=window_range,
 			m=microclusters,
 			t=kernel_radius
 		)
-		self.seed=seed
 		self.initted=False
 		self.macro_model=KMeans(
 			init="k-means++",
 	 		random_state=self.seed,
-	 		n_clusters=k,
+	 		n_clusters=self.k,
+	 		n_init=self.repetitions,
 	 	)
 
 	def partial_fit(self,chunk):
@@ -53,18 +60,20 @@ class StaticClustream(StaticGeneric):
 
 class StaticStreamkm(StaticGeneric):
 	NAME="streamkm"
-	def __init__(self,seed,k,coresetsize,length):
+	def __init__(self,*args,coresetsize,length,**kwargs):
+		super().__init__(*args,**kwargs)
 		self.batch_size=coresetsize
+
 		self.model=Streamkm(
 			coresetsize=coresetsize,
 			length=length,
-			seed=seed
+			seed=self.seed
 		)
-		self.seed=seed
 		self.macro_model=KMeans(
 			init="k-means++",
 	 		random_state=self.seed,
-	 		n_clusters=k,
+	 		n_clusters=self.k,
+	 		n_init=self.repetitions,
 	 	)
 
 	def partial_fit(self,chunk):
@@ -82,19 +91,24 @@ class StaticStreamkm(StaticGeneric):
 
 class StaticMinibatch(StaticGeneric):
 	NAME="minibatch"
-	def __init__(self,seed,k,chunk_size):
-		self.batch_size=chunk_size
+	def __init__(self,*args,**kwargs):
+		super().__init__(*args,**kwargs)
+		self.batch_size=self.chunk_size
+
 		self.model=MiniBatchKMeans(
-			batch_size=chunk_size,
-			n_clusters=k,
-			compute_labels=True
+			random_state=self.seed,
+			batch_size=self.chunk_size,
+			n_init=self.repetitions,
+			n_clusters=self.k,
+			compute_labels=True,
 		)
 
 	def partial_fit(self,chunk):
 		self.model.partial_fit(chunk)
+		self.__last_chunk=chunk
 
 	def get_partial_cluster_centers(self):
-		return self.model.cluster_centers_
+		return self.__last_chunk
 
 	def get_final_cluster_centers(self):
 		return self.model.cluster_centers_,self.model.labels_
@@ -102,18 +116,22 @@ class StaticMinibatch(StaticGeneric):
 
 class StaticMinibatchSplit(StaticGeneric):
 	NAME="minibatchsplit"
-	def __init__(self,seed,k,chunk_size,microclusters):
+	def __init__(self,*args,microclusters,**kwargs):
+		super().__init__(*args,**kwargs)
 		self.batch_size=microclusters
+
 		self.model=MiniBatchKMeans(
-			batch_size=chunk_size,
+			batch_size=self.chunk_size,
 			n_clusters=microclusters,
-			compute_labels=False
+			init_size=self.chunk_size,
+			compute_labels=False,
+			random_state=self.seed
 		)
-		self.seed=seed
 		self.macro_model=KMeans(
 			init="k-means++",
 	 		random_state=self.seed,
-	 		n_clusters=k,
+	 		n_clusters=self.k,
+	 		n_init=self.repetitions
 	 	)
 
 	def partial_fit(self,chunk):
