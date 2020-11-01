@@ -10,7 +10,8 @@ class PrimaryMiniBatchSplit(PrimaryGeneric):
 			n_clusters=microclusters,
 			batch_size=self.chunk_size,
 			compute_labels=False,
-			init_size=4000,
+			init_size=self.chunk_size,
+			random_state=self.seed
 		)
 
 	def preproc(self,batch): 
