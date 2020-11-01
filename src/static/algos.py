@@ -4,7 +4,8 @@ from sklearn.cluster import KMeans,MiniBatchKMeans
 from abc import ABC,abstractmethod
 
 class StaticGeneric(ABC):
-	# batch_size member is abstract
+
+	# batch_size and NAME members are abstract
 
 	@abstractmethod
 	def partial_fit(self,chunk):pass
@@ -17,6 +18,7 @@ class StaticGeneric(ABC):
 	def get_final_cluster_centers(self)->tuple:pass
 
 class StaticClustream(StaticGeneric):
+	NAME="clustream"
 
 	def __init__(self,seed,k,window_range,microclusters,kernel_radius):
 		self.batch_size=microclusters
@@ -35,7 +37,7 @@ class StaticClustream(StaticGeneric):
 
 	def partial_fit(self,chunk):
 		if self.initted:
-			self.model.partial_fit(chunk.values)
+			self.model.partial_fit(chunk)
 		else:
 			self.model.init_offline(chunk,self.seed)
 			self.initted=True
@@ -50,6 +52,7 @@ class StaticClustream(StaticGeneric):
 		return self.__macro_clusters,self.__macro_labels
 
 class StaticStreamkm(StaticGeneric):
+	NAME="streamkm"
 	def __init__(self,seed,k,coresetsize,length):
 		self.batch_size=coresetsize
 		self.model=Streamkm(
@@ -72,12 +75,13 @@ class StaticStreamkm(StaticGeneric):
 		self.__macro_clusters=self.macro_model.cluster_centers_
 
 	def get_partial_cluster_centers(self):
-		return self.__micro_clusters
+		return self.__coresets
 
 	def get_final_cluster_centers(self):
 		return self.__macro_clusters,self.__macro_labels
 
 class StaticMinibatch(StaticGeneric):
+	NAME="minibatch"
 	def __init__(self,seed,k,chunk_size):
 		self.batch_size=chunk_size
 		self.model=MiniBatchKMeans(
@@ -97,6 +101,7 @@ class StaticMinibatch(StaticGeneric):
 
 
 class StaticMinibatchSplit(StaticGeneric):
+	NAME="minibatchsplit"
 	def __init__(self,seed,k,chunk_size,microclusters):
 		self.batch_size=microclusters
 		self.model=MiniBatchKMeans(
@@ -115,7 +120,7 @@ class StaticMinibatchSplit(StaticGeneric):
 		self.model.partial_fit(chunk)
 		self.__micro_clusters=self.model.cluster_centers_
 
-		self.__macro_labels=self.macro_model.fit_predict(self.__coresets)
+		self.__macro_labels=self.macro_model.fit_predict(self.__micro_clusters)
 		self.__macro_clusters=self.macro_model.cluster_centers_
 
 	def get_partial_cluster_centers(self):

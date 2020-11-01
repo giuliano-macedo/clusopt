@@ -2,6 +2,12 @@ import argparse
 from pathlib import Path
 from utils import create_results_dir,choose_zip_fname
 from primary.core import Stream
+from .algos import (
+	StaticClustream,
+	StaticStreamkm,
+	StaticMinibatch,
+	StaticMinibatchSplit,
+)
 
 def parse_args():
 	parser=argparse.ArgumentParser()
@@ -44,13 +50,13 @@ def parse_args():
 	#minibatch
 	#------------------------------------------------------------------------------------
 	minibatch=subparsers.add_parser(
-		"minibatch",
+		StaticMinibatch.NAME,
 		help="MiniBatchKmeans online clustering algorithm"
 	);minibatch
 	
 	#minibatch split
 	minibatch_split=subparsers.add_parser(
-		"minibatchsplit",
+		StaticMinibatchSplit.NAME,
 		help="Modified minibatch with micro-macro clustering"
 	)
 	minibatch_split.add_argument(
@@ -65,7 +71,7 @@ def parse_args():
 	#clustream
 	#------------------------------------------------------------------------------------
 	clustream=subparsers.add_parser(
-		"clustream",
+		StaticClustream.NAME,
 		help="CluStream online clustering algorithm"
 	)
 	clustream.add_argument(
@@ -92,7 +98,7 @@ def parse_args():
 	#streamkm
 	#------------------------------------------------------------------------------------
 	streamkm=subparsers.add_parser(
-		"streamkm",
+		StaticStreamkm.NAME,
 		help="StreamKm++ online clustering algorithm"
 	)
 	streamkm.add_argument(
@@ -123,26 +129,26 @@ def parse_args():
 	)
 
 	algo_args=dict(k=args.k,seed=args.seed)
-	if args.algorithm=="clustream":
-		from .algos import StaticClustream as Algorithm
+	if args.algorithm==StaticClustream.NAME:
+		Algorithm=StaticClustream
 		algo_args.update(
 			window_range=args.window_range if args.window_range!=None else args.input.lines,
 			microclusters=args.microclusters,
 			kernel_radius=args.kernel_radius
 		)
-	elif args.algorithm=="streamkm":
-		from .algos import StaticStreamkm as Algorithm
+	elif args.algorithm==StaticStreamkm.NAME:
+		Algorithm=StaticStreamkm
 		algo_args.update(
 			coresetsize=args.coreset_size,
 			length=args.length if args.length!=None else args.input.lines
 		)
-	elif args.algorithm=="minibatch":
-		from .algos import StaticMinibatch as Algorithm
+	elif args.algorithm==StaticMinibatch.NAME:
+		Algorithm=StaticMinibatch
 		algo_args.update(
 			chunk_size=args.chunk_size
 		)
-	elif args.algorithm=="minibatchsplit":
-		from .algos import StaticMinibatchSplit as Algorithm
+	elif args.algorithm==StaticMinibatchSplit.NAME:
+		Algorithm=StaticMinibatchSplit
 		algo_args.update(
 			chunk_size=args.chunk_size,
 			microclusters=args.microclusters

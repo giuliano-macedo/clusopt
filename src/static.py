@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 from math import ceil
 from tqdm import tqdm
-from pathlib import Path
 from utils import CustomZipFile,get_proc_info,Timer,get_current_commit_hash
 from replica.core import Silhouette,DistanceTable
 from psutil import virtual_memory
 from static.args import parse_args
+from utils import force_json
 
 args=parse_args()
 
 model=args.algorithm
 stream=args.input
 
-# computing silhouette score is time negligible, so for compatible reasons 
+# computing silhouette score is time negligible, so for results compatibility reasons 
 # compute here
-dist_table=DistanceTable(max_size=model.m)
+dist_table=DistanceTable(max_size=model.batch_size)
 silhouette=Silhouette(args.k)
 
 cluster_centers=[]
@@ -26,7 +26,6 @@ overall_timer=Timer()
 total=ceil(stream.lines/stream.chunk_size)
 
 print("clustering ...")
-model_inited=False
 overall_timer.start()
 for i,chunk in tqdm(enumerate(stream),total=total):
 	
@@ -67,12 +66,12 @@ with CustomZipFile(args.output) as zf:
 	
 	zf.add_json("config.json",
 		dict(
-			algorithm="clustream",
-			batch_size=args.chunk_size,
+			algorithm=model.NAME,
+			batch_size=model.batch_size,
 			stream_fname=stream.fname.stem,
 			total_mem=virtual_memory().total,
 			commit_hash=get_current_commit_hash(),
-			**{k:(v if not isinstance(v,Path) else v.name) for k,v in vars(args).items()}
+			**force_json(args)
 		)
 		,indent=4
 	)
