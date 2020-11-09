@@ -1,11 +1,11 @@
 from multiprocessing.dummy import Pool
 import numpy as np
-from . import Silhouette,DistanceMatrixAlgorithm
-
+from . import DistanceMatrixAlgorithm
+from clusopt_core.metrics import Silhouette
 #drawer clusterer
 def maximize_silhouette(iterator):
 	"""
-	maximize clusterer score, minimizes it's k
+	maximize clusterer score, minimizes it's k when there is a draw
 
 	Args:
 		iterator : iterator of tupples of score,clusterer

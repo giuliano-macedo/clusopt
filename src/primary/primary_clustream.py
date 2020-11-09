@@ -1,4 +1,4 @@
-from .core import CluStream
+from clusopt_core.cluster import CluStream
 from .primary_generic import PrimaryGeneric
 class PrimaryCluStream(PrimaryGeneric):
 	BATCH_DTYPE="float64"

@@ -1,4 +1,4 @@
-from primary.core import CluStream,Streamkm
+from clusopt_core.cluster import CluStream,Streamkm
 from sklearn.cluster import KMeans,MiniBatchKMeans
 
 from abc import ABC,abstractmethod

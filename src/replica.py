@@ -5,7 +5,6 @@ replica.py
 The replica node
 """
 from replica.args import get_args
-from replica.core import Silhouette;Silhouette #force compile
 from network import ClientSocket,PAYID,ServerSocket
 from collections import namedtuple
 import numpy as np

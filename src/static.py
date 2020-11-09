@@ -2,7 +2,7 @@
 from math import ceil
 from tqdm import tqdm
 from utils import CustomZipFile,get_proc_info,Timer,get_current_commit_hash
-from replica.core import Silhouette,DistanceTable
+from clusopt_core.metrics import Silhouette,DistanceMatrix
 from psutil import virtual_memory
 from static.args import parse_args
 from utils import force_json
@@ -14,7 +14,7 @@ stream=args.input
 
 # computing silhouette score is time negligible, so for results compatibility reasons 
 # compute here
-dist_table=DistanceTable(max_size=model.batch_size)
+dist_table=DistanceMatrix(max_size=model.batch_size)
 silhouette=Silhouette(args.k)
 
 cluster_centers=[]

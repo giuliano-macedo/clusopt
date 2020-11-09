@@ -1,4 +1,4 @@
-from . import DistanceTable
+from clusopt_core.metrics import DistanceMatrix as DistanceTable
 from sklearn.metrics import pairwise_distances
 
 class DistanceMatrixAlgorithm:

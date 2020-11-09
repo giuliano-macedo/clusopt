@@ -1,4 +1,4 @@
-from .core import Streamkm
+from clusopt_core.cluster import Streamkm
 from .primary_generic import PrimaryGeneric
 class PrimaryStreamkm(PrimaryGeneric):
 	BATCH_DTYPE="float64"
