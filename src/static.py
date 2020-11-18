@@ -14,7 +14,7 @@ stream=args.input
 
 # computing silhouette score is time negligible, so for results compatibility reasons 
 # compute here
-dist_table=DistanceMatrix(max_size=model.batch_size)
+dist_matrix=DistanceMatrix(max_size=model.batch_size)
 silhouette=Silhouette(args.k)
 
 cluster_centers=[]
@@ -34,9 +34,13 @@ for i,chunk in tqdm(enumerate(stream),total=total):
 	model.partial_fit(chunk.values)
 	
 	macro_cluster,labels=model.get_final_cluster_centers()
-	dist_table.compute(model.get_partial_cluster_centers())
+	dist_matrix.compute(model.get_partial_cluster_centers())
 
-	sil=silhouette.get_score(dist_table.table,labels)
+	try:
+		sil=silhouette.get_score(dist_matrix.table,labels)
+	except IndexError: # number of labels != dist_matrix number of rows/columns
+		n=len(labels)
+		sil=silhouette.get_score(dist_matrix.table[:n,:n],labels)
 	del labels
 
 	chunk_timer.stop()
