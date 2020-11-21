@@ -1,6 +1,6 @@
-# MIDSC
+# CluSopt
 
-Micro service Infrastructure for Data Stream Clustering.
+A Data stream clusterer and hyper parameter optimizer using microservices.
 
 ![Infraestructure](imgs/midsc-1.jpg)
 
@@ -19,38 +19,32 @@ Install all dependecies described in `requirements.txt` using pip.
 pip3 install -r requirements.txt
 ```
 
-And if you want to use remote nodes, create a file `remote_nodes.txt` in the `src` directory and put all
-the ip addresses of your remote nodes.
-Your nodes must be running midsc container in docker, to do so use the following commands on each remote node
+To use docker just use the `dockerfile`
 ```bash
-docker build -t midsc .
-docker run -p 3523:3523 midsc
+docker build -t clusopt .
+docker run -it -p 3523:3523 clusopt bash
 ```
-then use `-n` flag to set how many nodes you want to use in the primary node
 
 ## Usage
-cd to the src directory 
+cd to the src directory if not already
 
 ```bash
 cd src
 ```
 
----
-
-to run primary node, use `-h` and `[ALGORITHM] -h` for more help
+to run primary node
 ```bash
 ./primary.py [ALGORITHM] [PATH OR URL TO CSV FILE]
 ```
 
-
 NOTE: CSV File must be `,` separated, `\n` line ended and **must not have a header**.
 
----
-
-to run replica node, use `-h` flag for more options
+to run replica node
 ```bash
 ./replica [IP ADDRESS TO THE PRIMARY NODE]
 ```
+
+use `-h` and `[ALGORITHM] -h` in both primary and replica for more help
 
 ## Published Works
 
