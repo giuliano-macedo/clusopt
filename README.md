@@ -1,4 +1,4 @@
-# CluSopt
+# ClusOpt
 
 A Data stream clusterer and hyper parameter optimizer using microservices.
 
