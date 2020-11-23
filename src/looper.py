@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import argparse
 from subprocess import Popen,CalledProcessError,PIPE
 from pathlib import Path
